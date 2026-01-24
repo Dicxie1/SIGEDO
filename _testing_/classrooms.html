@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Cursos</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>
+<link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css' rel='stylesheet'>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .sidebar { min-height: 100vh; background-color: #f8f9fa; }
+        .main-content { padding: 20px; }
+        .card { margin-bottom: 20px; }
+        .active-course { border-left: 5px solid #28a745; }
+        .inactive-course { border-left: 5px solid #dc3545; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <button class="btn btn-outline-secondary d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="#"><i class="fas fa-graduation-cap"></i> Gestión Académica</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-bell"></i> Notificaciones <span class="badge bg-danger">3</span></a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> Administrador
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Perfil</a></li>
+                            <li><a class="dropdown-item" href="#">Configuración</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Offcanvas Sidebar -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menú</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <nav class="sidebar">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-book"></i> Administración de Cursos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-users"></i> Estudiantes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-chalkboard-teacher"></i> Profesores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-building"></i> Aulas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-calendar-alt"></i> Horarios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reportes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-cogs"></i> Configuración</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Desktop -->
+            <nav class="col-lg-2 d-none d-lg-block sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#"><i class="fas fa-book"></i> Administración de Cursos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-users"></i> Estudiantes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-chalkboard-teacher"></i> Profesores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-building"></i> Aulas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-calendar-alt"></i> Horarios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reportes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-cogs"></i> Configuración</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-lg-10 ms-sm-auto px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Administración de Cursos</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+                            <i class="fas fa-plus"></i> Crear Curso
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary ms-2"><i class="fas fa-download"></i> Exportar Lista</button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#courseScheduleModal" data-course-id="MAT301">
+                    <i class="fas fa-calendar-alt"></i> Ver Horario
+                </button>
+                <!-- Tabs para Administración -->
+                <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
+                            <i class="fas fa-home"></i> Resumen General
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="courses-tab" data-bs-toggle="tab" data-bs-target="#courses" type="button" role="tab" aria-controls="courses" aria-selected="false">
+                            <i class="fas fa-book"></i> Gestión de Cursos
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="classrooms-tab" data-bs-toggle="tab" data-bs-target="#classrooms" type="button" role="tab" aria-controls="classrooms" aria-selected="false">
+                            <i class="fas fa-building"></i> Información de Aulas
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="enrollments-tab" data-bs-toggle="tab" data-bs-target="#enrollments" type="button" role="tab" aria-controls="enrollments" aria-selected="false">
+                            <i class="fas fa-users"></i> Matrículas
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab" aria-controls="reports" aria-selected="false">
+                            <i class="fas fa-chart-bar"></i> Reportes
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="exampleschedule-tab" data-bs-toggle="tab" data-bs-target="#exampleschedule" type="button" role="tab" aria-controls="exampleschedule" aria-selected="false">
+                            <i class="fas fa-chart-bar"></i> Reportes
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="adminTabsContent">
+                    <!-- Tab Resumen General -->
+                    <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                        <h3>Resumen General</h3>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-book fa-2x text-primary"></i>
+                                        <h5 class="card-title">Total Cursos</h5>
+                                        <p class="card-text h4">25</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-users fa-2x text-success"></i>
+                                        <h5 class="card-title">Estudiantes Matriculados</h5>
+                                        <p class="card-text h4">450</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-building fa-2x text-info"></i>
+                                        <h5 class="card-title">Aulas Disponibles</h5>
+                                        <p class="card-text h4">18</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-calendar-alt fa-2x text-warning"></i>
+                                        <h5 class="card-title">Horarios Activos</h5>
+                                        <p class="card-text h4">32</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Gestión de Cursos -->
+                    <div class="tab-pane fade" id="courses" role="tabpanel" aria-labelledby="courses-tab">
+                        <h3>Gestión de Cursos</h3>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="searchCourse" class="form-label">Buscar Curso</label>
+                                <input type="text" class="form-control" id="searchCourse" placeholder="Nombre o código...">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="statusCourseFilter" class="form-label">Estado</label>
+                                <select class="form-select" id="statusCourseFilter">
+                                    <option selected>Todos</option>
+                                    <option>Activo</option>
+                                    <option>Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Profesor</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>MAT301</td>
+                                        <td>Matemáticas Avanzadas</td>
+                                        <td>Dr. Juan Pérez</td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Ver</button>
+                                            <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Editar</button>
+                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>INF101</td>
+                                        <td>Fundamentos de Programación</td>
+                                        <td>Dra. María González</td>
+                                        <td><span class="badge bg-success">Activo</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Ver</button>
+                                            <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Editar</button>
+                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab Información de Aulas -->
+                    <div class="tab-pane fade" id="classrooms" role="tabpanel" aria-labelledby="classrooms-tab">
+                        <h3>Información de Aulas</h3>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="searchClassroom" class="form-label">Buscar Aula</label>
+                                <input type="text" class="form-control" id="searchClassroom" placeholder="Nombre o código...">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="statusClassroomFilter" class="form-label">Estado</label>
+                                <select class="form-select" id="statusClassroomFilter">
+                                    <option selected>Todas</option>
+                                    <option>Disponible</option>
+                                    <option>Ocupada</option>
+                                    <option>Mantenimiento</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Capacidad</th>
+                                        <th>Ubicación</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>A101</td>
+                                        <td>Aula Magna</td>
+                                        <td>150</td>
+                                        <td>Edificio Principal, Piso 1</td>
+                                        <td><span class="badge bg-success">Disponible</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Ver Detalles</button>
+                                            <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Editar</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>B202</td>
+                                        <td>Aula de Informática</td>
+                                        <td>30</td>
+                                        <td>Edificio B, Piso 2</td>
+                                        <td><span class="badge bg-warning">Ocupada</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Ver Detalles</button>
+                                            <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Editar</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>C303</td>
+                                        <td>Laboratorio de Física</td>
+                                        <td>25</td>
+                                        <td>Edificio C, Piso 3</td>
+                                        <td><span class="badge bg-danger">Mantenimiento</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Ver Detalles</button>
+                                            <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Editar</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab Matrículas -->
+                    <div class="tab-pane fade" id="enrollments" role="tabpanel" aria-labelledby="enrollments-tab">
+                        <h3>Matrículas</h3>
+                        <p>Gestión de matrículas de estudiantes en cursos.</p>
+                        <div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-dark">Gestión de Reportes</h3>
+            <p class="text-muted">Control de incidencias y mantenimiento de aulas.</p>
+        </div>
+        <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#newReportModal">
+            <i class="fas fa-plus-circle me-2"></i> Nuevo Reporte
+        </button>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm border-start border-4 border-danger">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small">Críticos</h6>
+                    <h2 class="fw-bold mb-0">3</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm border-start border-4 border-warning">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small">Pendientes</h6>
+                    <h2 class="fw-bold mb-0">12</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm border-start border-4 border-success">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small">Resueltos (Mes)</h6>
+                    <h2 class="fw-bold mb-0">45</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white p-0">
+            <ul class="nav nav-tabs card-header-tabs ms-3" id="reportTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active py-3 px-4 border-top-0" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                        <i class="fas fa-exclamation-circle text-warning me-2"></i>Pendientes
+                        <span class="badge bg-danger ms-2 rounded-pill">15</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link py-3 px-4 border-top-0" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                        <i class="fas fa-history text-secondary me-2"></i>Historial
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="tab-content" id="reportTabsContent">
+                
+                <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Aula</th>
+                                    <th>Incidencia</th>
+                                    <th>Prioridad</th>
+                                    <th>Fecha Reporte</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ps-4 fw-bold text-primary">Lab. Computo A</td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold">Proyector no enciende</span>
+                                            <span class="small text-muted">Hardware / Equipos</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">Alta</span></td>
+                                    <td>Hace 2 horas</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-success me-1" title="Marcar como Resuelto">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-light text-secondary" title="Ver Detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                        </table>
+                        
+                        </div>
+                </div>
+
+                <div class="tab-pane fade" id="history" role="tabpanel">
+                    <div class="p-3 bg-light border-bottom">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <input type="date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm">
+                                    <option>Todas las Aulas</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-sm btn-secondary w-100">Filtrar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Aula</th>
+                                    <th>Problema</th>
+                                    <th>Resuelto por</th>
+                                    <th>Fecha Cierre</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ps-4">Aula 101</td>
+                                    <td>Aire Acondicionado goteando</td>
+                                    <td>Juan Pérez (Mant.)</td>
+                                    <td>20/10/2023</td>
+                                    <td><span class="badge bg-success">Resuelto</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="newReportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Reportar Incidencia</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reportForm">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="reportClassroom" required>
+                            <option value="" selected disabled>Seleccione...</option>
+                            </select>
+                        <label>Aula Afectada</label>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-select" id="reportType" required>
+                                    <option value="Electricidad">Electricidad</option>
+                                    <option value="Mobiliario">Mobiliario</option>
+                                    <option value="Limpieza">Limpieza</option>
+                                    <option value="Equipos">Equipos/Tecnología</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                                <label>Categoría</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-select" id="reportPriority" required>
+                                    <option value="Baja">Baja (Puede esperar)</option>
+                                    <option value="Media" selected>Media</option>
+                                    <option value="Alta">Alta (Impide clase)</option>
+                                </select>
+                                <label>Prioridad</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <textarea class="form-control" placeholder="Detalle" id="reportDesc" style="height: 100px" required></textarea>
+                        <label>Descripción del problema</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveReport()">Enviar Reporte</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+                    </div>
+<div class="tab-pane fade" id="exampleschedule" role="tabpanel">
+    <div class="p-3">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 bg-light p-3 rounded border">
+            <div class="d-flex align-items-center">
+                <span class="badge bg-success rounded-pill p-2 me-2 animate__animated animate__pulse animate__infinite">
+                    <i class="fas fa-check-circle"></i>
+                </span>
+                <div>
+                    <h6 class="mb-0 fw-bold text-success">Disponible Ahora</h6>
+                    <small class="text-muted">Próxima clase: 14:00 PM</small>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-chevron-left"></i></button>
+                <button class="btn btn-white btn-sm fw-bold px-3 disabled text-dark">Semana Actual</button>
+                <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            
+            <button class="btn btn-sm btn-outline-dark" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> Imprimir
+            </button>
+        </div>
+
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-bordered table-sm text-center align-middle mb-0" style="table-layout: fixed;">
+                <thead class="bg-purple text-white"> <tr>
+                        <th style="width: 80px;" class="py-3"><i class="far fa-clock"></i></th>
+                        <th class="py-3">Lunes</th>
+                        <th class="py-3">Martes</th>
+                        <th class="py-3">Miércoles</th>
+                        <th class="py-3">Jueves</th>
+                        <th class="py-3">Viernes</th>
+                        <th class="py-3 bg-secondary bg-opacity-25 text-white-50">Sábado</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr>
+                        <td class="fw-bold text-muted bg-light">07:00</td>
+                        
+                        <td class="p-1">
+                            <div class="card border-0 bg-primary bg-opacity-10 border-start border-4 border-primary h-100 p-1 text-start">
+                                <span class="badge bg-primary mb-1">ING-101</span>
+                                <div class="small fw-bold text-dark lh-1">Intr. Sistemas</div>
+                                <div class="small text-muted" style="font-size: 0.75rem;">Prof. García</div>
+                            </div>
+                        </td>
+                        
+                        <td class="text-muted bg-light bg-opacity-25 small">Libre</td>
+
+                        <td class="p-1">
+                            <div class="card border-0 bg-success bg-opacity-10 border-start border-4 border-success h-100 p-1 text-start">
+                                <span class="badge bg-success mb-1">MAT-200</span>
+                                <div class="small fw-bold text-dark lh-1">Cálculo I</div>
+                                <div class="small text-muted" style="font-size: 0.75rem;">Prof. López</div>
+                            </div>
+                        </td>
+
+                        <td class="text-muted bg-light bg-opacity-25 small">Libre</td>
+                        <td class="text-muted bg-light bg-opacity-25 small">Libre</td>
+                        <td class="bg-secondary bg-opacity-10"></td> </tr>
+
+                    <tr>
+                        <td class="fw-bold text-muted bg-light">08:00</td>
+                        
+                        <td class="p-1">
+                             <div class="card border-0 bg-primary bg-opacity-10 border-start border-4 border-primary h-100 p-1 text-start">
+                                <small class="text-primary fw-bold">Continúa...</small>
+                            </div>
+                        </td>
+                        
+                        <td class="text-muted bg-light bg-opacity-25 small">Libre</td>
+                        
+                        <td class="p-1">
+                             <div class="card border-0 bg-success bg-opacity-10 border-start border-4 border-success h-100 p-1 text-start">
+                                <small class="text-success fw-bold">Continúa...</small>
+                            </div>
+                        </td>
+                        
+                        <td class="text-muted bg-light bg-opacity-25 small">Libre</td>
+                        
+                        <td class="p-1">
+                            <div class="card border-0 bg-warning bg-opacity-10 border-start border-4 border-warning h-100 p-1 text-start">
+                                <span class="badge bg-warning text-dark mb-1">FIS-300</span>
+                                <div class="small fw-bold text-dark lh-1">Física II</div>
+                                <div class="small text-muted" style="font-size: 0.75rem;">Ing. Torres</div>
+                            </div>
+                        </td>
+                        
+                        <td class="bg-secondary bg-opacity-10"></td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="fw-bold text-muted bg-light">09:00</td>
+                        <td class="text-muted bg-light bg-opacity-25 small">Libre</td>
+                        <td class="text-muted bg-light bg-opacity-25 small">Libre</td>
+                        <td class="text-muted bg-light bg-opacity-25 small">Libre</td>
+                        <td class="text-muted bg-light bg-opacity-25 small">Libre</td>
+                        <td class="text-muted bg-light bg-opacity-25 small">Libre</td>
+                        <td class="bg-secondary bg-opacity-10"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-3 d-flex gap-3 text-muted small">
+            <div class="d-flex align-items-center"><div class="rounded-circle bg-primary me-1" style="width: 10px; height: 10px;"></div> Ingeniería</div>
+            <div class="d-flex align-items-center"><div class="rounded-circle bg-success me-1" style="width: 10px; height: 10px;"></div> Ciencias Básicas</div>
+            <div class="d-flex align-items-center"><div class="rounded-circle bg-warning me-1" style="width: 10px; height: 10px;"></div> Talleres</div>
+            <div class="d-flex align-items-center"><div class="border me-1 bg-light" style="width: 10px; height: 10px;"></div> Disponible</div>
+        </div>
+
+    </div>
+</div>
+                    <!-- Tab Reportes -->
+                    <div class="tab-pane fade" id="reports" role="tabpanel" aria-labelledby="reports-tab">
+                        <h3>Reportes</h3>
+ <h3>Resumen del Uso de Aulas</h3>
+    
+    <!-- Métricas Rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-primary text-white">
+                <div class="card-body">
+                    <i class="fas fa-building fa-2x"></i>
+                    <h5 class="card-title">Aulas Totales</h5>
+                    <p class="card-text h4">25</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-2x"></i>
+                    <h5 class="card-title">Disponibles Hoy</h5>
+                    <p class="card-text h4">18</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-warning text-white">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-2x"></i>
+                    <h5 class="card-title">Reservas Activas</h5>
+                    <p class="card-text h4">7</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-danger text-white">
+                <div class="card-body">
+                    <i class="fas fa-tools fa-2x"></i>
+                    <h5 class="card-title">En Mantenimiento</h5>
+                    <p class="card-text h4">2</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Gráficas -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-chart-pie"></i> Distribución de Estado de Aulas</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-chart-bar"></i> Uso por Aula (Horas Semanales)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="usageChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-calendar-week"></i> Ocupación Diaria de la Semana</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- Modal para Ver Horario del Curso -->
+<div class="modal fade" id="courseScheduleModal" tabindex="-1" aria-labelledby="courseScheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="courseScheduleModalLabel">
+                    <i class="fas fa-calendar-alt text-primary"></i> Horario del Curso: <span id="courseNameTitle">Nombre del Curso</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Código del Curso:</strong> <span id="courseCodeInfo">MAT301</span></p>
+                        <p><strong>Profesor:</strong> <span id="courseProfessorInfo">Dr. Juan Pérez</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Aula Asignada:</strong> <span id="courseClassroomInfo">A101 - Aula Magna</span></p>
+                        <p><strong>Estado:</strong> <span class="badge bg-success">Activo</span></p>
+                    </div>
+                </div>
+                <div id="courseCalendar" style="max-width: 100%; margin: 0 auto;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Editar Horario
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfica de Distribución de Estado
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Disponibles', 'Ocupadas', 'En Mantenimiento'],
+            datasets: [{
+                data: [18, 5, 2],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+
+    // Gráfica de Uso por Aula
+    const usageCtx = document.getElementById('usageChart').getContext('2d');
+    new Chart(usageCtx, {
+        type: 'bar',
+        data: {
+            labels: ['A101', 'B202', 'C303', 'D404', 'E505'],
+            datasets: [{
+                label: 'Horas de Uso',
+                data: [48, 36, 24, 18, 12],
+                backgroundColor: '#007bff',
+                borderColor: '#0056b3',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Gráfica de Ocupación Diaria
+    const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+    new Chart(weeklyCtx, {
+        type: 'line',
+        data: {
+            labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+            datasets: [{
+                label: 'Horas Ocupadas',
+                data: [20, 18, 22, 25, 15, 5],
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    var courseCalendarEl = document.getElementById('courseCalendar');
+    var courseCalendar = new FullCalendar.Calendar(courseCalendarEl, {
+        initialView: 'timeGridWeek',
+        headerToolbar: {
+            left: 'prevYear,prev, today next,nextYear',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,multiMonthYear'
+        },
+        locale: 'es',
+        slotMinTime: '07:00:00',
+        slotMaxTime: '22:00:00',
+        events: [], // Eventos se cargarán dinámicamente al abrir el modal
+        eventClick: function(info) {
+            alert('Clase: ' + info.event.title + '\nHorario: ' + info.event.start.toLocaleString() + ' - ' + info.event.end.toLocaleString());
+        }
+    });
+    courseCalendar.render();
+
+    // Función para cargar eventos del curso (llamar al abrir el modal)
+    window.loadCourseSchedule = function(courseId) {
+        // Simular carga de datos del curso
+        var courseData = {
+            'MAT301': {
+                name: 'Matemáticas Avanzadas',
+                code: 'MAT301',
+                professor: 'Dr. Juan Pérez',
+                classroom: 'A101 - Aula Magna',
+                events: [
+                    { title: 'Clase Teórica', start: '2023-10-02T08:00:00', end: '2023-10-02T10:00:00', color: '#28a745' },
+                    { title: 'Laboratorio', start: '2023-10-04T14:00:00', end: '2023-10-04T16:00:00', color: '#007bff' },
+                    { title: 'Clase Teórica', start: '2023-10-09T08:00:00', end: '2023-10-09T10:00:00', color: '#28a745' }
+                ]
+            },
+            'INF101': {
+                name: 'Fundamentos de Programación',
+                code: 'INF101',
+                professor: 'Dra. María González',
+                classroom: 'B202 - Aula de Informática',
+                events: [
+                    { title: 'Clase Práctica', start: '2023-10-03T09:00:00', end: '2023-10-03T11:00:00', color: '#ffc107' },
+                    { title: 'Proyecto', start: '2023-10-05T13:00:00', end: '2023-10-05T15:00:00', color: '#dc3545' }
+                ]
+            }
+        };
+
+        var data = courseData[courseId];
+        if (data) {
+            document.getElementById('courseNameTitle').textContent = data.name;
+            document.getElementById('courseCodeInfo').textContent = data.code;
+            document.getElementById('courseProfessorInfo').textContent = data.professor;
+            document.getElementById('courseClassroomInfo').textContent = data.classroom;
+
+            courseCalendar.removeAllEvents();
+            courseCalendar.addEventSource(data.events);
+        }
+    };
+
+    // Evento para abrir el modal (ejemplo)
+    document.getElementById('courseScheduleModal').addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var courseId = button.getAttribute('data-course-id'); // Asumiendo que el botón tiene data-course-id
+        loadCourseSchedule(courseId);
+    });
+});
+</script>
+</body>
+</html>
+

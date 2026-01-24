@@ -1,0 +1,57 @@
+<div class="modal fade" id="editTermModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            
+            <div class="modal-header bg-warning bg-opacity-10 text-dark border-bottom-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-calendar-check me-2 text-warning"></i>Configurar Corte
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <form id="editTermForm">
+                    <input type="hidden" id="et_TermId" />
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-8">
+                            <label class="form-label small fw-bold text-muted">Nombre del Corte</label>
+                            <input type="text" class="form-control fw-bold" id="et_Name" placeholder="Ej: I Parcial">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small fw-bold text-muted">Valor (%)</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control fw-bold text-center" id="et_Weight" min="1" max="100" value="100">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Vigencia Académica</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">Del</span>
+                            <input type="date" class="form-control" id="et_StartDate">
+                            <span class="input-group-text bg-light">Al</span>
+                            <input type="date" class="form-control" id="et_EndDate">
+                        </div>
+                    </div>
+
+                    <div class="alert alert-light border d-flex align-items-start small text-muted mb-0">
+                        <i class="fas fa-info-circle text-primary mt-1 me-2"></i>
+                        <div>
+                            <strong>Nota:</strong> Las fechas definen qué estudiantes se consideran "Activos" en los reportes estadísticos. El porcentaje recalculará el promedio final automáticamente.
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-link text-decoration-none text-muted" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-dark px-4" onclick="saveTermChanges()">
+                    <i class="fas fa-save me-2"></i>Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

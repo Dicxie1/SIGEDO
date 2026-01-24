@@ -1,0 +1,105 @@
+@model Asistencia.Models.ViewModels.CourseDetailsViewModel
+@if(Model != null && Model.EnrolledStudents.Count > 0)
+{
+    <div class="row d-flex justify-content-between align-items-center  mt-1 mb-4">
+        <div class="col-md-6 d-none d-md-block">
+            <p class="text-muted mb-0">Asignatura: <strong>@Model.CourseCode - @Model.CourseName</strong></p>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#enrollModal" > <i class="fas fa-user-plus" ></i> Matricular</button>
+            <span class="badge bg-info text-dark fs-6" id="enrolleds">
+                @(Model.EnrolledStudents.Count > 1 ? $"{Model.EnrolledStudents.Count} Estudiantes" : $"{Model.EnrolledStudents.Count} Estudiante")
+            </span>
+        </div>
+    </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Estudiante</th>
+                            <th>@Html.DisplayNameFor(m => m.EnrolledStudents.FirstOrDefault().Email)</th>
+                            <th>@Html.DisplayNameFor(m => m.EnrolledStudents.FirstOrDefault().Cellphone)</th>
+                            <th>@Html.DisplayNameFor(m => m.EnrolledStudents.FirstOrDefault().Sexo)</th>
+                            <th>@Html.DisplayNameFor(m => m.EnrolledStudents.FirstOrDefault().Ethnic)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsRegister" data-idcourse="@Model.CourseId">
+                       @await Html.PartialAsync("_EnrolledStudentRows")
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}else{
+    <div class="text-center py-5" id="enrollmentEmpty">
+                            <div class="mb-3">
+                                <i class="fas fa-user-graduate fa-3x text-muted opacity-25"></i>
+                            </div>
+                            <h5 class="text-muted">Aún no hay estudiantes en este curso</h5>
+                            <p class="small text-muted mb-3">Utiliza el botón para agregar matriculas.</p>
+                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#enrollModal">
+                                Matricular Ahora
+                            </button>
+                        </div>
+}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+    const tbody = document.getElementById('studentsRegister');
+    const enrolleds = document.getElementById('enrolleds');
+    tbody.addEventListener('click', function (event) {
+
+        const btn = event.target.closest('.btn-delete');
+        if (!btn) return; // clic fuera del botón
+
+        const studentId = btn.dataset.student;
+        const studentName = btn.dataset.name;
+        const courseId = btn.dataset.code;
+
+        Swal.fire({
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            html: `
+                ¿Desea eliminar al estudiante <strong>${studentId} - ${studentName}</strong>
+                del curso <strong>${courseId} - @Model!.CourseName</strong>?
+            `
+        }).then(result => {
+
+            if (!result.isConfirmed) return;
+            const formData = new FormData();
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            formData.append('StudentId', studentId);
+            formData.append('IdCourse', courseId);
+            formData.append('__RequestVerificationToken', token);
+
+            fetch(`/Course/Delete/${studentId}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: `Se eliminó correctamente a ${studentName}`
+                    });
+                    btn.closest('tr').remove();
+                    enrolleds.textContent = tbody.childElementCount > 1 ? `${tbody.childElementCount} estudiantes` : `${tbody.childElementCount} estudiante`;
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: res.message || 'No se pudo eliminar'
+                    });
+                }
+            });
+        });
+    });
+});
+  
+</script>

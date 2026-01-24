@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--// Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--// Font Awesome  -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <title>Document</title>
+</head>
+<body>
+    @model CourseAttentionViewModel
+
+<div class="container py-4">
+    
+    <div class="row g-4 justify-content-between mb-4 align-items-end">
+        
+        <div class="col-lg-5">
+            <a href="/Gradebook/Index/@Model.CourseId" class="text-decoration-none text-muted small mb-2 d-inline-block hover-underline">
+                <i class="fas fa-arrow-left me-1"></i> Volver a Calificaciones
+            </a>
+            <h3 class="fw-bold text-dark mb-1">Bitácora de Atención</h3>
+            <p class="text-muted mb-0">@Model.CourseName</p>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="d-flex gap-2 justify-content-lg-end">
+                <div class="stat-card border-start border-4 border-primary bg-primary bg-opacity-10 p-2 rounded shadow-sm text-center flex-fill">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Total</div>
+                    <div class="h4 fw-bold text-dark mb-0">@Model.TotalIncidents</div>
+                </div>
+                <div class="stat-card border-start border-4 border-success bg-success bg-opacity-10 p-2 rounded shadow-sm text-center flex-fill">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Académico</div>
+                    <div class="h4 fw-bold text-dark mb-0">@Model.AcademicCount</div>
+                </div>
+                <div class="stat-card border-start border-4 border-danger bg-danger bg-opacity-10 p-2 rounded shadow-sm text-center flex-fill">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Conducta</div>
+                    <div class="h4 fw-bold text-dark mb-0">@Model.BehavioralCount</div>
+                </div>
+                <div class="stat-card border-start border-4 border-secondary bg-secondary bg-opacity-10 p-2 rounded shadow-sm text-center flex-fill">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Pendientes</div>
+                    <div class="h4 fw-bold text-dark mb-0">@Model.PendingCount</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4 opacity-25">
+
+    <div class="row g-4">
+        
+        <div class="col-lg-5 col-xl-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 20px; z-index: 1;">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="fas fa-plus-circle me-2"></i>Nuevo Reporte</h6>
+                </div>
+                <div class="card-body">
+                    <form id="attentionForm">
+                        
+                        <div class="btn-group w-100 mb-3" role="group">
+                            <input type="radio" class="btn-check" name="attType" id="typeInd" value="individual" checked onchange="toggleSelect(this.value)">
+                            <label class="btn btn-outline-primary btn-sm" for="typeInd">Individual</label>
+
+                            <input type="radio" class="btn-check" name="attType" id="typeGroup" value="group" onchange="toggleSelect(this.value)">
+                            <label class="btn btn-outline-primary btn-sm" for="typeGroup">Grupal</label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Estudiante(s)</label>
+                            
+                            <div id="divSelectIndividual">
+                                <select class="form-select" required>
+                                    <option selected disabled value="">Seleccionar alumno...</option>
+                                    @foreach(var st in Model.EnrolledStudents) {
+                                        <option value="@st.Id">@st.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            
+                            <div id="divSelectGroup" class="d-none">
+                                <select class="form-select" multiple size="5">
+                                    @foreach(var st in Model.EnrolledStudents) {
+                                        <option value="@st.Id">@st.Name</option>
+                                    }
+                                </select>
+                                <div class="form-text small text-muted">Ctrl + Clic para seleccionar varios.</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-secondary">Motivo</label>
+                                <select class="form-select form-select-sm">
+                                    <option value="aca">Académico</option>
+                                    <option value="con">Conducta</option>
+                                    <option value="asis">Asistencia</option>
+                                    <option value="salud">Salud/Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-secondary">Prioridad</label>
+                                <select class="form-select form-select-sm">
+                                    <option value="low">Baja</option>
+                                    <option value="med" selected>Media</option>
+                                    <option value="high" class="text-danger fw-bold">Alta</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Observación</label>
+                            <textarea class="form-control" rows="4" placeholder="Describa el incidente o acuerdo..."></textarea>
+                        </div>
+
+                        <button class="btn btn-primary w-100 rounded-pill">
+                            <i class="fas fa-save me-1"></i> Guardar en Bitácora
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7 col-xl-8">
+            <div class="card border-0 shadow-sm h-100">
+                
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                        <h6 class="fw-bold mb-0 text-dark">Historial del Curso</h6>
+                        
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" style="width: auto;">
+                                <option value="all">Todo</option>
+                                <option value="aca">Académico</option>
+                                <option value="con">Conducta</option>
+                            </select>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0" placeholder="Buscar alumno...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        
+                        <div class="list-group-item px-4 py-3 border-bottom hover-bg-light">
+                            <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-danger text-white rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold" style="width:32px; height:32px;">JP</div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark">Juan Pérez</h6>
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 py-0" style="font-size: 0.65rem;">CONDUCTA - ALTA</span>
+                                    </div>
+                                </div>
+                                <small class="text-muted text-end">
+                                    Hace 2 horas<br>
+                                    <span class="fw-bold text-dark">@DateTime.Now.ToString("dd MMM")</span>
+                                </small>
+                            </div>
+                            <p class="mb-1 text-secondary small">
+                                Interrumpió la clase en reiteradas ocasiones. Se conversó con él y se acordó cambio de asiento temporal.
+                            </p>
+                            <div class="mt-2">
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-muted me-3" style="font-size: 0.75rem;"><i class="fas fa-edit me-1"></i> Editar</button>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-primary" style="font-size: 0.75rem;"><i class="fas fa-check-circle me-1"></i> Marcar Resuelto</button>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item px-4 py-3 border-bottom hover-bg-light">
+                            <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold" style="width:32px; height:32px;">G</div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark">Grupo (3 alumnos)</h6>
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 py-0" style="font-size: 0.65rem;">ACADÉMICO - MEDIA</span>
+                                    </div>
+                                </div>
+                                <small class="text-muted text-end">
+                                    Ayer<br>
+                                    <span class="fw-bold text-dark">10:00 AM</span>
+                                </small>
+                            </div>
+                            <p class="mb-1 text-secondary small">
+                                <strong>Alumnos:</strong> Ana, María, Luis.<br>
+                                Se asignó trabajo de refuerzo para mejorar notas del parcial anterior.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-white border-top-0 py-3">
+                     <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm justify-content-center mb-0">
+                            <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .hover-bg-light:hover { background-color: #f8f9fa; }
+    .stat-card { min-width: 90px; }
+</style>
+
+    <script>
+        function toggleSelect(type) {
+            const divInd = document.getElementById('divSelectIndividual');
+            const divGrp = document.getElementById('divSelectGroup');
+            
+            if(type === 'group'){
+                divInd.classList.add('d-none');
+                divGrp.classList.remove('d-none');
+            } else {
+                divInd.classList.remove('d-none');
+                divGrp.classList.add('d-none');
+            }
+        }
+    </script>
+
+<!--Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- // Font Awesome JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+<script>
+    function toggleFormType() {
+        const typeIndividual = document.getElementById('typeIndividual').checked;
+        document.getElementById('sectionIndividual').style.display = typeIndividual ? 'block' : 'none';
+        document.getElementById('sectionGroup').style.display = typeIndividual ? 'none' : 'block';
+        document.getElementById('attQuantity').value = typeIndividual ? 1 : 0;
+    }
+
+    function updateQuantity() {
+        const multiSelect = document.getElementById('selStudentsMulti');
+        const selectedOptions = Array.from(multiSelect.selectedOptions);
+        document.getElementById('attQuantity').value = selectedOptions.length;
+    }
+
+    function resetForm() {
+        document.getElementById('attentionForm').reset();
+        toggleFormType();
+    }
+</script>
+</body>
+</html>

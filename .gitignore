@@ -1,0 +1,63 @@
+# Archivos generados por el sistema y el IDE
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Archivos de Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# Archivos de Node.js (si aplica)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de configuración sensibles
+appsettings.Development.json
+secrets.json
+*.config
+*.pfx
+*.p12
+
+# Archivos de compilación y publicación
+*.dll
+*.exe
+*.pdb
+*.cache
+*.bak
+*.vspscc
+*.vssscc
+*.msi
+*.nupkg
+
+# Archivos de logs y temporales
+logs/
+temp/
+*.log
+*.tmp
+*.swp
+
+# Archivos de migraciones de Entity Framework (opcional)
+# Si trabajas con migraciones, puedes comentar esta línea si quieres versionarlas
+Migrations/
+
+# Archivos de Docker (opcional)
+*.docker.tar.gz
+.env
+docker-compose.override.yml
+
+# Archivos de pruebas (opcional)
+[Tt]ests/[Bb]in/
+[Tt]ests/[Oo]bj/
+
+# Archivos de NuGet
+*.nupkg
+packages/

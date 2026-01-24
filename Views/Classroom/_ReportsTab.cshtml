@@ -1,0 +1,144 @@
+<!-- Tab Reportes de Uso -->
+    <h3>Reportes de Uso de Aulas</h3>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label for="reportPeriod" class="form-label">Período</label>
+            <select class="form-select" id="reportPeriod">
+                <option selected>Semanal</option>
+                <option>Mensual</option>
+                <option>Anual</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="reportClassroom" class="form-label">Aula</label>
+            <select class="form-select" id="reportClassroom">
+                <option selected>Todas</option>
+                <option>A101 - Aula Magna</option>
+                <option>B202 - Aula de Informática</option>
+                <option>C303 - Laboratorio de Física</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="reportDateRange" class="form-label">Rango de Fechas</label>
+            <input type="date" class="form-control" id="reportDateRange">
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary mb-3" onclick="generateReport()">
+        <i class="fas fa-file-alt"></i> Generar Reporte
+    </button>
+    <button type="button" class="btn btn-outline-secondary mb-3 ms-2" onclick="exportReport()">
+        <i class="fas fa-download"></i> Exportar Reporte
+    </button>
+
+    <!-- Contenedor para Reportes Generados -->
+    <div id="reportContainer" style="display: none;">
+        <h4>Reporte Generado</h4>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Estadísticas de Ocupación</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Total de Horas Reservadas:</strong> 120 horas</p>
+                        <p><strong>Porcentaje de Ocupación:</strong> 75%</p>
+                        <p><strong>Aulas Más Usadas:</strong> A101 (40%), B202 (30%), C303 (25%)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Uso por Día</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Día</th>
+                                    <th>Horas Reservadas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Lunes</td>
+                                    <td>20</td>
+                                </tr>
+                                <tr>
+                                    <td>Martes</td>
+                                    <td>18</td>
+                                </tr>
+                                <tr>
+                                    <td>Miércoles</td>
+                                    <td>22</td>
+                                </tr>
+                                <tr>
+                                    <td>Jueves</td>
+                                    <td>25</td>
+                                </tr>
+                                <tr>
+                                    <td>Viernes</td>
+                                    <td>15</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Reservas por Aula</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Aula</th>
+                                    <th>Total Reservas</th>
+                                    <th>Horas Totales</th>
+                                    <th>Promedio Diario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>A101 - Aula Magna</td>
+                                    <td>15</td>
+                                    <td>48 horas</td>
+                                    <td>3.2 horas/día</td>
+                                </tr>
+                                <tr>
+                                    <td>B202 - Aula de Informática</td>
+                                    <td>12</td>
+                                    <td>36 horas</td>
+                                    <td>2.4 horas/día</td>
+                                </tr>
+                                <tr>
+                                    <td>C303 - Laboratorio de Física</td>
+                                    <td>8</td>
+                                    <td>24 horas</td>
+                                    <td>1.6 horas/día</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        <script>
+function generateReport() {
+    // Simular generación de reporte
+    document.getElementById('reportContainer').style.display = 'block';
+    alert('Reporte generado exitosamente.');
+}
+
+function exportReport() {
+    // Simular exportación
+    alert('Reporte exportado como PDF.');
+}
+</script>
+    </script>

@@ -1,0 +1,112 @@
+@model IEnumerable<Asistencia.Models.Student>
+@{
+    ViewData["Title"] = "Students List";
+}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><a class="btn" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-arrow-left fa-2x"></i> </a> Lista de Estudiante</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a type="button" class="btn btn-sm btn-outline-secondary" asp-controller="Students" asp-action="Agregar">
+            <i class="fas fa-plus"></i> Estudiantes
+        </a>
+    </div>
+</div>
+<a class="btn btn-secondary" asp-controller="Students" asp-action="Agregar"><i class="fas fa-user-graduate"></i>Agregar Estudiante </a>
+
+
+@if(TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<table class="table table-responsive table-striped" id="tableStudents">
+    <thead>
+        <tr>
+            <th>Carnet</th>
+            <th>@Html.DisplayNameFor(model => model.Name)</th>
+            <th>@Html.DisplayNameFor(model => model.LastName)</th>
+            <th>@Html.DisplayNameFor(model => model.Ethnic)</th>
+            <th>@Html.DisplayNameFor(model => model.Cellphone)</th>
+            <th>@Html.DisplayNameFor(model => model.Email)</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => item.Id)</td>
+            <td>@Html.DisplayFor(modelItem => item.Name)</td>
+            <td>@item.LastName</td>
+            <td>@item.Ethnic</td>
+            <td>@item.Cellphone</td>
+            <td>@item.Email</td>
+            <td>
+               <div class="btn-group">    
+                    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@item.Id" data-id="@item.Id"><i class="fas fa-edit"></i></a>
+                   
+                    <button class="btn btn-danger btn-eliminar" data-id="@item.Id"> <i class="fas fa-trash" ></i> </button>
+               </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+             $('#tableStudents').DataTable();
+        });
+       
+        document.querySelectorAll('.btn-eliminar').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const Id = this.getAttribute('data-id');
+                const fila = this.closest('tr');
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¡No podrás revertir esta acción!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                        const token = tokenInput ? tokenInput.value : '';
+
+                        let formData = new FormData();
+                        formData.append('Id', Id);
+                        formData.append('__RequestVerificationToken', token);
+                        // AJAX para eliminar
+                        fetch(`/Students/DeleteStudent/${Id}`, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                fila.remove();
+                                Swal.fire('¡Eliminado!', data.message, 'success');
+                            } else {
+                                Swal.fire('Error', data.message, 'error');
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                            Swal.fire('Error', 'Ocurrió un problema.', 'error');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

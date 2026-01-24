@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--// Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--// Font Awesome  -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <title>Document</title>
+</head>
+<body>
+    <div class="container py-4">
+        <h2>Encabezado 1</h2>
+    <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="row align-items-center">
+            <div class="col-md-7">
+                <a href="/Gradebook/Index/@Model.CourseId" class="text-decoration-none text-muted small mb-1 d-block">
+                    <i class="fas fa-chevron-left me-1"></i> Introducción a la Informática/ I Parcial
+                </a>
+                <h3 class="fw-bold text-dark mb-0">Ejercicio de PowerPoint</h3>
+                <div class="mt-2">
+                    <span class="badge bg-primary  bg-opacity-10 text-primary border border-primary border-opacity-25">
+                        Acumulado
+                    </span>
+                    <span class="text-muted ms-2 small">Valor Máx: <strong>20 pts</strong></span>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                40
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold text-muted small">Avance de Calificación</span>
+                    <span class="fw-bold text-primary small">40%</span>
+                </div>
+                <div class="progress" style="height: 12px; border-radius: 6px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 20%"></div>
+                </div>
+                <div class="text-end mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-user-check me-1"></i> 4 / 12 estudiantes calificados
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+     <div class="container py-4">
+        <div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="fw-bold mb-0">Ejercicio de PowerPoint</h2>
+            <p class="text-muted mb-0">Introducción a la informática - I Parcial</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-secondary btn-sm me-2"><i class="fas fa-edit"></i> Editar Tarea</button>
+            <a href="/Gradebook/Index/@Model.CourseId" class="btn btn-primary btn-sm"><i class="fas fa-check"></i> Terminar</a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="p-3 bg-primary bg-opacity-10 rounded shadow-lg border-start border-4 border-primary">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Promedio</small>
+                <div class="d-flex align-items-center mt-1">
+                    <h3 class="mb-0 me-2">6.5</h3>
+                    <span class="text-muted small">/ 10</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            
+            <div class="p-3 bg-success bg-opacity-10 rounded shadow-lg border-start border-4 border-success">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Nota Más Alta</small>
+                <div class="d-flex align-items-center mt-1">
+                    <h3 class="mb-0 me-2 text-success">
+                        9  
+                    </h3>
+                </div>
+            </div>
+        </div>
+         <div class="col-md-3">
+            
+            <div class="p-3 bg-danger bg-opacity-10 rounded shadow-lg border-start border-4 border-danger">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">En Riesgo</small>
+                <div class="d-flex align-items-center mt-1">
+                    <h3 class="mb-0 me-2 text-danger">2</h3>
+                    <small class="text-muted">Estudiantes</small>
+                </div>
+            </div>
+        </div>
+         <div class="col-md-3">
+            <div class="p-3 bg-secondary bg-opacity-10 rounded shadow-lg border-start border-4 border-secondary">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Pendientes</small>
+                <div class="d-flex align-items-center mt-1">
+                    <h3 class="mb-0 me-2">1</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+     </div>
+     <div class="container py-4">
+        <div class="bg-light p-4 rounded-3 mb-4 border">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <span class="badge bg-white text-dark border mb-2">I Pacial</span>
+                    <h2 class="fw-bold text-primary mb-1">Introducción a la informática</h2>
+                    <div class="d-flex gap-4 text-secondary small mt-2">
+                        <div><i class="fas fa-star text-warning me-1"></i> <strong>10</strong> Puntos</div>
+                        <div><i class="fas fa-calendar-alt me-1"></i> Vencimiento: <strong>12/Oct/2023</strong></div> <div><i class="fas fa-users me-1"></i> <strong>10</strong> Alumnos</div>
+                    </div>
+                </div>
+        
+                <div class="text-center bg-white p-2 rounded border shadow-sm" style="min-width: 100px;">
+                    <div class="small text-muted fw-bold">Promedio</div>
+                    <div class="h2 fw-bold text-dark mb-0">6.5</div>
+                    <div class="small text-muted">pts</div>
+                </div>
+       
+            </div>
+
+    <hr class="my-3 opacity-25">
+
+    <div class="d-flex align-items-start">
+        <i class="fas fa-info-circle text-muted mt-1 me-2"></i>
+        <div>
+            <a class="text-decoration-none text-dark fw-bold" data-bs-toggle="collapse" href="#descCollapse" role="button" aria-expanded="false">
+                Ver Descripción / Rúbrica <i class="fas fa-chevron-down small ms-1"></i>
+            </a>
+            <div class="collapse mt-2" id="descCollapse">
+                <div class="card card-body bg-white border-0 small text-secondary">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat veritatis laudantium nesciunt repudiandae soluta officiis hic, nobis ullam ea? Facilis nisi vitae asperiores distinctio amet quo dolore error, doloremque ut.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+     </div>
+<h1>Version final</h1>
+     <div class="container py-4">
+        <div class="d-flex justify-content-between">
+            <!-- -->
+            <div style="min-width: 600px;">
+                <a href="/Gradebook/Index/@Model.CourseId" class="text-decoration-none text-muted small mb-1 d-block">
+                    <i class="fas fa-chevron-left me-1"></i> Introducción a la Informática/ I Parcial
+                </a>
+                <h3 class="fw-bold text-dark mb-0">Ejercicio de PowerPoint</h3>
+                <div class="d-flex gap-4 text-secondary small mt-2">
+                    <div><i class="fas fa-star text-warning me-1"></i> <strong>10</strong> Puntos máximo <span class="badge bg-primary  bg-opacity-10 text-primary border border-primary border-opacity-25">
+                        Acumulado
+                    </span></div>
+                        <div><i class="fas fa-calendar-alt me-1"></i> Vencimiento: <strong>12/Oct/2023</strong></div> <div><i class="fas fa-users me-1"></i> <strong>10</strong> Alumnos</div>
+                </div>
+            </div>
+            <!-- -->
+            <div class="d-flex gap-1" >
+                <!-- Promedio-->
+                 <div class="text-center bg-primary bg-opacity-10 border-start border-4 border-primary p-2 rounded shadow-sm d-none d-xl-block" style="min-width: 100px;">
+                    <div class="small text-muted fw-bold">Promedio</div>
+                    <div class="h4 fw-bold text-dark mb-0">6.5</div>
+                    <div class="small text-muted">pts</div>
+                </div>
+                <div class="text-center bg-success bg-opacity-10 border-start border-4 border-success p-2 rounded shadow-sm  d-none d-xl-block" style="min-width: 100px;">
+                    <div class="small text-muted fw-bold">Nota más alta</div>
+                    <div class="h4 fw-bold text-dark mb-0">6.5</div>
+                    <div class="small text-muted">pts</div>
+                </div>
+                <div class="text-center bg-danger bg-opacity-10 p-2 rounded border-start border-4 border-danger shadow-sm d-none d-xl-block" style="min-width: 100px;">
+                    <div class="small text-muted fw-bold">En riesgo</div>
+                    <div class="h4 fw-bold text-dark mb-0">6.5</div>
+                    <div class="small text-muted">Estudiantes</div>
+                </div>
+                <div class="text-center  bg-secondary bg-opacity-10 p-2 rounded shadow-lg border-start border-4 border-secondary shadow-sm d-none d-xl-block" style="min-width: 100px;">
+                    <div class="small text-muted fw-bold">Pendientes</div>
+                    <div class="h4 fw-bold text-dark mb-0">6.5</div>
+                </div>
+                
+            </div>
+        </div>
+        <hr>
+         <div class="d-flex align-items-start">
+            <i class="fas fa-info-circle text-muted mt-1 me-2"></i>
+        <div>
+            <a class="text-decoration-none text-dark fw-bold" data-bs-toggle="collapse" href="#descCollapse1" role="button" aria-expanded="false">
+                Ver Descripción / Rúbrica <i class="fas fa-chevron-down small ms-1"></i>
+            </a>
+            <div class="collapse mt-2" id="descCollapse1">
+                <div class="card card-body bg-white border-0 small text-secondary">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat veritatis laudantium nesciunt repudiandae soluta officiis hic, nobis ullam ea? Facilis nisi vitae asperiores distinctio amet quo dolore error, doloremque ut.
+                </div>
+            </div>
+        </div>
+    </div>
+     </div>
+<!--Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- // Font Awesome JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+<script>
+    function toggleFormType() {
+        const typeIndividual = document.getElementById('typeIndividual').checked;
+        document.getElementById('sectionIndividual').style.display = typeIndividual ? 'block' : 'none';
+        document.getElementById('sectionGroup').style.display = typeIndividual ? 'none' : 'block';
+        document.getElementById('attQuantity').value = typeIndividual ? 1 : 0;
+    }
+
+    function updateQuantity() {
+        const multiSelect = document.getElementById('selStudentsMulti');
+        const selectedOptions = Array.from(multiSelect.selectedOptions);
+        document.getElementById('attQuantity').value = selectedOptions.length;
+    }
+
+    function resetForm() {
+        document.getElementById('attentionForm').reset();
+        toggleFormType();
+    }
+</script>
+</body>
+</html>

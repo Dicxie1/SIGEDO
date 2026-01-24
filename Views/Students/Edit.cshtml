@@ -1,0 +1,104 @@
+
+@model Asistencia.Models.Student;
+@{
+    ViewData["Title"] = "Editar Estudiantes";
+}
+
+<div class="container py-7" >
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-9 col-m-9 col-xl-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-gradient-primary p-4 rounded-top-4">
+                <h3 class="text-center font-weight-light my-4">Editar de Estudiante #@Model.Id - @Model.Name</h3></div>
+                <div class="card-body p-5">
+                 <h5 class="fw-semibold mb-4 pb-2 border-bottom clearfix">
+                            <i class="fas fa-user-graduate text-primary me-2"></i>
+                            Datos del Estudiante
+                            
+                        </h5>
+
+                    <form asp-action="Edit" method="post">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Id" class="form-control" id="idStudent" type="text" disabled required placeholder="ID Estudiante" />
+                                    <label asp-for="Id">ID</label>
+                                     <span asp-validation-for="Id" class="text-danger"></span>
+                                </div>
+                                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Name" class="form-control" id="inputFirstName" type="text" required placeholder="First name" />
+                                    <label asp-for="Name" for="inputFirstName">Nombre</label>
+                                     <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="LastName" class="form-control" id="lastname"  placeholder="Apellido" required maxlength="50" />
+                                    <label asp-for="LastName" for="lastname">Apeliido</label>
+                                     <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="Sexo" asp-items="ViewBag.SexList" class="form-select" required>
+                                            <option value="" disabled selected>Seleccionar sexo</option>
+                                        </select>
+                                    <label asp-for="Sexo">
+                                        <i class="fas fa-graduation-cap me-1"></i>
+                                        Sexo *
+                                    </label>
+                                     <span asp-validation-for="Sexo" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="Ethnic"  asp-items="ViewBag.EthnicGroupList" class="form-select" id="etnia" required>
+                                            <option value="" disabled selected>Seleccionar etnia</option>
+                                        </select>
+                                    <label asp-for="Ethnic">
+                                        <i class="fas fa-graduation-cap me-1"></i>
+                                        Etnia *
+                                    </label>
+                                     <span asp-validation-for="Ethnic" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Cellphone" type="tel" class="form-control" id="movil" placeholder="Edad" required />
+                                    <label asp-for="Cellphone" for="movil">Movil</label>
+                                     <span asp-validation-for="Cellphone" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Email" class="form-control" id="inputEmail" type="email" placeholder="Email" />
+                                    <label asp-for="Email" for="inputEmail">Correo Electrónico</label>
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>  
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mt-3">
+                                <div class="btn-group">
+                                    <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
+                                    <input type="submit" value="Guardar" class="btn btn-success" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

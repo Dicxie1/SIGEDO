@@ -1,0 +1,210 @@
+@model Asistencia.Models.ViewModels.AttendanceViewDto
+@using System.Globalization
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Details", "Course", new { courseId = Model.CourseId })" class="text-decoration-none">
+                            Curso
+                        </a>
+                    </li> <!-- Url.Action("Details", "Course", new { id = Model.CourseId })-->
+                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Historial</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Detalle de Asistencia</li>
+                </ol>
+            </nav>
+            <h4 class="fw-bold text-dark">Detalle de Asistencia</h4>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Imprimir
+            </button>
+        <a href="@Url.Action("EditAttendance", "Attendance", new {courseid= Model.CourseId, attendance = Model.AttendanceId})" class="btn btn-warning text-dark"> <!--Url.Action("EditSession", new { id = Model.SessionId }) -->
+                <i class="fas fa-edit me-2"></i>Corregir
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4 bg-white">
+        <div class="card-body p-4">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-3 border-end">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded p-3 me-3 text-center" style="min-width: 70px;">
+                            <div class="h4 mb-0 fw-bold text-danger">@Model.Date.Day</div>
+                            <div class="small text-uppercase fw-bold">@Model.Date.ToString("MMM", new CultureInfo("es-NI"))</div>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Fecha</small>
+                            <span class="fw-bold text-dark">@Model.Date.ToString("dddd, dd 'de' MMMM  ", new CultureInfo("es-NI"))</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-5 border-end">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Curso / Tema</small>
+                    <h5 class="fw-bold text-primary mb-1">@Model.CourseName</h5>
+                    <p class="mb-0 text-muted small">
+                        <i class="fas fa-book-open me-1"></i> 
+                        @(string.IsNullOrEmpty(Model.Topic) ? "Sin tema registrado" : Model.Topic)
+                    </p>
+                </div>
+
+                <div class="col-md-2">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Duración</small>
+                    <span class="fs-5 fw-bold text-dark">@Model.TotalHours Hrs</span>
+                </div>
+                
+                 <div class="col-md-2 text-end">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Asistencia</small>
+                    <span class="fs-4 fw-bold @(Model.AttendancePercentage < 50 ? "text-danger" : "text-success") "> 
+                        @Model.AttendancePercentage%
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4 row-cols-2 row-cols-md-3 row-cols-xl-5 justify-content-center">
+        <div class="col">
+            <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
+                <div class="rounded-circle bg-success bg-opacity-10 text-success p-3 me-2">
+                    <i class="fas fa-check fa-lg"></i>
+                </div>
+                <div>
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Presentes</small>
+                    <h4 class="mb-0 fw-bold text-success">@Model.Summary.PresentCount</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
+                <div class="rounded-circle bg-warning bg-opacity-10 text-warning p-3 me-2">
+                    <i class="fas fa-clock fa-lg"></i>
+                </div>
+                <div>
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Tardanzas</small>
+                    <h4 class="mb-0 fw-bold text-warning">@Model.Summary.LateCount</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
+                <div class="rounded-circle bg-danger bg-opacity-10 text-danger p-3 me-2">
+                    <i class="fas fa-times fa-lg"></i>
+                </div>
+                <div>
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Ausentes</small>
+                    <h4 class="mb-0 fw-bold text-danger">@Model.Summary.AbsentCount</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
+                <div class="rounded-circle bg-info bg-opacity-10 text-info p-3 me-2">
+                    <i class="fas fa-file-medical fa-lg"></i>
+                </div>
+                <div>
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Justificadas</small>
+                    <h4 class="mb-0 fw-bold text-info">@Model.Summary.JustifiedCount</h4>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col">
+             <div class="d-flex align-items-center p-2 bg-light border rounded shadow-sm h-100">
+                <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary p-3 me-2">
+                    <i class="fas fa-users fa-lg"></i>
+                </div>
+                <div>
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Total</small>
+                    <h4 class="mb-0 fw-bold text-dark">@Model.Summary.TotalStudents</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-uppercase small text-muted">
+                    <tr>
+                        <th class="ps-4">Estudiante</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Horas</th>
+                        <th>Observación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detail in Model.AttendanceDetail)
+                    {
+                        string badgeClass = detail.Status switch
+                        {
+                            "P" => "bg-success text-success",
+                            "T" => "bg-warning text-warning",
+                            "A" => "bg-danger text-danger",
+                            "J" => "bg-info text-info",
+                            _ => "bg-secondary text-secondary"
+                        };
+                        
+                        string statusText = detail.Status switch
+                        {
+                            "P" => "Presente",
+                            "T" => "Tardanza",
+                            "A" => "Ausente",
+                            "J" => "Justificado",
+                            _ => detail.Status
+                        };
+
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-primary text-primary bg-opacity-10 fw-bold d-flex justify-content-center align-items-center me-3" style="width: 60px; height: 60px;">
+                                        @detail.StudentInitials
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@detail.StudentName </div>
+                                        <div class="small text-muted">@detail.StudentCode</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badgeClass text-success bg-opacity-10 rounded-pill px-3 py-2">
+                                    @statusText
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                @if(detail.HoursAttended < Model.TotalHours && detail.Status == "T") {
+                                    <span class="fw-bold text-warning">@detail.HoursAttended / @Model.TotalHours </span>
+                                 }else if (detail.HoursAttended == 0) {
+                                    <span class="text-muted opacity-50">-</span> 
+                                }else{
+                                    <span class="fw-bold text-dark">@detail.HoursAttended</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(detail.Observation)){ 
+                                    <span class="text-muted fst-italic"><i class="fas fa-comment-alt me-1 text-secondary small"></i> @detail.Observation</span>
+                                }else {
+                                    <span class="text-muted opacity-25 small">Sin notas</span>
+                                }
+                            </td>
+                        </tr>
+                    } 
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card-footer bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">Registro ID: #@Model.AttendanceId</small>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteSession(Model.SessionId)"> <!-- Model.SessionId -->
+                    <i class="fas fa-trash-alt me-1"></i> Eliminar Registro Completo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

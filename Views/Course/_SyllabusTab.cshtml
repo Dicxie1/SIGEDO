@@ -1,0 +1,153 @@
+@using System.Globalization
+@model List<Asistencia.Models.SyllabusItem>
+
+<div class="text-end mt-3 mb-3">
+    <input type="file" id="fileInputWord" accept=".docx" onchange="previewImport(this)"> <!-- onchange="uploadWordSyllabus(this)" -->
+    <button class="btn btn-outline-primary px-4" onclick="openPreviewModal()"> <!-- onclick="triggerWordImport()" -->
+    <i class="fas fa-eye me-2"></i>Previsualizar
+</button>
+    <button class="btn btn-secondary"> <i class="fas fa-upload"></i> Syllabus</button>
+</div>
+
+<!-- Toolbar flotante contextual -->
+<div id="floating-toolbar"
+     class="position-fixed top-0 start-50 translate-middle-x shadow bg-white rounded-pill px-4 py-2 d-none"
+     style="z-index:1050;">
+    <i class="fas fa-pen text-primary me-2"></i>
+    <span class="small text-muted">Editando contenido…</span>
+</div>
+<div>
+    <!-- ejemple -->
+    @if(Model.Count() == 0){
+        <p>datos vacios</p>
+    }
+</div>
+<div class="table-responsive border rounded-4 shadow-sm mt-3">
+    <table class="table table-hover align-middle mb-0">
+
+        <!-- HEADER -->
+        <thead class="table-light">
+            <tr>
+                <th class="date-col sticky-date">Fecha</th>
+                <th class="editor-col">Objetivos</th>
+                <th class="editor-col">Unidad y Contenido</th>
+                <th class="editor-col">Estrategias</th>
+                <th class="editor-col">Recursos</th>
+                <th class="editor-col">Evaluaciones</th>
+                <th class="editor-col">Bibliografía</th>
+            </tr>
+        </thead>
+
+        <!-- BODY -->
+        <tbody id="syllabusRows">
+            @if(Model.Count == 0){
+            <!-- ESTADO VACÍO -->
+            <tr id="rowEmptyStatus">
+                <td colspan="7">
+                    <div class="text-center py-5 px-3 rounded-4 bg-light bg-opacity-25">
+                        <div class="mb-3 text-secondary opacity-50">
+                            <i class="fas fa-route fa-3x"></i>
+                        </div>
+
+                        <h5 class="fw-bold">Sin Syllabus</h5>
+                        <p class="text-muted small mb-4 mx-auto" style="max-width: 420px;">
+                            Este curso aún no tiene unidades ni temas definidos.
+                            Empieza creando la primera unidad para organizar el proceso de enseñanza.
+                        </p>
+
+                        <div class="d-flex justify-content-center gap-2">
+                            <button class="btn btn-primary rounded-pill px-4"
+                                    onclick="newActivitySyllabus()">
+                                <i class="fas fa-plus me-2"></i>
+                                Agregar primera unidad
+                            </button>
+
+                            <button class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="fas fa-file-import me-2"></i>
+                                Importar
+                            </button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+             }else{
+                int i = 1;
+                @foreach(var item in Model){
+                    <tr data-id="@item.SyllabusId">
+                            <td class="p-2">
+                                 <div class="card-date d-flex align-items-center">
+                                    <div class="bg-light border rounded text-center p-2 me-3" style="min-width: 50px;">
+                                        <div class="small fw-bold text-secondary text-uppercase"> 
+                                            @item.Date.ToString("MMM", new CultureInfo("es-NI")) | @item.Date.Year
+                                        </div>
+                                        <div class="h5 mb-0 fw-bold text-danger">@item.Date.Day </div>
+                                        <p class="text-center">Clase #@i</p>
+                                    </div>
+                                 </div>
+                                 <div class="edit-date "><input type="date" class="form-control d-none txt-date" value="@item.Date.ToString("yyyy-MM-dd")"></div>
+                            </td>
+                            <td>
+                               <div class="cell-view">@Html.Raw(item.Objectives)</div>
+                                <textarea class="summernote-area d-none">@Html.Raw(item.Objectives)</textarea>
+                            </td>
+                            <td>
+                                <div class="cell-view">@Html.Raw(item.Content)</div>
+                                <textarea class="summernote-area d-none">@Html.Raw(item.Content)</textarea>
+                            </td>
+                            <td>
+                                <div class="cell-view">@Html.Raw(item.Strategies)</div>
+                                <textarea class="summernote-area d-none">@Html.Raw(item.Strategies)</textarea>
+                            </td>
+                            <td>
+                                <div class="cell-view">@Html.Raw(item.Resources)</div>
+                                <textarea class="summernote-area d-none">@Html.Raw(item.Resources)</textarea>
+                            </td>
+                            <td>
+                                <div class="cell-view">@Html.Raw(item.Evaluations)</div>
+                                <textarea class="summernote-area d-none">@Html.Raw(item.Evaluations)</textarea>
+                            </td>
+                            <td>
+                                <div class="cell-view">@Html.Raw(item.Bibliography)</div>
+                                <textarea class="summernote-area d-none">@Html.Raw(item.Bibliography)</textarea>
+                            </td>
+                            <td class="sticky-actions align-middle text-center bg-light">
+                                <button type="button" class="btn btn-link text-warning btn-sm btnEdit p-0" onclick="editRow(this, @item.SyllabusId)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-link text-success btn-sm p-0 d-none btnUpdate" title="Actualizar registro" onclick="updateRow(this, @item.SyllabusId)">
+                                    <i  class="updateIcon fas fa-arrows-rotate"></i>
+                                </button>
+                                <button type="button" class="btn btn-link text-danger btn-sm btnDelete p-0" onclick="removeRow(this, @item.SyllabusId)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <button type="button" class="btn btn-link text-danger btn-sm btnCancel p-0 d-none">
+                                    <i class="fas fa-cancel"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        i++;
+                }
+             }
+        </tbody>
+
+        <!-- FOOTER -->
+        <tfoot class="table-light">
+            @{
+                var btnDisplay = Model.Count > 0 ? "" : "d-none";
+            }
+            <tr>
+                <td colspan="7" class="">
+                    <button class="btn btn-sm btn-secondary rounded-pill px-1 @btnDisplay" id="btnAddColumn"
+                        onclick="newActivitySyllabus()">
+                        Columna
+                        <i class="fas fa-plus"></i>
+                    </button> 
+                    <button class="btn btn-sm btn-primary rounded-pill  px-1 d-none" id="btnSyllabusSaveBatch" onclick="saveAllSyllabus()"><i class="fas fa-save"></i>Guardar</button>
+                </td>
+            </tr>
+        </tfoot>
+
+    </table>
+</div>
+
+<partial name="_PreviewFromWordModal" />

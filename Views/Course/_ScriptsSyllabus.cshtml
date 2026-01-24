@@ -1,0 +1,98 @@
+<script>
+    // Funcion para editar syllabusitem existente 
+    function editRow(btnedit, courseid){
+        // 1. Obtener la fila
+        
+        const row = btnedit.closest('tr');
+        row.dataset.dirty = true;
+        const btnupdate = row.querySelector('.btnUpdate');
+        const btnDelete = row.querySelector('.btnDelete'); // Ocultar Eliminar
+        const btnCancel = row.querySelector('.btnCancel'); // Ocultar Eliminar
+        const btnEdit = row.querySelector('.btnEdit'); // Ocultar Eliminar
+        btnupdate.classList.remove('d-none'); // Mostrar Guardar
+        btnEdit.classList.add('d-none');  // Ocultar Editar
+        btnCancel.classList.remove('d-none')   // Mostrar Cancel
+        if(btnDelete) btnDelete.classList.add('d-none')
+        const cardDate = row.querySelector('.card-date');
+        cardDate.classList.add('d-none');
+        const colDate =row.querySelector('.edit-date');
+        colDate.querySelector('input').classList.remove('d-none');
+        row.querySelectorAll('td').forEach( td =>{
+            const textarea = td.querySelector('textarea.summernote-area');
+            const view = td.querySelector('.cell-view');
+            if (!textarea || !view) return;
+            view.classList.add('d-none');
+            textarea.classList.remove('d-none');
+        })
+        initRowEditors(row);   
+    }
+    
+    function  updateRow(btnUpdate, courseid){
+        const updateRow = btnUpdate.closest('tr');
+        const btnEdit = updateRow.querySelector('.btnEdit');
+        const btnDelete = updateRow.querySelector('.btnDelete');
+        const btnCancel = updateRow.querySelector('.btnCancel');
+        const saveIcon = btnUpdate.querySelector('.updateIcon');
+        btnEdit.style.display='inline';
+        // (Loading)
+        btnUpdate.disabled = true;
+        saveIcon.classList.remove('fa-arrows-rotate');
+        saveIcon.classList.add('fa-spinner', 'fa-spin');
+        
+        const editors = updateRow.querySelectorAll('.summernote-area');
+        const dateInput = updateRow.cells[0].querySelector('input');
+        const items = [];
+        $('#syllabusRows tr[data-dirty="true"]').each(function(){
+            const row = $(this);
+            const textareas = row.find('textarea.summernote-area');
+            const item = {
+
+                SyllabusId : parseInt(row.attr('data-id')),
+                CourseId : parseInt(courseid),
+                Date: updateRow.querySelector('.txt-date').value, // Puede ser string vacío
+                Objectives: $(textareas[0]).summernote('code'),
+                Content: $(textareas[1]).summernote('code'),
+                Strategies: $(textareas[2]).summernote('code'),
+                Resources: $(textareas[3]).summernote('code'),
+                Evaluations: $(textareas[4]).summernote('code'),
+                Bibliography: $(textareas[5]).summernote('code')
+            };
+            items.push(item);
+        });
+        fetch('/Syllabus/SaveAll',{
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify(items)
+        }).then((response) =>{ return response.json();
+        }).then((res)=>{
+            if(res.success){
+                Swal.fire({title: 'info', text: res.message, icon: 'info'});
+                const data = updateRow.querySelectorAll('.cell-view');
+                const edit = updateRow.querySelectorAll('textarea.summernote-area');
+                data[0] = items[0].Objectives;
+                data[1] = items[0].Content;
+                data[2] = items[0].Strategies;
+                data[3] = items[0].Resources;
+                data[4] = items[0].Evaluations;
+                
+                updateRow.querySelectorAll('td').forEach( td =>{
+                const textarea = td.querySelector('textarea.summernote-area');
+                const view = td.querySelector('.cell-view');
+                view.classList.remove('d-none');
+                textarea.classList.add('d-none');
+            });
+
+            }else{
+                Swal.fire({title: 'Error', text: res.message, icon : 'error'})
+            }
+        });
+        saveIcon.disabled= false;
+        saveIcon.classList.add('fa-arrows-rotate');
+        saveIcon.classList.remove('fa-spinner', 'fa-spin');
+         
+    }
+    
+</script>

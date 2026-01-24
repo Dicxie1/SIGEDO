@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Cursos - Sistema Académico</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { background-color: #f8f9fa; }
+        .schedule-row { transition: all 0.3s ease; }
+        .schedule-row:hover { background-color: #f1f3f5; }
+        /* Ajuste para que el botón de eliminar quede alineado con los inputs floating */
+        .btn-delete-row { height: 58px; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-university me-2"></i>UniSystem</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#">Cursos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Estudiantes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Docentes</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark">Catálogo de Cursos</h2>
+                <p class="text-muted">Administración de oferta académica vigente.</p>
+            </div>
+            <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+                <i class="fas fa-plus-circle me-2"></i> Nuevo Curso
+            </button>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Código</th>
+                                <th>Curso</th>
+                                <th>Horario</th>
+                                <th>Docente</th>
+                                <th>Estado</th>
+                                <th class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ps-4 fw-bold text-secondary">MAT-101</td>
+                                <td>
+                                    <div class="fw-bold">Cálculo I</div>
+                                    <small class="text-muted">Ingeniería de Sistemas</small>
+                                </td>
+                                <td>
+                                    <span class="d-block small"><i class="fas fa-calendar-day me-1 text-primary"></i> Lun: 08:00 - 10:00</span>
+                                    <span class="d-block small"><i class="fas fa-calendar-day me-1 text-primary"></i> Mie: 10:00 - 12:00</span>
+                                </td>
+                                <td>Ing. Juan Pérez</td>
+                                <td><span class="badge bg-success bg-opacity-10 text-success">Activo</span></td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createCourseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable"> <div class="modal-content">
+                
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-chalkboard-teacher me-2"></i> Registrar Nuevo Curso
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body bg-light">
+                    <form id="courseForm" class="needs-validation" novalidate>
+                        
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-white fw-bold text-primary">
+                                <i class="fas fa-info-circle me-1"></i> Información Básica
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-2">
+                                    <div class="col-md-8">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="courseName" placeholder="Nombre" required>
+                                            <label>Nombre del Curso <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="courseCode" placeholder="Código" required>
+                                            <label>Código <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="subjectId" required>
+                                                <option value="" selected disabled>Seleccione...</option>
+                                                <option value="1">Matemáticas Generales</option>
+                                                <option value="2">Programación I</option>
+                                            </select>
+                                            <label>Asignatura Base <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="teacherId" required>
+                                                <option value="" selected disabled>Seleccione...</option>
+                                                <option value="101">Ing. Juan Pérez</option>
+                                            </select>
+                                            <label>Docente <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="capacity" placeholder="30" value="30" required>
+                                            <label>Cupo Máximo</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-white fw-bold text-primary d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-clock me-1"></i> Horarios Semanales</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addScheduleRow()">
+                                    <i class="fas fa-plus me-1"></i> Agregar Día
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-12">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="defaultClassroom" required>
+                                                <option value="" selected disabled>Seleccione Aula Principal...</option>
+                                                <option value="LAB1">Laboratorio 1</option>
+                                                <option value="A203">Aula 203</option>
+                                            </select>
+                                            <label>Aula / Ubicación Principal <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="scheduleContainer">
+                                </div>
+                                
+                                <div id="emptyScheduleMsg" class="text-center py-3 text-muted border border-dashed rounded bg-light">
+                                    <div>
+                                        <i class="fas fa-calendar-times me-1"></i> 
+                                        <p class="mt-2 mb-0 fw-bold">
+                                            No hay horarios definidos aún.
+                                        </p>
+                                        <small>Es necesario asignar al menos un día y hora.</small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary px-4 rounded-pill" onclick="addScheduleRow()">
+                                        <i class="fas fa-plus me-2"></i> Agregar Primer Horario
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-md-5">
+                                        <div class="form-floating">
+                                            <input type="date" class="form-control" id="startDate" required>
+                                            <label>Inicio del Periodo</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-floating">
+                                            <input type="date" class="form-control" id="endDate" required>
+                                            <label>Fin del Periodo</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-check form-switch d-flex justify-content-center">
+                                            <input class="form-check-input" type="checkbox" id="isActive" checked style="transform: scale(1.3);">
+                                        </div>
+                                        <div class="text-center super-small text-muted mt-1" style="font-size:0.7rem">Activo</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveCourse()">
+                        <i class="fas fa-save me-2"></i> Guardar Curso
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Al cargar la página, agregamos un horario por defecto
+        document.addEventListener('DOMContentLoaded', () => {
+            addScheduleRow();
+            console.log("mensaje");
+        });
+
+        // Función para agregar una fila de horario
+        function addScheduleRow() {
+            const container = document.getElementById('scheduleContainer');
+            const emptyMsg = document.getElementById('emptyScheduleMsg');
+            console.log(container);
+            
+            // Ocultar mensaje de vacío
+            if(emptyMsg) emptyMsg.style.display = 'none';
+
+            // Crear ID único para la fila
+            const rowId = 'row-' + Date.now();
+
+            const htmlRow = `
+                <div class="row g-2 mb-2 schedule-row align-items-center" id="${rowId}">
+                    <div class="col-4 col-md-4">
+                        <div class="form-floating">
+                            <select class="form-select schedule-day" required>
+                                <option value="" selected disabled>Día</option>
+                                <option value="1">Lunes</option>
+                                <option value="2">Martes</option>
+                                <option value="3">Miércoles</option>
+                                <option value="4">Jueves</option>
+                                <option value="5">Viernes</option>
+                                <option value="6">Sábado</option>
+                                <option value="7">Domingo</option>
+                            </select>
+                            <label>Día</label>
+                        </div>
+                    </div>
+                    <div class="col-3 col-md-3">
+                        <div class="form-floating">
+                            <input type="time" class="form-control schedule-start" required>
+                            <label>Inicio</label>
+                        </div>
+                    </div>
+                    <div class="col-3 col-md-3">
+                        <div class="form-floating">
+                            <input type="time" class="form-control schedule-end" required>
+                            <label>Fin</label>
+                        </div>
+                    </div>
+                    <div class="col-2 col-md-2 text-center">
+                        <button type="button" class="btn btn-outline-danger btn-delete-row w-100" onclick="removeRow('${rowId}')" title="Eliminar horario">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', htmlRow);
+        }
+
+        // Función para eliminar fila
+        function removeRow(rowId) {
+            const row = document.getElementById(rowId);
+            row.remove();
+
+            // Si no quedan filas, mostrar mensaje
+            const container = document.getElementById('scheduleContainer');
+            if (container.children.length === 0) {
+                document.getElementById('emptyScheduleMsg').style.display = 'block';
+            }
+        }
+
+        // Función de Guardado (Simulación)
+        function saveCourse() {
+            const form = document.getElementById('courseForm');
+            
+            // Validación HTML5
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated'); // Muestra errores rojos de Bootstrap
+                return;
+            }
+
+            // Recolectar datos básicos
+            const courseData = {
+                name: document.getElementById('courseName').value,
+                code: document.getElementById('courseCode').value,
+                classroom: document.getElementById('defaultClassroom').value,
+                schedules: [] 
+            };
+
+            // RECOLECTAR HORARIOS DINÁMICOS
+            // Buscamos todas las filas y extraemos sus valores
+            const rows = document.querySelectorAll('.schedule-row');
+            rows.forEach(row => {
+                const day = row.querySelector('.schedule-day').value;
+                const start = row.querySelector('.schedule-start').value;
+                const end = row.querySelector('.schedule-end').value;
+                
+                if(day && start && end) {
+                    courseData.schedules.push({ day, start, end });
+                }
+            });
+
+            if (courseData.schedules.length === 0) {
+                alert("Debes agregar al menos un horario.");
+                return;
+            }
+
+            console.log("Datos a enviar al Backend:", courseData);
+            
+            // Cerrar modal
+            const modalEl = document.getElementById('createCourseModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            // Limpiar formulario
+            form.reset();
+            form.classList.remove('was-validated');
+            document.getElementById('scheduleContainer').innerHTML = ''; // Limpiar filas
+            addScheduleRow(); // Agregar una vacía
+            
+            alert("Curso registrado con éxito (Revisa la consola para ver el JSON)");
+        }
+    </script>
+</body>
+</html>

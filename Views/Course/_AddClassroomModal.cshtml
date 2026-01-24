@@ -1,0 +1,92 @@
+<!--Modal para Carrer-->
+    <div class="modal fade" id="newClassroomModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-purple text-white">
+                <h5 class="modal-title">Nueva Aula</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRegistroCarrera">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                             <div class="form-floating">
+                                <input type="text" class="form-control" placeholder="Codigo Nombre" id="ClassroomId" required>
+                                <label for="Name">Codigo Carrera</label>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                             <div class="form-floating">
+                                <input type="text" class="form-control" placeholder="Ingresar Nombre" id="ClassroomName" required>
+                                <label for="Name">Nombre de Carrera</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 mb-3">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" placeholder="Ingresar cantidad estudiante" id="ClassroomCapacity" required>
+                                <label for="ClassroomCapacity">Capacidad</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" placeholder="Ingresar Edificio" id="ClassroomLocation" required>
+                                <label for="ClassromLocation">Edificio</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex justify-content-center align-items-center">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input"  checked>
+                                <label for="" class="form-check-label">activo</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="saveClassroom()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function saveClassroom(){
+        const Name = document.getElementById('ClassroomName').value 
+        const Id = document.getElementById('ClassroomId').value
+        const capacity = document.getElementById('ClassroomCapacity').value
+        const clslocation = document.getElementById('ClassroomLocation').value
+
+        if(!Name && !Id && !capacity && !clslocation){
+            Swal.fire({title: 'Advertencia', icon:'warning', text: "Debe de rellenar formulario"});
+            return;
+        }
+        
+        data = {ClassroomId : Id, ClassroomName : Name , Capacity : capacity, Location: clslocation };
+        alert(JSON.stringify(data));
+        fetch('/Classroom/AddClassroom', {
+            method: 'POST',
+            headers:{
+                'Content-Type' : 'application/json',
+                'RequestVerificationToken': getToken()},
+            body : JSON.stringify(data)
+    }).then(response =>{
+        if(!response.success) Swal.fire(`Error en Red `);
+        return response.json();
+    }).then(data =>{
+        if(data.success){
+            Swal.fire('Se ha registrado el dato')
+            .then(()=>{
+                location.reload();
+            });
+
+        }else{
+            Swal.fire({text:`${data.message}`, icon: "error", title: "Error"});
+        }
+    }).catch(e =>{
+        console.error('Error:', e)
+    });
+    }
+</script>

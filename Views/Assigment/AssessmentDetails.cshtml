@@ -1,0 +1,316 @@
+@model Asistencia.Models.ViewModels.AssessmentDetailsViewModel
+
+@{
+    ViewData["Title"] = "Calificar: " + Model.Title;
+}
+
+@Html.AntiForgeryToken()
+
+<div class="container py-4">
+    
+    <div class="row g-4 justify-content-between mb-4">
+        
+        <div class="col-lg-6 col-xl-6">
+            <a href="@Url.Action("Details", "Course", new{courseid = @Model.CourseId})?activeTab=trabajos-tab" class="text-decoration-none text-muted small mb-2 d-inline-block hover-underline">
+                <i class="fas fa-arrow-left me-1"></i> @Model.CourseName / @Model.TermName
+            </a>
+            
+            <h3 class="fw-bold text-dark mb-2">@Model.Title</h3>
+            
+            <div class="d-flex flex-wrap gap-3 text-secondary small align-items-center mt-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-star text-warning me-2"></i> 
+                    <strong class="me-2">@Model.MaxPoints pts</strong>
+                    @if(Model.IsExam) {
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">Examen</span>
+                    } else {
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">Acumulado</span>
+                    }
+                </div>
+
+                <div class="d-flex align-items-center border-start ps-3">
+                    <i class="fas fa-calendar-alt me-2"></i> 
+                    Vence: 
+                    <strong class="ms-1 text-dark">
+                        @(Model.DueDate.HasValue ? Model.DueDate.Value.ToString("dd/MMM") : "S/F")
+                    </strong>
+                </div> 
+                
+                <div class="d-flex align-items-center border-start ps-3">
+                    <i class="fas fa-users me-2"></i> 
+                    <strong>@Model.TotalStudents</strong> Alumnos
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-xl-6">
+            <div class="d-flex gap-2 justify-content-lg-end flex-wrap">
+                
+                <div class="stat-card border-start border-4 border-primary bg-primary bg-opacity-10">
+                    <div class="label text-primary">Promedio</div>
+                    <div class="value text-primary">@Model.AverageScore.ToString("0.0")</div>
+                    <div class="unit">pts</div>
+                </div>
+
+                <div class="stat-card border-start border-4 border-success bg-success bg-opacity-10">
+                    <div class="label text-success">Más Alta</div>
+                    <div class="value text-success">@Model.HighestScore.ToString("0.#")</div>
+                    <div class="unit">pts</div>
+                </div>
+
+                <div class="stat-card border-start border-4 border-danger bg-danger bg-opacity-10">
+                    <div class="label text-danger">En Riesgo</div>
+                    <div class="value text-danger">@Model.FailedCount</div>
+                    <div class="unit">Alumnos</div>
+                </div>
+
+                <div class="stat-card border-start border-4 border-secondary bg-secondary bg-opacity-10">
+                    <div class="label text-dark">Pendientes</div>
+                    <div class="value text-dark">@Model.PendingCount</div>
+                    <div class="unit">Alumnos</div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-start mb-4">
+        <i class="fas fa-info-circle text-muted mt-1 me-2"></i>
+        <div class="w-100">
+            <a class="text-decoration-none text-dark fw-bold d-flex align-items-center" data-bs-toggle="collapse" href="#descCollapse" role="button">
+                Ver Descripción / Rúbrica 
+                <i class="fas fa-chevron-down small ms-2 text-muted"></i>
+            </a>
+            <div class="collapse mt-2" id="descCollapse">
+                <div class="card card-body bg-light border-0 small text-secondary">
+                    @if(string.IsNullOrWhiteSpace(Model.Description)) {
+                        <span class="fst-italic text-muted">Sin descripción.</span>
+                    } else {
+                        @Model.Description
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="mb-4 text-muted opacity-25">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0 text-secondary">Listado de Estudiantes</h5>
+        <div class="input-group" style="max-width: 300px;">
+            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="studentSearch" class="form-control border-start-0 ps-0" placeholder="Buscar estudiante...">
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="gradingTable">
+                <thead class="bg-light text-secondary">
+                    <tr>
+                        <th class="ps-4 py-3" style="width: 45%;">Estudiante</th>
+                        <th class="text-center" style="width: 30%;">
+                            Calificación <span class="badge bg-white text-muted border ms-1">Máx: @Model.MaxPoints</span>
+                        </th>
+                        <th class="text-end pe-4" style="width: 25%;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var student in Model.Students)
+                    {
+                        var hasGrade = student.Score.HasValue;
+                        var rowClass = hasGrade ? "" : "bg-light bg-opacity-25"; // Sutil diferencia para pendientes
+                        
+                        <tr class="@rowClass" data-enrollment-id="@student.EnrollmentId">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3">
+                                        @student.StudentName.Substring(0,1)
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark student-name">@student.StudentName</div>
+                                        <div class="small text-muted student-code">@student.StudentCode</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                    <div class="input-group input-group-lg" style="max-width: 180px;">
+                                        <input type="number" 
+                                               class="form-control text-center fw-bold grade-input @(hasGrade ? "text-dark" : "text-muted")"
+                                               value="@student.Score"
+                                               min="0"
+                                               max="@Model.MaxPoints"
+                                               step="0.01"
+                                               placeholder="-"
+                                               data-assignment-id="@Model.AssignmentId"
+                                               data-max="@Model.MaxPoints"
+                                               onfocus="this.select()"
+                                               onchange="saveGradeSingle(this)"
+                                               onkeydown="handleEnter(event, this)">
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="text-end pe-4 status-cell">
+                                @if (hasGrade) {
+                                    <span class="text-success small fw-bold"><i class="fas fa-check-circle"></i> Listo</span>
+                                } else {
+                                    <span class="text-muted small opacity-50"><i class="far fa-circle"></i> Pendiente</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos Tarjetas Estadísticas */
+    .stat-card {
+        text-align: center;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+        flex: 1 1 auto;
+        min-width: 100px;
+        max-width: 130px;
+    }
+    .stat-card .label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .stat-card .value { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+    .stat-card .unit { font-size: 0.7rem; opacity: 0.7; }
+
+    /* Estilos Tabla */
+    .avatar-circle {
+        width: 40px; height: 40px;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700;
+    }
+    
+    /* Input limpio sin flechas de numero */
+    .grade-input::-webkit-outer-spin-button,
+    .grade-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .grade-input { -moz-appearance: textfield; }
+    
+    .grade-input:focus {
+        background-color: #fff;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        border-color: #86b7fe;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // 1. BUSCADOR EN TIEMPO REAL
+        document.getElementById('studentSearch').addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#gradingTable tbody tr');
+
+            rows.forEach(row => {
+                let name = row.querySelector('.student-name').innerText.toLowerCase();
+                let code = row.querySelector('.student-code').innerText.toLowerCase();
+                
+                if (name.includes(filter) || code.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // 2. MOVERSE CON ENTER
+        function handleEnter(e, input) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Evitar submit form si existiera
+                input.blur(); // Dispara el onchange y guarda
+                
+                // Intentar enfocar el siguiente input
+                let currentTr = input.closest('tr');
+                let nextTr = currentTr.nextElementSibling;
+                if(nextTr) {
+                    let nextInput = nextTr.querySelector('.grade-input');
+                    if(nextInput) nextInput.focus();
+                }
+            }
+        }
+
+        // 3. GUARDAR NOTA (AJAX)
+        function saveGradeSingle(input) {
+            const row = input.closest('tr');
+            const enrollmentId = row.dataset.enrollmentId;
+            const assignmentId = input.dataset.assignmentId;
+            const max = parseFloat(input.dataset.max);
+            const statusCell = row.querySelector('.status-cell');
+            
+            let val = parseFloat(input.value);
+
+            // Validación: Si está vacío, asumimos que borró la nota (null o 0 según tu lógica)
+            // Aquí enviamos 0 si es NaN, pero ojo: si tu backend acepta null, ajusta esto.
+            if (isNaN(val)) { 
+                input.value = ""; // Dejar visualmente vacío
+                // Opcional: Return si no quieres guardar vacíos
+            }
+
+            // Validaciones Rango
+            if (val < 0) {
+                Swal.fire('Error', 'No se permiten notas negativas', 'error');
+                input.value = 0; val = 0;
+            }
+            if (val > max) {
+                Swal.fire('Atención', `La nota máxima es ${max}`, 'warning');
+                input.value = max; val = max;
+            }
+
+            // UI: Spinner
+            statusCell.innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
+
+            const payload = {
+                EnrollmentId: parseInt(enrollmentId),
+                AssignmentId: parseInt(assignmentId),
+                Score: val
+            };
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch('/Gradebook/SaveGrade', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // ÉXITO
+                    input.classList.add('text-dark', 'fw-bold');
+                    input.classList.remove('text-muted');
+                    
+                    statusCell.innerHTML = `
+                        <span class="text-success small fw-bold animate__animated animate__fadeIn">
+                            <i class="fas fa-check-circle"></i> Listo
+                        </span>
+                    `;
+                    
+                    // Opcional: Actualizar contadores del header sin recargar 
+                    // (requiere lógica extra compleja, o simplemente dejar que se actualicen al recargar)
+                } else {
+                    statusCell.innerHTML = '<span class="text-danger small"><i class="fas fa-exclamation-circle"></i> Error</span>';
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                statusCell.innerHTML = '<span class="text-danger small">Fallo Red</span>';
+            });
+        }
+    </script>
+}

@@ -1,0 +1,204 @@
+@model StudentAttentionViewModel
+
+<div class="container py-4">
+    
+    <div class="d-flex justify-content-between mb-4">
+        
+        <div class="col-lg-6">
+            <a href="/Gradebook/Index/@Model.CourseId" class="text-decoration-none text-muted small mb-1 d-block hover-underline">
+                <i class="fas fa-chevron-left me-1"></i> @Model.CourseName
+            </a>
+            <h3 class="fw-bold text-dark mb-0">Bitácora de Atención</h3>
+            
+            <div class="d-flex gap-4 text-secondary small mt-2">
+                <div>
+                    <i class="fas fa-calendar-day text-primary me-1"></i> 
+                    Hoy: <strong>@DateTime.Now.ToString("dd/MMM/yyyy")</strong>
+                </div>
+                <div>
+                    <i class="fas fa-users me-1"></i> 
+                    Matrícula: <strong>@Model.Students.Count</strong> Alumnos
+                </div>
+                <div>
+                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">
+                        Periodo Activo
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-1 justify-content-end col-lg-6">
+            
+            <div class="text-center bg-primary bg-opacity-10 border-start border-4 border-primary p-2 rounded shadow-sm d-none d-xl-block" style="min-width: 100px;">
+                <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Total</div>
+                <div class="h4 fw-bold text-dark mb-0">@Model.TotalRecords</div>
+                <div class="small text-muted" style="font-size: 0.7rem;">Registros</div>
+            </div>
+
+            <div class="text-center bg-success bg-opacity-10 border-start border-4 border-success p-2 rounded shadow-sm d-none d-xl-block" style="min-width: 100px;">
+                <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Académico</div>
+                <div class="h4 fw-bold text-dark mb-0">@Model.AcademicCases</div>
+                <div class="small text-muted" style="font-size: 0.7rem;">Casos</div>
+            </div>
+
+            <div class="text-center bg-danger bg-opacity-10 border-start border-4 border-danger p-2 rounded shadow-sm d-none d-xl-block" style="min-width: 100px;">
+                <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Conducta</div>
+                <div class="h4 fw-bold text-dark mb-0">@Model.BehavioralCases</div>
+                <div class="small text-muted" style="font-size: 0.7rem;">Reportes</div>
+            </div>
+
+            <div class="text-center bg-secondary bg-opacity-10 border-start border-4 border-secondary p-2 rounded shadow-sm d-none d-xl-block" style="min-width: 100px;">
+                <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Seguimiento</div>
+                <div class="h4 fw-bold text-dark mb-0">@Model.PendingFollowUps</div>
+                <div class="small text-muted" style="font-size: 0.7rem;">Pendientes</div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4 opacity-25">
+
+    <div class="row g-4">
+        
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-pen-to-square me-2 text-primary"></i>Nuevo Registro</h5>
+                </div>
+                <div class="card-body pt-0">
+                    <form id="attentionForm">
+                        
+                        <div class="mb-3 p-3 bg-light rounded-3 d-flex align-items-center gap-3">
+                            <label class="fw-bold text-secondary small text-uppercase mb-0">Tipo:</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="attType" id="typeInd" value="individual" checked onchange="toggleStudentSelect(this.value)">
+                                <label class="btn btn-outline-primary btn-sm" for="typeInd"><i class="fas fa-user me-1"></i> Individual</label>
+
+                                <input type="radio" class="btn-check" name="attType" id="typeGroup" value="group" onchange="toggleStudentSelect(this.value)">
+                                <label class="btn btn-outline-primary btn-sm" for="typeGroup"><i class="fas fa-users me-1"></i> Grupal</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Estudiante(s)</label>
+                            <div id="divSelectIndividual">
+                                <select class="form-select" id="selStudent">
+                                    <option selected disabled>Buscar estudiante...</option>
+                                    @foreach(var st in Model.Students) {
+                                        <option value="@st.Id">@st.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div id="divSelectGroup" class="d-none">
+                                <select class="form-select" id="selGroup" multiple size="4">
+                                    @foreach(var st in Model.Students) {
+                                        <option value="@st.Id">@st.Name</option>
+                                    }
+                                </select>
+                                <div class="form-text small">Mantén presionado Ctrl para seleccionar varios.</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted">Categoría / Motivo</label>
+                                <select class="form-select" id="selCategory">
+                                    <option value="academic">Apoyo Académico</option>
+                                    <option value="behavior">Falta de Conducta</option>
+                                    <option value="emotional">Apoyo Emocional</option>
+                                    <option value="attendance">Tardanza/Asistencia</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted">Nivel de Prioridad</label>
+                                <select class="form-select" id="selPriority">
+                                    <option value="low">Baja (Informativo)</option>
+                                    <option value="medium" selected>Media (Seguimiento)</option>
+                                    <option value="high" class="text-danger fw-bold">Alta (Urgente)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Detalle de la Observación</label>
+                            <textarea class="form-control" rows="4" placeholder="Describa la situación, acuerdos o medidas tomadas..."></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-light text-secondary">Cancelar</button>
+                            <button type="button" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i> Guardar Registro</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100 bg-light">
+                <div class="card-header bg-light py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0 text-secondary">Últimos Registros</h6>
+                    <button class="btn btn-sm btn-outline-secondary" style="font-size: 0.75rem;">Ver Todo</button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush bg-transparent">
+                        
+                        <div class="list-group-item bg-transparent border-bottom px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0 fw-bold text-dark">Juan Pérez</h6>
+                                <small class="text-danger fw-bold" style="font-size: 0.7rem;">URGENTE</small>
+                            </div>
+                            <div class="mb-1 small">
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 me-1">Conducta</span>
+                                <span class="text-muted">Interrupción constante en clase...</span>
+                            </div>
+                            <small class="text-muted" style="font-size: 0.7rem;">Hace 2 horas</small>
+                        </div>
+
+                        <div class="list-group-item bg-transparent border-bottom px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0 fw-bold text-dark">Ana & María (Grupo)</h6>
+                                <small class="text-primary fw-bold" style="font-size: 0.7rem;">MEDIA</small>
+                            </div>
+                            <div class="mb-1 small">
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 me-1">Académico</span>
+                                <span class="text-muted">Reforzamiento en ecuaciones...</span>
+                            </div>
+                            <small class="text-muted" style="font-size: 0.7rem;">Ayer, 10:30 AM</small>
+                        </div>
+
+                         <div class="list-group-item bg-transparent border-bottom-0 px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0 fw-bold text-dark">Carlos López</h6>
+                                <small class="text-muted fw-bold" style="font-size: 0.7rem;">BAJA</small>
+                            </div>
+                            <div class="mb-1 small">
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 me-1">Tardanza</span>
+                                <span class="text-muted">Llegada tarde (15 min)...</span>
+                            </div>
+                            <small class="text-muted" style="font-size: 0.7rem;">Ayer, 07:15 AM</small>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Lógica simple para cambiar entre Individual y Grupal
+        function toggleStudentSelect(type) {
+            const divInd = document.getElementById('divSelectIndividual');
+            const divGrp = document.getElementById('divSelectGroup');
+            
+            if (type === 'group') {
+                divInd.classList.add('d-none');
+                divGrp.classList.remove('d-none');
+            } else {
+                divInd.classList.remove('d-none');
+                divGrp.classList.add('d-none');
+            }
+        }
+    </script>
+}

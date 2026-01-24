@@ -1,0 +1,44 @@
+@model string 
+@{
+    ViewData["Title"] = "Curso No Encontrado";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+            <i class="fa-solid fa-5x fa-triangle-exclamation text-warning"></i>
+            <h1 class="display-6 fw-bold mb-3 text-danger">
+                No encontramos el curso
+            </h1>
+
+            <p class="lead text-muted mb-4">
+                Lo sentimos, el sistema no pudo localizar ningún curso registrado con el código: 
+                <span class="badge bg-light text-dark border border-secondary border-opacity-25 fs-6 font-monospace">
+                    @ViewBag.CourseId
+                </span>
+            </p>
+
+            <div class="card bg-light border-0 mb-4 text-start shadow-sm">
+                <div class="card-body small text-secondary">
+                    <i class="fas fa-info-circle me-2"></i> <strong>Posibles causas:</strong>
+                    <ul class="mb-0 mt-2 ps-3">
+                        <li>El curso fue eliminado recientemente o dado de baja.</li>
+                        <li>El código del enlace es incorrecto o está incompleto.</li>
+                        <li>No tienes permisos suficientes para visualizar este contenido.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a asp-action="Index" class="btn btn-primary px-4 gap-3">
+                    <i class="fas fa-list-ul me-2"></i> Ver Lista de Cursos
+                </a>
+                
+                <a href="javascript:history.back()" class="btn btn-outline-secondary px-4">
+                    <i class="fas fa-arrow-left me-2"></i> Regresar
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>

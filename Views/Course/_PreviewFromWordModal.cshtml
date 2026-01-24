@@ -1,0 +1,36 @@
+<div class="modal fade" id="previewModal">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Previsualización del Syllabus</h5>
+        <button class="btn-close" data-bs-dismiss="modal" onclick="clearPreview()"></button>
+      </div>
+
+      <div class="modal-body">
+        <table class="table table-responsive table-sm table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha</th>
+              <th>Objetivos</th>
+              <th>Contenido</th>
+              <th>Estrategias</th>
+              <th>Recursos</th>
+              <th>Evaluaciones</th>
+              <th>Bibliografia</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="previewBody"></tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearPreview()">Cancelar</button>
+        <button class="btn btn-success" id="btnConfirmImport" onclick="savePreviewSyllabus()">Guardar</button>
+      </div>
+
+    </div>
+  </div>
+</div>

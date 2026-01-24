@@ -1,0 +1,209 @@
+<!--NewCourseModal-->
+<div class="modal fade" id="registerCourseModal" tabindex="-1" aria-labelledby="registerCourseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-purple text-white">
+                <h5 class="modal-title" id="registerCourseModalLabel">
+                    <i class="fas fa-plus-circle text-white"></i> Registrar Nuevo Curso
+                </h5>
+                <button type="button"  class="btn-close text-white bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="registerCourseForm">
+                    <h6 class="text-primary fw-bold mb-3">
+                        <i class="fas fa-info-circle"></i> Información Básica 
+                    </h6>
+                    <div class="row">
+                        <!--Career Field-->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <select class="form-select" id="courseCareer" 
+                                 asp-items="@(ViewBag.CourseList)" >
+                                    <option value="" selected disabled>Seleccionar...</option>
+                                    
+                                </select>
+                                <label for="courseCareer" class="form-label"> 
+                                    <span class="text-danger">Carrera *</span>
+                                    </label>
+                            </div>
+                        </div> <!--End Career Field-->
+                        <!-- Subject Field-->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <select class="form-select" id="courseSubjectr" required disabled>
+                                    <option value=""selected disabled>Seleccionar...</option>
+                                </select>
+                                <label for="coursesubject" class="form-label">
+                                    <span class="text-danger">Asignatura *</span>
+                                </label>
+                                <div class="invalid-feedback">
+                                    Por favor, Seleccione un Asignatura.
+                                </div>
+                            </div> <!-- End Subject Field -->
+                        </div> <!-- EndColuma Subject -->
+                    </div> <!--End Row 1 -->
+                    <div class="row">
+                        <!-- Semester Field Column -->
+                        <div class="col-md-3 mb-3">
+                            <!-- Semester Field -->
+                            <div class="form-floating">
+                                <select class="form-select" id="Semester" placeholder="Ingresar el Semestre que se desarrola el curso" disabled>
+                                    <option value="" selected disabled>Seleccionar...</option>
+                                    <option value="I">I Semestre</option>
+                                    <option value="II">II Semestre</option>
+                                </select>
+                                <label for="Semester">
+                                    <span class="text-dange">
+                                        <span class="text-danger">Semestre *</span>
+                                    </span>
+                                </label>
+                            </div> <!-- End Semester Field -->
+                        </div> <!-- End Semester Column -->
+                        <div class="col-md-3 mb-3">
+                            <div class="form-floating">
+                                @{
+                                    var currentYear = DateTime.Now.Year;
+                                }
+                                <input type="number" value="@currentYear" class="form-control" id="Year" placeholder="Ingresar año academico" disabled>
+                                <label for="Year">
+                                    <span class="text-danger">Año *</span>
+                                </label>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-3 mb-3">
+                            <div class="form-floating">
+                                <select class="form-select" id="courseShift" placeholder="Agregar el turno del curso" disabled >
+                                    <option value="" disabled selected>Seleccionar</option>
+                                    <option value="Matutino">Matutino</option>
+                                    <option value="Vespertino">Vespertino</option>
+                                    <option value="Diurno">Diurno</option>
+                                </select>
+                                <label for="courseShift">
+                                    <span class="text-danger">Turno *</span>
+                                </label>
+                            </div>
+                        </div>
+                         <!---Creadit Field Column -->
+                        <div class="col-md-3 mb-3">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="courseCredits" min="1" max="10" placeholder="4" required disabled>
+                                <label for="courseCredits" class="form-label">Créditos *</label>
+                            </div> <!--End Creadit Field-->
+                        </div> <!--End Credit Field Column-->
+                    </div>
+                    <div class="row"> 
+                        <div class="col-md-3 mb-3">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="TotalHours" placeholder="Agregar las horas total de curso" disabled />
+                                <label for="TotalHours">Horas Totales </label>
+                            </div>
+                        </div> 
+                       
+                        <!-- Hours Cours Field Column -->
+                        <div class="col-md-4 mb-3">
+                            <!-- course Field -->
+                            <div class="form-floating"> 
+                                <input type="number" class="form-control" id="courseHours" min="1" max="40" placeholder="4" required disabled>
+                                <label for="courseHours" class="form-label">Horas Semanales *</label>
+                            </div> <!-- End CourseHourse Field-->
+                            <div class="form-text text-center d-flex align-items-center justify-content-center text-muted small" id="freqCounter">
+                                <div class="d-block">
+                                    Horarios asignados: 
+                                    <span id="currentAcademicHours" class="fw-bold text-danger fs-5">0.0</span> /
+                                    <span id="targetFrequencyDisplay" class="text-muted small">0</span>
+                                    <span class="badge bg-secondary">Hrs</span>
+                                </div>
+                                <div id="hourFeedback" class="form-text text-danger small" style="display:none;">
+                                    <i class="fas fa-exclamation-circle"></i> Las horas no coinciden.
+                                </div>
+                            </div>   
+                        </div>
+                        <!-- courseCapacity Flield -->
+                        <div class="col-4 mb-3">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="courseCapacity" placeholder="ingrese la cantida de estudiante" disabled>
+                                <label for="courseCapacity">Cupo Máximo</label>
+                            </div> <!--End courseCapacity Field-->
+                        </div><!--End courseCapacity Field column-->
+                    </div> <!--End Row 2-->
+                    <!-- Horarios Semanales Card -->
+                    <div class="card border-0"> 
+                        <div class="card-head text-primary d-flex justify-content-between align-items-center">
+                            <!--Card Title-->
+                            <h6><i class="fas fa-clock me-1"></i> Horarios Semanales</h6>
+                            <button type="button" class="btn btn-sm btn-outline-primary me-3" onclick="addScheduleRow()">
+                                <i class="fas fa-plus me-1"></i> Agregar Día
+                            </button>
+                            </div> <!--End Card Title-->
+                            <div class="card-body">
+                                <!--Row 3-->
+                                <div class="row mb-2"> 
+                                    <!-- Classroom Field -->
+                                    <div class="col-md-12">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="courseClassroom" asp-items="@(ViewBag.ClassroomList)" required disabled>
+                                                <option value="" selected disabled>Seleccionar...</option>
+                                            </select>
+                                            <label for="courseClassroom" class="form-label">
+                                                <span class="text-danger">Aula Asignada *</span>
+                                            </label>
+                                        </div> <!-- End col -->
+                                    </div> <!-- End Classroom Field -->
+                                </div>
+                                <div id="scheduleContainer">
+                                </div>
+                                <div id="emptyScheduleMsg" class="text-center py-3 text-muted border border-dashed rounded bg-light">
+                                    <div>
+                                        <i class="fas fa-calendar-times me-1"></i> 
+                                        <p class="mt-2 mb-0 fw-bold">
+                                            No hay horarios definidos aún.
+                                        </p>
+                                        <small>Es necesario asignar al menos un día y hora.</small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary px-4 rounded-pill" onclick="addScheduleRow()">
+                                        <i class="fas fa-plus me-2"></i> Agregar Primer Horario
+                                    </button>
+                                </div> <!--End Empty Schedule msg-->
+                            </div> <!-- End Card Body -->
+                        </div> <!--End Card-->
+                        <h6 class="text-primary fw-bold mb-3">
+                        <i class="fas fa-clock"></i> Fechas y Estado
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" id="courseStartDate" required disabled>
+                                <label for="courseStartDate" class="form-label">Fecha de Inicio *</label>
+                            </div>
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" id="courseEndDate" required disabled>
+                                <label for="courseEndDate" class="form-label">Fecha de Fin *</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="form-check form-switch d-flex justify-content-center align-items-center text-center">
+                                <input class="form-check-input" type="checkbox" id="isActive" checked style="transform: scale(1.3);" disabled>
+                                <div id="checkStatus" class="text-center super-small text-muted mt-1 ms-3" style="font-size:0.7rem">Activo</div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnClose" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="registerCourse()">
+                    <i class="fas fa-save"></i> Registrar Curso
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @{await Html.RenderPartialAsync("_CourseModalScript");}
+}

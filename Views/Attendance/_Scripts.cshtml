@@ -1,0 +1,30 @@
+<script>
+    function deleteSession(id) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Se eliminará esta lista de asistencia permanentemente.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Fetch para eliminar
+                fetch(`/Attendance/DeleteSession/${id}`, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        Swal.fire('Eliminado', 'Registro eliminado.', 'success')
+                        .then(() => window.location.href = '@Url.Action("Details", "Course", new { id = Model.CourseId })');
+                    } else {
+                        Swal.fire('Error', 'No se pudo eliminar.', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>

@@ -1,0 +1,220 @@
+<!-- model Asistencia.Models.ViewModels.AttendanceEditViewModel -->
+
+<div class="container py-4">
+
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Details", "Course", new { courseId = Model.IdCourse })">Curso</a></li>
+            <li class="breadcrumb-item"><a href="#">Historial</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Editar Sesión #@Model.AttendanceId</li>
+        </ol>
+    </nav>
+
+    <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center mb-4" role="alert">
+        <i class="fas fa-exclamation-triangle fa-lg me-3"></i>
+        <div>
+            <strong>Modo Edición:</strong> Estás modificando un registro histórico. Los cambios afectarán el porcentaje de asistencia de los estudiantes inmediatamente.
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold text-primary mb-3">Datos de la Sesión</h5>
+            <div class="row g-3">
+                <input type="hidden" id="attendanceId" value="@Model.AttendanceId">
+                <input type="hidden" id="courseId" value="@Model.IdCourse">
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted">Fecha</label>
+                    <input type="date" class="form-control" id="sessionDate" value="@Model.Date.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted">Duración (Hrs)</label>
+                    <input type="number" class="form-control fw-bold" id="sessionHours" 
+                           value="@Model.Hours" min="1" max="10" onchange="updateAllPresentHours()"> 
+                </div>
+                <div class="col-md-7">
+                    <label class="form-label small fw-bold text-muted">Tema Tratado</label>
+                    <input type="text" class="form-control" id="sessionTopic" value="@Model.Topic" placeholder="Ej: Introducción a MVC..."> 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0 text-dark">Listado de Asistencia</h6>
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="markAllPresent()">
+                <i class="fas fa-check-double me-1"></i> Marcar todos Presente
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-uppercase small text-muted">
+                    <tr>
+                        <th class="ps-4">Estudiante</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center" style="width: 100px;">Horas</th>
+                        <th>Observación</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTableBody">
+                    @foreach (var student in Model.AttendanceDetail) 
+                    { 
+                        <tr data-student-id="@student.StudentId" data-enrollment="@student.EnrollmentId">
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">@student.StudentFullName</div>
+                                <small class="text-muted">@student.StudentId</small>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    
+                                    <input type="radio" class="btn-check status-radio" name="st_@student.EnrollmentId" id="p_@student.EnrollmentId" value="P" 
+                                           @(student.Status == "P" ? "checked" : "")
+                                           onchange="handleStatusChange('@student.EnrollmentId', 'P')">
+                                    <label class="btn btn-outline-success btn-sm rounded-pill px-3" for="p_@student.EnrollmentId">P</label>
+
+                                    <input type="radio" class="btn-check status-radio" name="st_@student.EnrollmentId" id="t_@student.EnrollmentId" value="T" 
+                                           @(student.Status == "T" ? "checked" : "")
+                                           onchange="handleStatusChange('@student.EnrollmentId', 'T')">
+                                           
+                                    <label class="btn btn-outline-warning btn-sm rounded-pill px-3" for="t_@student.EnrollmentId">T</label>
+
+                                    <input type="radio" class="btn-check status-radio" name="st_@student.EnrollmentId" id="a_@student.EnrollmentId" value="A" 
+                                           @(student.Status == "A" ? "checked" : "")
+                                           onchange="handleStatusChange('@student.EnrollmentId', 'A')">
+                                    <label class="btn btn-outline-danger btn-sm rounded-pill px-3" for="a_@student.EnrollmentId">A</label>
+                                    
+                                    <input type="radio" class="btn-check status-radio" name="st_@student.EnrollmentId" id="j_@student.EnrollmentId" value="J" 
+                                            @(student.Status == "J" ? "checked" : "")
+                                           onchange="handleStatusChange('@student.EnrollmentId', 'J')">
+                                    <label class="btn btn-outline-info btn-sm rounded-pill px-3" for="j_@student.EnrollmentId">J</label>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="number" id="hours_@student.EnrollmentId" 
+                                       class="form-control text-center fw-bold"  
+                                       value="@student.HoursAttended" 
+                                       @(student.Status == "T" ? "" : "readonly") 
+                                       @(student.Status == "T" ? "bg-warning bg-opacity-10 border-warning" : "bg-light")
+                                       >
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm border-0 border-bottom rounded-0 comment-input" 
+                                       value="@student.Observation" placeholder="...">
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white py-3 text-end">
+            <a href="#" class="btn btn-light me-2">Cancelar</a>
+            <!-- Url.Action("SessionDetails", new { id = Model.AttendanceId })-->
+            <button type="button" class="btn btn-primary px-4" onclick="saveChanges()">
+                <i class="fas fa-save me-2"></i>Guardar Cambios
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // 1. LÓGICA DE CAMBIO DE ESTADO (Misma que en registro)
+        function handleStatusChange(studentId, status) {
+            const inputHours = document.getElementById(`hours_${studentId}`);
+            const maxHours = parseFloat(document.getElementById('sessionHours').value) || 2;
+            
+            inputHours.classList.remove('bg-light', 'bg-warning', 'bg-opacity-10', 'border-warning');
+
+            if (status === 'P') {
+                inputHours.value = maxHours;
+                inputHours.readOnly = true;
+                inputHours.classList.add('bg-light');
+            } else if (status === 'A' || status === 'J') {
+                inputHours.value = 0;
+                inputHours.readOnly = true;
+                inputHours.classList.add('bg-light');
+            } else if (status === 'T') {
+                // Si ya tenía horas (porque venía de la BD), las mantenemos, si no, calculamos
+                if(inputHours.value == 0 || inputHours.value == maxHours) {
+                    inputHours.value = (maxHours > 1) ? maxHours - 1 : 0.5;
+                }
+                inputHours.readOnly = false;
+                inputHours.classList.add('bg-warning', 'bg-opacity-10', 'border-warning');
+                inputHours.focus();
+            }
+        }
+
+        // 2. ACTUALIZAR HORAS GLOBALES
+        function updateAllPresentHours() {
+            const maxHours = document.getElementById('sessionHours').value;
+            const rows = document.querySelectorAll('#attendanceTableBody tr');
+            
+            rows.forEach(row => {
+                const id = row.dataset.enrollment;
+                const isPresent = document.getElementById(`p_${id}`).checked;
+                if(isPresent) {
+                    document.getElementById(`hours_${id}`).value = maxHours;
+                }
+            });
+        }
+
+        // 3. GUARDAR CAMBIOS (PUT)
+        function saveChanges() {
+            const attendanceId = document.getElementById('attendanceId').value;
+            const courseId = document.getElementById('courseId').value;
+            const date = document.getElementById('sessionDate').value;
+            const topic = document.getElementById('sessionTopic').value;
+            const totalHours = document.getElementById('sessionHours').value;
+
+            let details = [];
+            const rows = document.querySelectorAll('#attendanceTableBody tr');
+
+            rows.forEach(row => {
+                const id = row.dataset.enrollment;
+                const status = row.querySelector(`input[name="st_${id}"]:checked`).value;
+                const hours = document.getElementById(`hours_${id}`).value;
+                const obs = row.querySelector('.comment-input').value;
+
+                details.push({
+                    EnrollmentId: id,
+                    Status: status,
+                    HoursAttended: parseFloat(hours),
+                    Observation: obs
+                });
+            });
+
+            const payload = {
+                AttendanceId: parseInt(attendanceId), // Importante para que el backend sepa cuál actualizar
+                IdCourse: parseInt(courseId),
+                Date: date,
+                Topic: topic,
+                Hours: parseFloat(totalHours),
+                AttendanceDetail: details
+            };
+
+            Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
+
+            // Fetch al endpoint de ACTUALIZACIÓN
+            fetch('/Attendance/UpdateAttedance', {
+                method: 'POST', // O PUT según tu API
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    Swal.fire('Actualizado', 'La asistencia ha sido modificada correctamente.', 'success')
+                    .then(() => {
+                        // Redirigir al detalle de la sesión para ver cómo quedó
+                        window.location.href = `/Course/${courseId}/Attendance/${attendanceId}`;
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            });
+        }
+    </script>
+}

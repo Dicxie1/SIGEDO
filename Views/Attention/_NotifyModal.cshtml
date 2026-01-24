@@ -1,0 +1,39 @@
+<div class="modal fade" id="notifyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="fab fa-whatsapp me-2"></i>Notificar por WhatsApp
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="notifyForm">
+                    <input type="hidden" id="notif_RecordId" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Teléfono:</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-phone"></i></span>
+                            <input type="text" class="form-control bg-light border-start-0 fw-bold" id="notif_Phone" readonly>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Mensaje:</label>
+                        <textarea class="form-control bg-light" id="notif_Message" rows="10"></textarea>
+                        <div class="form-text small">
+                            Puedes editar el mensaje antes de abrir WhatsApp.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="sendWhatsApp()">
+                    <i class="fab fa-whatsapp me-2"></i> Abrir WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

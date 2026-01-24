@@ -1,0 +1,447 @@
+<script>
+    const categorySelect = document.getElementById('filterCategory');
+    const searchInput = document.getElementById('searchHistory');
+    const listContainer = document.getElementById('historyList');
+    const emptyState = document.getElementById('emptySearchState');
+    const termDisplay = document.getElementById('searchTermDisplay');
+    console.log(emptyState);
+    searchInput.addEventListener('keyup', applyFilters)
+
+    function applyFilters() {
+    // 1. Obtener valores actuales
+    const searchText = searchInput.value.toLowerCase().trim();
+    const selectedCategory = categorySelect.value; // 'all', 'Académico', etc.
+
+    let items = document.querySelectorAll('.record-item');
+    let visibleCount = 0;
+
+    // 2. Iterar y Validar (Lógica AND)
+    items.forEach(item => {
+        // Datos del item
+        const name = item.querySelector('.record-name').innerText.toLowerCase();
+        const obs = item.querySelector('.record-obs').innerText.toLowerCase();
+        const itemCategory = item.getAttribute('data-category'); // Ej: "Conducta"
+
+        // A. ¿Coincide el Texto? (Si está vacío, siempre es true)
+        const matchesText = name.includes(searchText) || obs.includes(searchText);
+
+        // B. ¿Coincide la Categoría? (Si es 'all', siempre es true)
+        const matchesCategory = (selectedCategory === 'all') || (itemCategory === selectedCategory);
+
+        // C. Resultado Final
+        if (matchesText && matchesCategory) {
+            item.style.display = ''; // Mostrar
+            visibleCount++;
+        } else {
+            item.style.display = 'none'; // Ocultar
+        }
+    });
+
+    // 3. Manejo del Estado Vacío (Empty State)
+    handleEmptyState(visibleCount, searchText, selectedCategory);
+}
+
+// Función auxiliar para mostrar mensaje si no hay resultados
+function handleEmptyState(count, text, category) {
+    if (count === 0) {
+        listContainer.classList.add('d-none');
+        emptyState.classList.remove('d-none');
+        
+        // Personalizar mensaje según qué filtro está activo
+        if (text && category !== 'all') {
+            termDisplay.innerText = `"${text}" en ${category}`;
+        } else if (text) {
+            termDisplay.innerText = `"${text}"`;
+        } else if (category !== 'all') {
+             termDisplay.innerText = `categoría ${category}`;
+        } else {
+             termDisplay.innerText = "los filtros seleccionados";
+        }
+        
+    } else {
+        listContainer.classList.remove('d-none');
+        emptyState.classList.add('d-none');
+    }
+}
+
+// Función Limpiar (Actualizada para resetear ambos)
+function clearSearch() {
+    searchInput.value = '';
+    categorySelect.value = 'all'; // Resetear también categoría
+    applyFilters(); // Recalcular
+}
+    
+    function toggleSelect(type) {
+            console.log("toggleSelect called with type: " + type);
+            const divInd = document.getElementById('divSelectIndividual');
+            const divGrp = document.getElementById('divSelectGroup');
+            
+            if(type === 'group'){
+                divInd.classList.add('d-none');
+                divGrp.classList.remove('d-none');
+            } else {
+                divInd.classList.remove('d-none');
+                divGrp.classList.add('d-none');
+            }
+        }
+        function saveAttentionRecord() {
+    // 1. OBTENER REFERENCIAS AL DOM
+    const btn = document.getElementById('btnSaveAttention');
+    const originalBtnText = btn.innerHTML; // Para restaurar después
+    
+    // Inputs básicos
+    const courseId = document.getElementById('hdnCourseId').value;
+    const type = document.querySelector('input[name="attType"]:checked').value; // 'individual' o 'group'
+    const category = document.getElementById('selCategory').value;
+    const priority = document.getElementById('selPriority').value;
+    const observation = document.getElementById('txtObservation').value;
+
+    // 2. LÓGICA DE SELECCIÓN DE ESTUDIANTES (CRÍTICO)
+    let enrollmentIds = [];
+
+    if (type === 'individual') {
+        // Caso Individual: Leemos el select simple
+        const studentId = document.getElementById('selStudent').value;
+        if (studentId) {
+            enrollmentIds.push(parseInt(studentId));
+        }
+    } else {
+        // Caso Grupal: Leemos las opciones seleccionadas del select múltiple
+        const selectGroup = document.getElementById('selGroup');
+        const selectedOptions = Array.from(selectGroup.selectedOptions);
+        
+        selectedOptions.forEach(option => {
+            enrollmentIds.push(parseInt(option.value));
+        });
+    }
+
+    // 3. VALIDACIONES FRONTEND
+    if (enrollmentIds.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Falta información',
+            text: 'Debes seleccionar al menos un estudiante para el reporte.'
+        });
+        return; // Detenemos aquí
+    }
+
+    if (!observation || observation.trim().length < 5) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Observación muy corta',
+            text: 'Por favor detalla la situación u observación (mínimo 5 caracteres).'
+        });
+        return;
+    }
+
+    // 4. PREPARAR EL OBJETO A ENVIAR (DTO)
+    const payload = {
+        CourseId: parseInt(courseId),
+        EnrollmentIds: enrollmentIds, // Array de ints [1, 2, 5...]
+        Category: parseInt(category),
+        Priority: parseInt(priority),
+        Observation: observation.trim()
+    };
+
+    // 5. EFECTO DE CARGA (UX)
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
+    // Obtener Token Antiforgery (Seguridad ASP.NET Core)
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    // 6. PETICIÓN FETCH AL SERVIDOR
+    fetch('@Url.Action("AddAttention", "Attention")', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error en la respuesta de red');
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // A. ÉXITO
+            Swal.fire({
+                icon: 'success',
+                title: '¡Registrado!',
+                text: 'La bitácora se ha actualizado correctamente.',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                // Recargar página para actualizar historial y contadores
+                location.reload(); 
+            });
+        } else {
+            // B. ERROR DE LÓGICA (Validación backend)
+            Swal.fire('Error', data.message || 'No se pudo guardar el registro.', 'error');
+            resetButton(btn, originalBtnText);
+        }
+    })
+    .catch(error => {
+        // C. ERROR DE RED O SERVIDOR
+        console.error('Error:', error);
+        Swal.fire('Error del Sistema', 'Ocurrió un problema de conexión.', 'error');
+        resetButton(btn, originalBtnText);
+    });
+}
+
+// Función auxiliar para restaurar el botón
+function resetButton(btn, html) {
+    btn.disabled = false;
+    btn.innerHTML = html;
+}
+// A. ABRIR MODAL Y CARGAR DATOS
+function openEditModal(recordId) {
+    // 1. Mostrar Modal vacío o con spinner mientras carga
+    const modalEl = document.getElementById('editAttentionModal');
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+
+    // 2. Fetch para obtener detalles
+    fetch(`/Attention/GetDetails/${recordId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                console.log(data)
+                const r = data.data;
+
+                // 3. Llenar Campos
+                document.getElementById('edit_RecordId').value = r.id;
+                document.getElementById('edit_Category').value = r.category;
+                document.getElementById('edit_Priority').value = r.priority;
+                document.getElementById('edit_Observation').value = r.observation;
+
+                // 4. Llenar Estado (Radio Buttons)
+                if (r.status === 2) { // 2 = Resolved
+                    document.getElementById('statusResolved').checked = true;
+                } else {
+                    document.getElementById('statusPending').checked = true;
+                }
+
+                // 5. Renderizar Participantes (Badges)
+                const container = document.getElementById('edit_ParticipantsList');
+                container.innerHTML = ''; // Limpiar
+                
+                r.participants.forEach(name => {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-white text-dark border px-2 py-1 fw-normal';
+                    badge.innerHTML = `<i class="fas fa-user-circle text-muted me-1"></i> ${name}`;
+                    container.appendChild(badge);
+                });
+
+            } else {
+                Swal.fire('Error', 'No se pudo cargar el registro.', 'error');
+                modal.hide();
+            }
+        })
+        .catch(err => console.error(err));
+}
+// B. GUARDAR CAMBIOS
+function updateAttentionRecord() {
+    const id = document.getElementById('edit_RecordId').value;
+    const category = document.getElementById('edit_Category').value;
+    const priority = document.getElementById('edit_Priority').value;
+    const observation = document.getElementById('edit_Observation').value;
+    // Obtener valor del radio button seleccionado
+    const status = document.querySelector('input[name="editStatus"]:checked').value;
+
+    const payload = {
+        RecordId: parseInt(id),
+        Category: parseInt(category),
+        Priority: parseInt(priority),
+        Status: parseInt(status),
+        Observation: observation
+    };
+
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    fetch('@Url.Action("Update", "Attention")', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Cerrar modal y recargar
+            const modalEl = document.getElementById('editAttentionModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Actualizado',
+                text: 'El reporte ha sido modificado.',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => location.reload());
+        } else {
+            Swal.fire('Error', data.message, 'error');
+        }
+    });
+}
+   function markResolved(id, btnElement) {
+    // 1. Feedback visual inmediato (Optimistic UI)
+    // Cambiamos el botón por un texto de "Guardando..." o un check verde fijo
+    const originalContent = btnElement.innerHTML;
+    btnElement.innerHTML = '<button class="btn-link text-decoration-none text-success small" style="font-size: 0.75rem;" disable><i class="fas fa-spinner fa-spin"></i> Registrando...</button>';
+    btnElement.disabled = true;
+
+    // 2. Llamada al Backend
+    fetch(`/Attention/Resolve/${id}`, { 
+        method: 'POST',
+        headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // 3. Éxito: Transformar la fila
+            // Opción A: Desaparecer la fila (si es una lista de pendientes)
+            // btnElement.closest('.record-item').remove();
+            
+            // Opción B: Cambiar el estado visualmente
+            const card = btnElement.closest('.record-item');
+            card.classList.add('bg-light', 'opacity-75'); // Apagar visualmente
+            btnElement.outerHTML = ` <button class="btn btn-link text-decoration-none text-success small" style="font-size: 0.75rem;" disabled>
+                                                    <i class="fas fa-check-double me-1"></i>Resuelto</button>`
+            btnElement.classList.toggle("text-success");
+            
+            // Disparar confeti o alerta pequeña
+            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+            Toast.fire({ icon: 'success', title: 'Caso resuelto' });
+        }
+    });
+}
+// A. ABRIR MODAL
+function openNotifyModal(recordId) {
+    const modal = new bootstrap.Modal(document.getElementById('notifyModal'));
+    modal.show();
+
+    // Resetear
+    document.getElementById('notif_Phone').value = 'Cargando...';
+    document.getElementById('notif_Message').value = 'Generando...';
+
+    fetch(`/Attention/GetNotificationData/${recordId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const info = data.info;
+                document.getElementById('notif_RecordId').value = recordId;
+                
+                // Mostrar número (asegúrate de agregar el código de país si falta)
+                // Ejemplo: Si el número es 88888888 y tu país es Nicaragua (505)
+                let phone = info.phoneNumber; 
+                // Lógica opcional de prefijo:
+                // if (!phone.startsWith('505')) phone = '505' + phone;
+                
+                document.getElementById('notif_Phone').value = phone;
+
+                // Plantilla WhatsApp (Usa *negritas* y emojis)
+                const template = `👋 Hola, le escribo del colegio respecto a *${info.studentName}*.
+
+📅 *Fecha:* ${info.date}
+⚠️ *Motivo:* ${info.category} (${info.priority})
+
+📝 *Observación:*
+${info.observation}
+
+Quedamos atentos a sus comentarios.`;
+
+                document.getElementById('notif_Message').value = template;
+            }
+        });
+}
+
+// B. ENVIAR WHATSAPP
+function sendWhatsApp() {
+    const phone = document.getElementById('notif_Phone').value;
+    const message = document.getElementById('notif_Message').value;
+    const recordId = document.getElementById('notif_RecordId').value;
+
+    if (!phone || phone.length < 8) {
+        Swal.fire('Error', 'El número de teléfono no es válido.', 'error');
+        return;
+    }
+
+    // 1. Codificar mensaje para URL
+    const encodedMsg = encodeURIComponent(message);
+    
+    // 2. Crear URL de API WhatsApp
+    // Usa https://wa.me/NUMERO?text=MENSAJE
+    const url = `https://wa.me/${phone}?text=${encodedMsg}`;
+
+    // 3. Abrir en nueva pestaña
+    window.open(url, '_blank');
+
+    // 4. PREGUNTAR AL USUARIO SI SE ENVIÓ (Para actualizar BD)
+    // Como WhatsApp es externo, no sabemos si el usuario realmente dio "Enter".
+    // Le preguntamos para confirmar.
+    
+    // Cerrar modal primero
+    const modalEl = document.getElementById('notifyModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    modal.hide();
+
+    Swal.fire({
+        title: '¿Se envió el mensaje?',
+        text: 'Confirma si lograste enviar el mensaje en WhatsApp para marcar el registro como notificado.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, marcar como notificado',
+        cancelButtonText: 'No, intentar luego',
+        confirmButtonColor: '#198754'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            markAsNotifiedInDb(recordId);
+        }
+    });
+}
+
+// C. ACTUALIZAR BD (AJAX)
+function markAsNotifiedInDb(id) {
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    fetch('/Attention/MarkAsNotified', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+        },
+        body: JSON.stringify({ id: parseInt(id) }) // Enviamos solo el ID
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire('Listo', 'Registro actualizado.', 'success')
+                .then(() => location.reload());
+        }
+    });
+}
+// ======= Open Notify Modal Test function  =========== ///
+    function openNoti(){
+        const phoneNumber = document.getElementById('notif_Phone');
+        const notifyMessage = document.getElementById('notif_Message');
+        phoneNumber.value = "";
+        notifyMessage.value =" "
+        const modal = new bootstrap.Modal(document.getElementById('notifyModal'));
+        modal.show();
+        
+        phoneNumber.value = "+50589469387"
+    }
+
+function send(){
+    let phone = '+50589469387';
+    let encodedMsg = "Mensjae";
+    const url = `https://wa.me/${phone}?text=${encodedMsg}`
+    window.open(url, '_blank')
+}
+// ============== Filtrar  ==================== //   
+</script>

@@ -1,0 +1,1148 @@
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+const selectedStudents = new Map();
+$('#enrollModal').on('shown.bs.modal', function () {
+    if (!$('#searchStudent').hasClass('select2-hidden-accessible')) {
+        $('#searchStudent').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            dropdownParent: $('#enrollModal'),
+            placeholder: 'Buscar por código, nombre y apellido...',
+            allowClear: true,
+            minimumInputLength: 0,
+            ajax: {
+                url: '/Students/List',
+                type: 'GET',
+                dataType: 'json',
+                delay: 300,
+                cache: true,
+                data: function (params) {
+                    return { busqueda: params.term || '' };
+                },
+                processResults: function (data) {
+                    const disponibles = data.filter(es => !selectedStudents.has(es.studentId));
+                    if(disponibles.length === 0){
+                        return {
+                            results: [],
+                            pagination: {
+                                more: false}
+                            }
+                    }
+                    return {
+                        results: disponibles.map(es => ({
+                            id: es.studentId,
+                            text: `${es.studentId} - ${es.fullName}`
+                        }))
+                    };
+                }
+            },
+            language: {
+                noResults: () => "No se encontraron coincidencias",
+                searching: () => "Buscando estudiantes..."
+            }
+        });
+    }
+});
+// Cuando se selecciona un estudiante
+$('#searchStudent').on('select2:select', function (e) {
+    const item = e.params.data;
+    selectedStudents.set(item.id, item.text);
+    renderSelected();
+    $(this).val(null).trigger('change');
+});
+// Cuando se deselecciona
+$('#searchStudent').on('select2:unselect', function (e) {
+    const item = e.params.data;
+    selectedStudents.delete(item.id);
+    renderSelected();
+});
+// Renderizar la pila
+function renderSelected() {
+    const contenedor = $('#listaSeleccionados');
+    contenedor.empty();
+    if (selectedStudents.size === 0) {
+        contenedor.append(`
+            <div class="text-muted text-center" id="sinSeleccion">
+                No hay estudiantes seleccionados
+            </div>
+        `);
+        return;
+    }
+    selectedStudents.forEach((text, id) => {
+        contenedor.append(`
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fa-solid fa-user me-1"></i>
+                    ${text}
+                </span>
+                <button class="btn btn-sm btn-outline-danger" onclick="quitarEstudiante(event,'${id}')">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `);
+    });
+}
+// Quitar estudiante desde la pila
+function quitarEstudiante(e,id) {
+    e.preventDefault();
+    e.stopPropagation();
+    selectedStudents.delete(id);
+    // Quitar también del Select2
+    const select = $('#searchStudent');
+    renderSelected();
+}
+    $('#btnEnroll').on('click', function(e){
+        e.preventDefault();
+        if (selectedStudents.size === 0) {
+            Swal.fire({text: 'Debe de matricular al menos 1 estudiante', icon: 'warning'});
+            return;
+        }
+        const courseId = $('input[name="CourseId"]').val();
+        const studentsCode = Array.from( selectedStudents.keys() );
+        $.ajax({
+            url: '/Course/EnrollStudents',
+            method: 'POST',
+            contentType : 'application/json; charset=utf-8',
+            headers: {
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            },
+            data: JSON.stringify({
+                CourseId: parseInt(courseId),
+                Students: studentsCode
+            }),
+            success: function (res) {
+                // ⚠ TODOS duplicados
+                if (res.allDuplicated) {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: res.message
+                    }).then(()=>{
+                        limpiarSeleccion();
+                        recargarTablaMatriculados();
+                        
+                    });
+                }
+                // ✅ éxito (total o parcial)
+                if (res.success) {
+                    let mensaje = res.message;
+                    if(res.duplicados && res.duplicados.length > 0) {
+                        mensaje += '\n\nYa estaban matriculados:\n' + res.duplicados.join(', ');
+                    }
+                    Swal.fire({
+                        icon: 'success',
+                        text: mensaje
+                    }).then(()=>{
+                        limpiarSeleccion();
+                        recargarTablaMatriculados();
+                        // cerrar modal solo en éxito
+                        const modal = bootstrap.Modal.getInstance(
+                            document.getElementById('enrollModal')
+                        );   
+                    });
+                    actualizarContador();
+                    return;
+                }
+                // ❌ cualquier otro error
+                Swal.fire({
+                    icon: 'error',
+                    text: res.message || 'Error inesperado'
+                });
+            },
+            error: () =>{
+                Swal.fire({text: 'Error del servidor. Intente más tarde.', icon: 'error'});
+            }
+        })
+    })
+function limpiarSeleccion() {
+        selectedStudents.clear();
+        renderSelected();
+        $('#searchStudent').val(null).trigger('change');
+    } 
+    function recargarTablaMatriculados() {
+        const courseId = $('#studentsRegister').data('idcourse');
+        $('#studentsRegister').load(
+            `/Course/EnrolledStudentsRows?courseId=${courseId}`, function(){
+                actualizarContador();
+            }
+        );
+    }
+    function actualizarContador() {
+        const tbody = document.getElementById('studentsRegister');
+        const total = tbody.querySelectorAll('tr').length;
+        const enrolleds = document.getElementById('enrolleds');
+        enrolleds.textContent = 
+            total === 1
+                ? `${total} estudiante`
+                : `${total} estudiantes`;
+    }
+    function getSessionHours(){
+        const val = document.getElementById('sessionHours').value;
+        return parseFloat(val) || 5;
+    }
+    function handlerStatusChange(studentId, status){
+        const inputHours = document.getElementById(`hours_${studentId}`);
+        const maxHours = getSessionHours();
+        inputHours.classList.remove('bg-light', 'bg-warming', 'bg-opacity-10', 'border-warning');
+        switch(status){
+            case 'P':
+                inputHours.value = maxHours;
+                inputHours.readOnly = true;
+                inputHours.classList.add('bg-light');
+                break;
+            case 'A':
+            case 'J':
+                inputHours.value = 0;
+                inputHours.readOnly = true;
+                inputHours.classList.add('bg-light');
+                break;
+            case 'T':
+                inputHours.value = (maxHours > 1) ? maxHours - 1 : 0.5;
+                inputHours.readOnly = false;
+                inputHours.classList.add('bg-warning', 'bg-opacity-10', 'border-warning');
+                setTimeout(() => { inputHours.focus(); inputHours.select(); }, 100);
+                break;
+        }
+        updateStatsCounter();
+    }
+    function updateStatsCounter(){
+        const allChecked = document.querySelectorAll('.status-radio:checked');
+        let p = 0, t = 0, a = 0, j = 0;
+        allChecked.forEach(radio => {
+            switch(radio.value) {
+                case 'P': p++; break;
+                case 'T': t++; break;
+                case 'A': a++; break;
+                case 'J': j++; break;
+            }
+        });
+        animateValue("statPresent", p);
+        animateValue("statLate", t);
+        animateValue("statAbsent", a);
+        animateValue("statJustified", j);
+    }
+    function animateValue(elementId, newValue) {
+        const el = document.getElementById(elementId);
+        if(el) el.innerText = newValue;
+    }
+    function markAllPresent() {
+        const rows = document.querySelectorAll('#attendanceTableBody tr');
+
+        rows.forEach(row => {
+            const studentId = row.dataset.studentId;
+            const radioP = document.getElementById(`p_${studentId}`);
+            
+            // Solo si existe el radio, lo marcamos y ejecutamos la lógica
+            if (radioP) {
+                radioP.checked = true;
+                handlerStatusChange(studentId, 'P');
+            }
+        });
+        
+        // Mensaje discreto
+        const Toast = Swal.mixin({
+            toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, icon: 'success'
+        });
+        Toast.fire({ title: 'Todos marcados como Presentes' });
+    }
+    function updateAllPresentHours() {
+        const maxHours = getSessionHours();
+        const rows = document.querySelectorAll('#attendanceTableBody tr');
+
+        rows.forEach(row => {
+            const studentId = row.dataset.studentId;
+            // Verificar si está marcado como Presente
+            const isPresent = document.getElementById(`p_${studentId}`).checked;
+            
+            if (isPresent) {
+                document.getElementById(`hours_${studentId}`).value = maxHours;
+            }
+            // Nota: No tocamos a los de Tardanza porque esas son horas manuales
+        });
+    }
+    // Funciones globales que necesitan estar disponibles para vistas parciales
+    async function  unlockAttendance(btnElement) {
+        // 1. Obtener valores del overlay
+        const date = document.getElementById('overlayDate').value;
+        const hours = document.getElementById('overlayHours').value;
+
+        const courseId = btnElement.dataset.courseid;
+        if (!date || !hours) {
+            Swal.fire({title:'Atención', text:'Debes completar la fecha y las horas', icons: 'warning'});
+            return;
+        }
+
+        const originalText = btnElement.innerHTML;
+        btnElement.disabled = true;
+        btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...'
+        try{
+            const response = await fetch(`/Course/CheckSessionExists?courseId=${courseId}&date=${date}`);
+            if(!response) throw new Error("Erro en Conexion");
+            const data = await response.json();
+            // Si existe fecha duplicada
+            if (data.exists) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Fecha Duplicada',
+                    text: `Ya existe un registro para el ${date}.`,
+                });
+                btnElement.disabled = false;
+                btnElement.innerHTML = originalText;
+                return; 
+            }
+            // 2. Transferir valores a la interfaz real (inputs readonly)
+        document.getElementById('attendanceDate').value = date;
+        document.getElementById('sessionHours').value = hours;
+
+        // 3. Efecto de Desvanecimiento (Animación)
+        const overlay = document.getElementById('setup-overlay');
+        overlay.style.transition = 'opacity 0.5s ease';
+        overlay.style.opacity = '0';
+
+        // 4. Quitar la opacidad de los stats para que brillen
+        const workspace = document.getElementById('workspace-container');
+        if(workspace) {
+            workspace.classList.remove('opacity-50'); // Quitamos la transparencia
+            workspace.style.filter = 'blur(0px)';     // Quitamos el desenfoque
+        }
+
+        // 5. Eliminar el overlay del DOM después de la animación para poder hacer clic en la tabla
+        setTimeout(() => {
+            overlay.classList.add('d-none');
+            
+            // Ejecutar lógica para actualizar horas si ya hay algo marcado
+            if(typeof updateAllPresentHours === 'function') updateAllPresentHours();
+        }, 500);
+        }catch(error) {
+            console.error(error);
+            Swal.fire('Error', 'No se pudo verificar la fecha', 'error');
+            btnElement.disabled = false;
+            btnElement.innerHTML = originalText;
+        }
+        
+    }
+
+    function resetSession() {
+        Swal.fire({
+            title: '¿Reiniciar?',
+            text: "Se borrarán los cambios y volverás a la pantalla de configuración.",
+            icon: 'question',
+            showCancelButton: true
+        }).then((result) => {
+            if(result.isConfirmed) {
+                // Restaurar el overlay
+                const overlay = document.getElementById('setup-overlay');
+                const btnUnlock = document.getElementById('btnUnlock');
+                overlay.classList.remove('d-none');
+                
+                // Pequeño timeout para permitir que el navegador pinte el d-none antes de la opacidad
+                setTimeout(() => {
+                    overlay.style.opacity = '1';
+                }, 10);
+                if(!btnUnlock) Swal.fire('boton no capturado');
+                btnUnlock.innerHTML = '<i class="fas fa-unlock-alt me-2"></i> Comenzar Registro';
+                btnUnlock.disabled = false;
+                // =========================================================
+            // 2. LÓGICA DE LIMPIEZA DE DATOS (RESET)
+            // =========================================================
+            
+            // A. Limpiar Tabla (Filas)
+            const rows = document.querySelectorAll('#attendanceTableBody tr');
+            
+            rows.forEach(row => {
+                // 1. Desmarcar Radios
+                const radios = row.querySelectorAll('input[type="radio"]');
+                radios.forEach(r => r.checked = false);
+
+                // 2. Resetear Input de Horas (Valor y Estilo)
+                const hoursInput = row.querySelector('input[type="number"]'); // O por clase .hours-input
+                if (hoursInput) {
+                    hoursInput.value = 0;
+                    hoursInput.readOnly = true;
+                    // Quitar estilos de tardanza (amarillo) y volver al gris
+                    hoursInput.classList.remove('bg-warning', 'bg-opacity-10', 'border-warning');
+                    hoursInput.classList.add('bg-light');
+                }
+
+                // 3. Borrar Observaciones
+                const obsInput = row.querySelector('input[type="text"]'); // O clase .comment-input
+                if (obsInput) {
+                    obsInput.value = '';
+                }
+            });
+
+            // B. Resetear Contadores Estadísticos (Los círculos de arriba)
+            const statsIds = ['statPresent', 'statLate', 'statAbsent', 'statJustified'];
+            statsIds.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.innerText = '0';
+            });
+                // Opcional: Limpiar los radios de la tabla
+                // ... lógica de reset ...
+            }
+        });
+    }
+    function clearAllAttendance() {
+        // Seleccionar todas las filas de la tabla
+        const rows = document.querySelectorAll('#attendanceTableBody tr');
+
+        rows.forEach(row => {
+            const studentId = row.dataset.studentId;
+            resetStudentRow(studentId); // Llamamos a la función auxiliar por cada alumno
+        });
+        // Actualizar los contadores de arriba (Total, P, T, A)
+        if(typeof updateStatsCounter === 'function') {
+            updateStatsCounter();
+        }
+    }
+    function clearRow(studentId) {
+        resetStudentRow(studentId);
+        if(typeof updateStatsCounter === 'function') {
+            updateStatsCounter();
+        }
+    }
+    function resetStudentRow(studentId) {
+        // 1. Desmarcar todos los radios de ese estudiante
+        // Nota: Usamos el nombre 'st_' que definiste en tu vista anterior
+        const radios = document.getElementsByName(`st_${studentId}`);
+        radios.forEach(r => r.checked = false);
+        // 2. Resetear Input de Horas
+        const hoursInput = document.getElementById(`hours_${studentId}`);
+        if (hoursInput) {
+            hoursInput.value = 0;
+            hoursInput.readOnly = true;
+            // Restaurar estilo gris original
+            hoursInput.className = "form-control text-center fw-bold bg-light hours-input";
+    }
+
+    // 3. Limpiar Observación
+    // Buscamos el input de texto dentro de la fila
+    const row = document.querySelector(`tr[data-student-id="${studentId}"]`);
+    if (row) {
+        const obsInput = row.querySelector('.comment-input');
+        if (obsInput) obsInput.value = '';
+    }
+}
+    function handlerStatusChange(studentId, status){
+        const inputHours = document.getElementById(`hours_${studentId}`);
+        const maxHours = getSessionHours();
+        inputHours.classList.remove('bg-light', 'bg-warming', 'bg-opacity-10', 'border-warning');
+        switch(status){
+            case 'P':
+                inputHours.value = maxHours;
+                inputHours.readOnly = true;
+                inputHours.classList.add('bg-light');
+                break;
+            case 'A':
+            case 'J':
+                inputHours.value = 0;
+                inputHours.readOnly = true;
+                inputHours.classList.add('bg-light');
+                break;
+            case 'T':
+                inputHours.value = (maxHours > 1) ? maxHours - 1 : 0.5;
+                inputHours.readOnly = false;
+                inputHours.classList.add('bg-warning', 'bg-opacity-10', 'border-warning');
+                setTimeout(() => { inputHours.focus(); inputHours.select(); }, 100);
+                break;
+        }
+        updateStatsCounter();
+    }
+
+    function updateStatsCounter(){
+        const allChecked = document.querySelectorAll('.status-radio:checked');
+        let p = 0, t = 0, a = 0, j = 0;
+        allChecked.forEach(radio => {
+            switch(radio.value) {
+                case 'P': p++; break;
+                case 'T': t++; break;
+                case 'A': a++; break;
+                case 'J': j++; break;
+            }
+        });
+        animateValue("statPresent", p);
+        animateValue("statLate", t);
+        animateValue("statAbsent", a);
+        animateValue("statJustified", j);
+    }
+
+    function animateValue(elementId, newValue) {
+        const el = document.getElementById(elementId);
+        if(el) el.innerText = newValue;
+    }
+
+    function markAllPresent() {
+        const rows = document.querySelectorAll('#attendanceTableBody tr');
+
+        rows.forEach(row => {
+            const studentId = row.dataset.studentId;
+            const radioP = document.getElementById(`p_${studentId}`);
+            
+            // Solo si existe el radio, lo marcamos y ejecutamos la lógica
+            if (radioP) {
+                radioP.checked = true;
+                handlerStatusChange(studentId, 'P');
+            }
+        });
+        
+        // Mensaje discreto
+        const Toast = Swal.mixin({
+            toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, icon: 'success'
+        });
+        Toast.fire({ title: 'Todos marcados como Presentes' });
+    }
+
+    function updateAllPresentHours() {
+        const maxHours = getSessionHours();
+        const rows = document.querySelectorAll('#attendanceTableBody tr');
+
+        rows.forEach(row => {
+            const studentId = row.dataset.studentId;
+            // Verificar si está marcado como Presente
+            const isPresent = document.getElementById(`p_${studentId}`).checked;
+            
+            if (isPresent) {
+                document.getElementById(`hours_${studentId}`).value = maxHours;
+            }
+            // Nota: No tocamos a los de Tardanza porque esas son horas manuales
+        });
+    }
+
+    function getSessionHours(){
+        const val = document.getElementById('sessionHours').value;
+        return parseFloat(val) || 5;
+    }
+
+    function saveAttendance(){
+        const courseId = @Model.CourseId;
+        const sessionDate = document.getElementById('attendanceDate').value;
+        const sessionTopic = document.getElementById('sessionTopic').value;
+        const sessionHours = document.getElementById('sessionHours').value;
+
+        // Recopilar datos de asistencia de todos los estudiantes
+        const attendanceData = [];
+        const rows = document.querySelectorAll('#attendanceTableBody tr');
+
+        rows.forEach(row => {
+            const studentId = row.dataset.studentId;
+            const enrollmentId = row.dataset.enrollment;
+            const status = document.querySelector(`input[name="status_${studentId}"]:checked`)?.value || 'A';
+            const hours = document.getElementById(`hours_${studentId}`).value;
+            const comment = row.querySelector('.comment-input').value;
+
+            attendanceData.push({
+                StudentId: studentId,
+                EnrollmentId : enrollmentId,
+                Status: status,
+                HoursAttended: parseInt(hours) || 0,
+                Observation: comment
+            });
+        });
+        console.log(attendanceData);
+        // Crear el objeto de datos para enviar como JSON
+        var attendanceDataObj = {
+            IdCourse: courseId,
+            Date: sessionDate, // Formato: YYYY-MM-DD (HTML5 date input)
+            Topic: sessionTopic,
+            Hours: sessionHours + ":00:00", // Formato TimeSpan: HH:MM:SS
+            AttendanceDetail: attendanceData
+        };
+        
+        // Enviar datos al servidor
+        $.ajax({
+            url: '/Course/SaveAttendance',
+            method: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            headers: {
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            },
+            data: JSON.stringify(attendanceDataObj),
+            success: function (res) {
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: 'La asistencia ha sido guardada correctamente'
+                    }).then(() => {
+                        // Recargar la página o redirigir
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: res.message || 'Error al guardar la asistencia'
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error del servidor. Intente más tarde.'
+                });
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+        // 1. Leer los parámetros de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabId = urlParams.get('activeTab');
+        if (tabId) {
+            // Buscamos el botón del tab por su ID
+            const tabTrigger = document.getElementById(tabId);
+            if(tabTrigger){
+                const tabInstance = bootstrap.Tab.getOrCreateInstance(tabTrigger);
+                tabInstance.show();
+            }
+        }
+
+        const dates = @Html.Raw(Json.Serialize(Model.Stats.AttendaceDates));
+        const presentsData = @Html.Raw(Json.Serialize(Model.Stats.PresentPerSession)); //  ;
+        const absentsData = @Html.Raw(Json.Serialize(Model.Stats.AbsentsPerSession)); // Html.Raw(Json.Serialize(Model.AbsentsPerSession))
+        const summaryData =[
+            @(Model.Stats.TotalPresents ?? 0), 
+            @(Model.Stats.TotalLates ?? 0), 
+            @(Model.Stats.TotalAbsents ?? 0), 
+            @(Model.Stats.TotalJustified ?? 0)];
+        const ctxLine = document.getElementById('attendanceTrendChart').getContext('2d');
+        const gradientGreen = ctxLine.createLinearGradient(0, 0, 0, 400);
+        gradientGreen.addColorStop(0, 'rgba(25, 135, 84, 0.4)'); // Verde transparente arriba
+        gradientGreen.addColorStop(1, 'rgba(25, 135, 84, 0.0)'); // Transparente abajo
+        new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: dates, // Fechas en el eje X
+                datasets: [
+                    {
+                        label: 'Presentes',
+                        data: presentsData,
+                        borderColor: '#198754', // Bootstrap Success Color
+                        backgroundColor: gradientGreen,
+                        tension: 0.4, // Curvas suaves
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Ausentes',
+                        data: absentsData,
+                        borderColor: '#dc3545', // Bootstrap Danger Color
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5], // Línea punteada para alertas
+                        tension: 0.4,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', align: 'end' },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { borderDash: [2, 2] } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+        const ctxPie = document.getElementById('attendancePieChart').getContext('2d');
+        
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['Presentes', 'Tardanzas', 'Ausentes', 'Justificadas'],
+                datasets: [{
+                    data: summaryData,
+                    backgroundColor: [
+                        '#198754', // Verde
+                        '#ffc107', // Amarillo
+                        '#dc3545', // Rojo
+                        '#0dcaf0'  // Celeste
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%', // Hace la dona más delgada y elegante
+                plugins: {
+                    legend: { display: false } // Ocultamos leyenda por defecto (ya hicimos una custom HTML)
+                }
+            }
+        });
+    });
+    function changeTab(btntabname){
+            const triggerEl = document.querySelector('#' + btntabname);
+            const tab = bootstrap.Tab.getOrCreateInstance(triggerEl);
+            tab.show();
+        }
+/* ================================
+   CONFIGURACIÓN GLOBAL
+================================ */
+const SUMMERNOTE_CONFIG = {
+    placeholder: 'Escribe aquí…',
+    tabsize: 2,
+    height: 100,
+    disableResizeEditor: true,
+    toolbar: [
+        ['style', ['bold', 'italic', 'underline']],
+        ['para', ['ul', 'ol']],
+        ['insert', ['link']],
+        ['view', ['fullscreen','codeview']]
+    ]
+};
+/* ================================
+   NUEVA FILA DE SYLLABUS
+================================ */
+function newActivitySyllabus() {
+
+    const tbody = document.getElementById('syllabusRows');
+
+    if ($('#btnAddColumn').hasClass('d-none')) {
+    $('#btnAddColumn')
+        .removeClass('d-none')
+    }
+    if($('#btnSyllabusSaveBatch').hasClass('d-none')){
+        $('#btnSyllabusSaveBatch').removeClass('d-none')
+    }
+    // 🔹 Eliminar estado vacío si existe
+    const emptyRow = document.getElementById('rowEmptyStatus');
+    if (emptyRow) emptyRow.remove();
+    // 🔹 Crear fila
+    const row =  `
+    <tr data-id="0" data-dirty="true">
+        <td >
+            <input type="date" class="form-control form-control-sm border-0 bg-transparent fw-bold txt-date">
+        </td>
+
+        <td><textarea class="summernote-area" placeholder="Objetivo de aprendizaje…"></textarea></td>
+        <td><textarea class="summernote-area" placeholder="Unidad y contenido…"></textarea></td>
+        <td><textarea class="summernote-area" placeholder="Estrategias metodológicas…"></textarea></td>
+        <td><textarea class="summernote-area" placeholder="Recursos didácticos…"></textarea></td>
+        <td><textarea class="summernote-area" placeholder="Evaluación…"></textarea></td>
+        <td><textarea class="summernote-area" placeholder="Bibliografía…"></textarea></td>
+        <td class="align-middle text-center bg-light">
+            <div class="d-flex justify-content-center gap-1">
+                    <button type="button" class="btn btn-outline-success btn-sm btn-save-row" onclick="saveSingleRow(this)" title="Guardar esta fila">
+                        <i class="fas fa-save"></i>
+                    </button>
+                    <button type="button" class="btn btn-link text-danger btn-sm p-0" onclick="removeRow(this, 0)" title="Eliminar">
+                        <i class="fas fa-times"></i>
+                    </button>
+            </div>
+        </td>
+    </tr>
+    `;
+
+    tbody.insertAdjacentHTML('beforeend', row);
+
+    // 🔹 Inicializar editores SOLO en esta fila
+    initRowEditors(tbody.lastElementChild);
+}
+/* ================================
+   INICIALIZAR EDITORES POR FILA
+================================ */
+function initRowEditors(row) {
+
+    $(row).find('.summernote-area').each(function () {
+
+        $(this).summernote({
+            ...SUMMERNOTE_CONFIG,
+            callbacks: {
+
+                onInit: function () {
+                    hideToolbar(this);
+                },
+
+                onFocus: function () {
+                    activateEditor(this);
+                }
+            }
+        });
+    });
+}
+$(document).on(
+    'mousedown',
+    '.note-editor, .note-toolbar, .note-btn, .note-dropdown-menu',
+    function (e) {
+        e.stopPropagation();
+    }
+);
+$(document).on('click', function (e) {
+    if (!$(e.target).closest('.note-editor, .note-toolbar, .note-btn').length) {
+        $('.note-editor')
+            .removeClass('active-editor')
+            .addClass('editor')
+            .find('.note-toolbar')
+            .slideUp(150);
+
+        $('tr').removeClass('row-active');
+        $('#floating-toolbar').fadeOut(150);
+    }
+});
+/* ================================
+   UX FUNCTIONS
+================================ */
+function activateEditor(textarea) {
+
+    // 🔸 Desactivar todos los demás
+    $('.note-editor')
+        .removeClass('active-editor')
+        .addClass('editor')
+        .find('.note-toolbar')
+        .hide();
+    
+    $('tr').removeClass('row-active');
+    $('td').removeClass('col-active');
+    // 🔸 Activar el actual
+    const editor = $(textarea).next('.note-editor');
+    const cell = $(textarea).closest('td');
+    editor.removeClass('editor').addClass('active-editor');
+
+    editor.find('.note-toolbar').slideDown(150);
+    cell.addClass('col-active');
+
+    $(textarea).closest('tr').addClass('row-active');
+
+    // 🔸 Toolbar flotante
+    $('#floating-toolbar')
+        .removeClass('d-none')
+        .fadeIn(150);
+}
+function deactivateEditor(textarea) {
+
+    const editor = $(textarea).next('.note-editor');
+    const cell = $(textarea).closest('td');
+    
+    editor.find('.note-toolbar').slideUp(150);
+    editor.removeClass('active-editor').addClass('editor');
+
+    // 👉 Volver a tamaño normal
+    cell.removeClass('col-active');
+
+    $('#floating-toolbar').fadeOut(150);
+}
+function hideToolbar(textarea) {
+    $(textarea)
+        .next('.note-editor')
+        .addClass('editor')
+        .find('.note-toolbar')
+        .hide();
+
+}
+    $(document).on('click', function (e) {
+        // Si hace clic fuera de cualquier editor
+        if (!$(e.target).closest('.note-editor, .note-toolbar').length) {
+            $('.note-editor')
+                .removeClass('active-editor')
+                .addClass('editor')
+                .find('.note-toolbar')
+                .slideUp(150);
+            $('tr').removeClass('row-active');
+            $('#floating-toolbar').fadeOut(150);    
+        }
+    });
+    // 4. ELIMINAR FILA
+        function removeRow(btn, id) {
+            const row = btn.closest('tr');
+            
+            // Si tiene ID > 0, borrar de la BD inmediatamente
+            if (id > 0) {
+                Swal.fire({
+                    title: '¿Eliminar?',
+                    text: "Esta acción no se puede deshacer",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, borrar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post('/Syllabus/Delete', { id: id }, function(res) {
+                            if(res.success) {
+                                row.remove();
+                                checkEmptyState();
+                            }
+                        });
+                    }
+                });
+            } else {
+                // Si es nuevo (ID 0), solo borrar del DOM
+                row.remove();
+                checkEmptyState();
+            }
+        }
+        function checkEmptyState() {
+             const tbody = document.getElementById("syllabusRows");
+             const visibleRows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.id !== 'rowEmptyStatus');
+             if (visibleRows.length === 0) {
+                 const emptyRow = document.getElementById("rowEmptyStatus");
+                 if(emptyRow) emptyRow.style.display = 'table-row';
+             }
+        }
+        // 5. GUARDAR TODO (LOGICA AJAX)
+        function saveAllSyllabus() {
+            const items = [];
+            
+            // Recorrer cada fila de datos
+            $('#syllabusRows tr[data-dirty="true"]').each(function() {
+                const row = $(this);
+                const textareas = row.find('textarea.summernote-area');
+                
+                // Construir objeto DTO
+                const item = {
+                    SyllabusId: parseInt(row.attr('data-id')),
+                    CourseId: @Model.CourseId,
+                    Date: row.find('.txt-date').val(), // Puede ser string vacío
+                    Objectives: $(textareas[0]).summernote('code'),
+                    Content: $(textareas[1]).summernote('code'),
+                    Strategies: $(textareas[2]).summernote('code'),
+                    Resources: $(textareas[3]).summernote('code'),
+                    Evaluations: $(textareas[4]).summernote('code'),
+                    Bibliography: $(textareas[5]).summernote('code')
+                };
+                items.push(item);
+            });
+
+            // Enviar al servidor
+            $.ajax({
+                url: '@Url.Action("SaveAll", "Syllabus", new{courseId = @Model.CourseId})',
+                contentType: 'application/json',
+                type: 'POST',
+                data: JSON.stringify(items),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Guardado', response.message, 'success').then(() => {
+                            location.reload(); // Recargar para actualizar IDs
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Error de conexión con el servidor', 'error');
+                }
+            });
+        }
+    function saveSingleRow(btn) {
+    // 1. Obtener la fila actual
+    const row = $(btn).closest('tr');
+    const saveIcon = $(btn).find('i');
+    // Animación de "Cargando"
+    saveIcon.removeClass('fa-save').addClass('fa-spinner fa-spin');
+    $(btn).prop('disabled', true);
+    // 2. Extraer datos (Summernote + Date)
+    const textareas = row.find('textarea.summernote-area');
+    const payload = {
+        SyllabusId: parseInt(row.attr('data-id')), // Será 0 si es nueva
+        CourseId: COURSE_ID, // Variable global definida en tu vista
+        Date: row.find('.txt-date').val(),
+        Objectives: $(textareas[0]).summernote('code'),
+        Content: $(textareas[1]).summernote('code'),
+        Strategies: $(textareas[2]).summernote('code'),
+        Resources: $(textareas[3]).summernote('code'),
+        Evaluations: $(textareas[4]).summernote('code'),
+        Bibliography: $(textareas[5]).summernote('code')
+    };
+    // 3. Enviar AJAX
+    $.ajax({
+        url: '/Syllabus/SaveOne',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(payload),
+        success: function(res) {
+            if(res.success) {
+                // A. Actualizar ID (CRÍTICO: Para que la próxima vez sea un Update, no Insert)
+                row.attr('data-id', res.newId); 
+                // B. Feedback Visual (Éxito)
+                toastr.success('Fila guardada correctamente'); // Si usas toastr 
+                // Cambiar botón a estado "Guardado"
+                row.attr('data-saved', 'true');
+                $(btn).removeClass('btn-outline-success').addClass('btn-success'); // Se pone sólido
+                // Restaurar icono
+                saveIcon.removeClass('fa-spinner fa-spin').addClass('fa-check');
+                // Opcional: Volver al icono de guardar después de 2 seg
+                setTimeout(() => {
+                    saveIcon.removeClass('fa-check').addClass('fa-save');
+                    $(btn).removeClass('btn-success').addClass('btn-outline-success');
+                    $(btn).prop('disabled', false);
+                }, 2000);
+
+                // C. Actualizar función de borrar (ahora tiene ID real)
+                const deleteBtn = row.find('.text-danger'); // El botón rojo
+                deleteBtn.attr('onclick', `removeRow(this, ${res.newId})`);
+
+            } else {
+                Swal.fire('Error', res.message, 'error');
+                resetBtn();
+            }
+        },
+        error: function() {
+            Swal.fire('Error', 'Error de conexión', 'error');
+            resetBtn();
+        }
+    });
+    function resetBtn() {
+        saveIcon.removeClass('fa-spinner fa-spin').addClass('fa-save');
+        $(btn).prop('disabled', false);
+    }
+}
+function triggerWordImport() {
+    document.getElementById('fileInputWord').click();
+}
+function uploadWordSyllabus(input) {
+    if (input.files && input.files[0]) {
+        
+        // A. Preparar los datos
+        var formData = new FormData();
+        formData.append("file", input.files[0]);      // El archivo .docx
+        formData.append("courseId", @ViewBag.CourseId); // El ID del curso
+
+        // B. Mostrar cargando 
+        Swal.fire({
+            title: 'Procesando Documento...',
+            html: '<i class="fas fa-file-word text-primary fa-2xl me-2"></i>  <br/>Leyendo tablas y extrayendo datos',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading() }
+        });
+        // C. Enviar AJAX
+        $.ajax({
+            url: '@Url.Action("ImportFromWord", "Syllabus")',
+            type: "POST",
+            data: formData,
+            // --- ESTAS DOS LÍNEAS SON CRÍTICAS PARA ARCHIVOS ---
+            contentType: false, 
+            processData: false, 
+            // --------------------------------------------------
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire('¡Importado!', response.message, 'success')
+                        .then(() => location.reload()); // Recargar para ver los datos
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+                // Limpiar el input para permitir subir el mismo archivo si falló
+                input.value = ''; 
+            },
+            error: function () {
+                Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+                input.value = '';
+            }
+        });
+    }
+}
+
+function previewImport(fileInput) {
+    const previewTableBody = document.getElementById('previewBody');
+    previewTableBody.innerHTML = "";
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    // Mostrar loading mientras previsualiza
+    Swal.fire({
+        title: 'Analizando...',
+        text: 'Generando vista previa',
+        didOpen: () => Swal.showLoading()
+    });
+    
+    $.ajax({
+        url: '/Syllabus/PreviewFromWord',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (res) {
+            Swal.close();
+            const tbody = $('#previewBody');
+            tbody.empty();
+            console.log(res);
+            res.rows.forEach(r => {
+                tbody.append(`
+                  <tr data-id="0" class="${r.isValid ? '' : 'table-danger'}">
+                    <td>${r.rowNumber}</td>
+                    <td class=> <input class="form-control form-control-sm border-0 bg-transparent fw-bold txt-date" type="date" value="${r.date ? r.date.split('T')[0] : ''}" /></td>
+                    <td class="w-50"><textarea rows="10" class="summernote-area" placeholder="Objetivo de aprendizaje…">${r.objectives ?? ''}</textarea></td>
+                    <td class="w-50"><textarea rows="10" class="summernote-area" placeholder="Unidad y contenido…">${r.content ?? ''}</textarea></td>
+                    <td class="w-50"><textarea rows="10" class="summernote-area" placeholder="Estrategias metodológicas…">${r.strategies}</textarea></td>
+                    <td class="w-50"><textarea rows="10" class="summernote-area" placeholder="Recursos didácticos…">${r.resources} </textarea></td>
+                    <td class="w-50"><textarea rows="10" class="summernote-area" placeholder="Evaluación…">${r.evaluations}</textarea> </td>
+                    <td class="w-50"><textarea rows="10" class="summernote-area" placeholder="Bibliografía…">${r.bibliography}</textarea> </td>
+                    <td>
+                      ${r.isValid 
+                        ? '<span class="badge bg-success">OK</span>'
+                        : `<span class="badge bg-danger">${r.error}</span>`}
+                    </td>
+                  </tr>
+                `);
+                console.log(r.date.split('T')[0]);
+                initRowEditors(tbody);
+            });
+            new bootstrap.Modal('#previewModal').show();   
+        },
+        error: function() {
+            Swal.fire('Error', 'No se pudo generar la previsualización.', 'error');
+        }
+    });
+}
+function openPreviewModal(){
+    const inputFile = document.getElementById('fileInputWord');
+    inputFile.click();
+    
+}
+function clearPreview(){
+    document.getElementById('fileInputWord').value = "";
+}
+  // 5. GUARDAR TODO (LOGICA AJAX)
+        function  savePreviewSyllabus() {
+            const items = [];
+            // Recorrer cada fila de datos
+            $('#previewBody tr[data-id="0"]').each(function() {
+                const row = $(this);
+                const textareas = row.find('textarea.summernote-area');
+                // Construir objeto DTO
+                const item = {
+                    SyllabusId: parseInt(row.attr('data-id')),
+                    CourseId: @Model.CourseId,
+                    Date: row.find('.txt-date').val(), // Puede ser string vacío
+                    Objectives: $(textareas[0]).summernote('code'),
+                    Content: $(textareas[1]).summernote('code'),
+                    Strategies: $(textareas[2]).summernote('code'),
+                    Resources: $(textareas[3]).summernote('code'),
+                    Evaluations: $(textareas[4]).summernote('code'),
+                    Bibliography: $(textareas[5]).summernote('code')
+                };
+                items.push(item);
+            });
+            console.log(items);
+            Swal.fire({title: 'aviso', html: `Datos a guardar ${items.length} columnas ${items.toString()}`, showDenyButton: true,
+  showCancelButton: true,
+  confirmButtonText: 'Yes',
+  denyButtonText: 'No',}).then((result)=>{
+                // Enviar al servidor
+                if(result.isConfirmed){
+                    $.ajax({
+                url: '@Url.Action("SaveAll", "Syllabus", new{courseId = @Model.CourseId})',
+                contentType: 'application/json',
+                type: 'POST',
+                data: JSON.stringify(items),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Guardado', response.message, 'success',SUMMERNOTE_CONFIG).then(() => {
+                            location.reload(); // Recargar para actualizar IDs
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Error de conexión con el servidor', 'error');
+                }
+            });
+                }
+            });
+            
+        }
+</script>
