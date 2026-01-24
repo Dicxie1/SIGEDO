@@ -1,0 +1,461 @@
+
+@model IEnumerable<Asistencia.Models.Career>
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    var ordenRomano = new List<String>{"I","II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"};
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><a class="btn" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-arrow-left fa-2x"></i> </a> Gestión de Asignaturas</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#createAsignaturaModal">
+                    <i class="fas fa-plus"></i> Asignatura
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="dropdownMenu">
+            </button>
+            <div class="dropdown dropdown-menu-sm">
+                <ul class="dropdown-menu dropdown-menu-sm" aria-labelledby="dropdownMenu">
+                    <li>
+                        <button type="button" class="dropdown-item text-xxs" data-bs-toggle="modal" data-bs-target="#newCareerModal"><i class="fas fa-plus"></i> Agregar Carrera</button>
+                    </li>
+                     <li>
+                        <button type="button" class="dropdown-item text-xxs" data-bs-toggle="modal" data-bs-target="#showListCareerModal"><i class="fas fa-eye"></i> Ver Carrera</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+       
+    </div>
+</div>
+@if(Model != null && Model.Any())
+{
+<div class="accordion" id="carrerasAccordion">
+    @foreach( var career in Model)
+    {
+    <div class="accordion-item"> <!-- Accordion @career.Code -->
+        <h2 class="accordion-head" id="heading-@career.Code">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@career.Code" aria-expanded="false">
+                <i class="fas fa-laptop me-2"></i> @career.Name <span class="text-muted ms-2 small">(@career.Code)</span>
+            </button>
+        </h2>
+        <div id="collapse-@career.Code" class="accordion-collapse collapse" data-bs-parent="#carrerasAccordion">
+            <div class="accordion-body">
+            @if(career.Subjects != null && career.Subjects.Any())
+            {
+            <div class="table-responsive">  <!-- Table Subject from @career.Name -->
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var groupSemestr in career.Subjects.GroupBy(s => s.Semester).OrderBy(g => ordenRomano.IndexOf(g.Key!)))
+                        {
+                        <tr>
+                            <td colspan="4" class="ft-bold text-dark ps-3">
+                                <i class="fas fa-bookmark text-primary me-2"></i> 
+                                @groupSemestr.Key Semestre 
+                                <span class="badge bg-info text-dark border ms-2 rounded-pill">
+                                    @groupSemestr.Count() @(groupSemestr.Count() == 1 ? "Asignatura" : "Asignaturas")
+                                </span>        
+                            </td>
+                        </tr>
+                        @foreach (Subject subject in groupSemestr)
+                        {
+                        <tr>
+                            <td>@subject.SubjectId</td>
+                            <td>@subject.SubjetName</td>
+                            <td>
+                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#modalViewCourse"
+                                    onclick="loadCourses('@subject.SubjectId', '@subject.SubjetName')" title="Ver Cursos">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        }
+                    }    
+                    </tbody>
+                </table> 
+            </div><!--End Table @career.Name -->
+            }else{
+            <div class="alert alert-light border text-center p-4 mb-0">
+                <div class="text-muted mb-2">
+                    <i class="fa-solid fa-triangle-exclamation fa-2x text-warning"></i>
+                </div>
+                <h6 class="fw-bold text-danger">Sin asignaturas registradas</h6>
+                <p class="text-muted small mb-0">
+                    La carrera de <strong class="text-primary">@career.Name</strong> aún no tiene asignaturas asociadas.
+                </p>
+                <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#createAsignaturaModal">
+                    <i class="fas fa-plus-circle me-2"></i> Asignatura
+                </button>
+            </div>
+            }        
+            </div>
+        </div>
+    </div>
+    }
+    </div>
+    <!--Modal para Carrer-->
+    <div class="modal fade" id="newCareerModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Carrera</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRegistroCarrera">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" placeholder="Ingresar Codigo" id="Code" required>
+                                <label for="Code">Código Carrera</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                             <div class="form-floating mb-3">
+                                <input type="text" class="form-control" placeholder="Ingresar Nombre" id="Name" required>
+                                <label for="Name">Nombre de Carrera</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="saveCareer()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+  <!-- Register Subject Modal-->
+  <div class="modal fade" id="createAsignaturaModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Asignatura</h5>
+                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                <!-- Fiel SubjectId -->
+                    <div class="col-2">
+                        <div class="mb-3 form-floating">
+                            <input type="text" class="form-control" id="codigoAsignatura" name="codigoAsignatura" placeholder="Insert Codigo" required>
+                            <label class="form-label">Código *</label>
+                        </div>
+                    </div>
+                    <!-- Fiel SubjectName-->
+                    <div class="col-10">
+                        <div class="mb-3 form-floating">
+                            <input type="text" class="form-control" id="nombreAsignatura" placeholder="Insertar Nombre" required>
+                            <label class="form-label">Nombre *</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                <!--Fiel CareerId-->
+                    <div class="col-4">
+                        <div class="mb-3 form-floating">
+                            <select class="form-select" id="carreraAsignatura" asp-items="@(ViewBag.CareerList)" required>
+                                <option value="" disabled selected>Seleccionar Carrera</option>
+                            </select>
+                            <label for="carreraAsignatura" class="form-label">Carrera *</label>
+                        </div>
+                    </div>
+                    <!-- Fiel AcademicYear-->
+                    <div class="col-4">
+                        <div class="mb-3 form-floating">
+                            <input type="number" class="form-control" id="AcademicYear" placeholder="Insertar Nombre" required>
+                            <label class="form-label">Año Académico *</label>
+                        </div>
+                    </div>
+                        <!-- Fiel Semeter-->
+                        <div class="col-4">
+                            <div class="mb-3 form-floating">
+                                <select class="form-select" id="Semeter">
+                                    <option value="" disabled selected>Seleccionar Semestre *</option>
+                                    <option value="I">I Semestre</option>
+                                    <option value="II">II Semestre</option>
+                                    <option value="III">III Semestre</option>
+                                    <option value="IV">IV Semestre</option>
+                                    <option value="V">V Semestre</option>
+                                    <option value="VI">VI Semestre</option>
+                                    <option value="VII">VII Semestre</option>
+                                    <option value="VIII">VIII Semestre</option>
+                                    <option value="IX">IX Semestre</option>
+                                    <option value="X">X Semestre</option>
+                                </select>
+                                <label for="Semeter" class="form-label">Semestre</label>
+                            </div>
+                        </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <!--Field Credits-->
+                        <div class="mb-3 form-floating">
+                            <input type="number" class="form-control" id="Credits" placeholder="Insertar Area" required>
+                            <label class="form-label">Credito</label>
+                            
+                        </div>
+                        
+                    </div>
+                    <div class="col-10">
+                        <!--Field Area-->
+                        <div class="mb-3 form-floating">
+                            <input type="text" class="form-control" id="Area" placeholder="Insertar Area" required>
+                            <label class="form-label">Area <span class="text-danger">*</span> </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveSubject()">Guardar</button>
+            </div>
+        </div>
+    </div>
+  </div>
+<!-- Modal List of courses -->
+<div class="modal fade" id="modalViewCourse" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Curso de: <span id="modalSubjectNameTitle" class="fw-bold text-primary"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                <h6>Lista de cursos</h6>
+                <div class="table-responsive">
+                    <table class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <th>Año</th>
+                                <th>Estudiantes</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coursesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="loadingMessage" class="text-center py-3 text-muted" style="display:none;">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div> Cargando cursos...
+                </div>
+                <div id="emptyMessage" class="text-center py-3 text-muted" style="display:none;">
+                    No hay cursos abiertos para esta asignatura.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+}else{
+<div class="text-center py-5">
+    <div class="card shadow-sm border-0 bg-light">
+        <div class="card-body">
+            <h4 class="fw-bold text-secondary">No hay carreras registradas</h4>
+            <p class="text-muted">Comienza agregando una carrera.</p>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCareerModal">
+                <i class="fas fa-plus-circle me-2"></i> Crear Primera Carrera
+            </button>
+        </div>
+    </div>
+</div>
+  <!--Modal para Carrer-->
+    <div class="modal fade" id="newCareerModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Carrera</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRegistroCarrera">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" placeholder="Ingresar Codigo" id="Code" required>
+                                <label for="Code">Código Carrera</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                             <div class="form-floating mb-3">
+                                <input type="text" class="form-control" placeholder="Ingresar Nombre" id="Name" required>
+                                <label for="Name">Nombre de Carrera</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="saveCareer()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+}
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Función auxiliar para obtener token
+        function getToken() {
+            console.log(document.querySelector('input[name="__RequestVerificationToken"]').value)
+            return document.querySelector('input[name="__RequestVerificationToken"]').value;
+        }
+
+        // 1. GUARDAR CARRERA
+        function saveCareer() {
+            let CareerCode = document.getElementById('Code').value;
+            let CareerName = document.getElementById('Name').value;
+            
+            if(!CareerCode || !CareerName) {
+                Swal.fire('Atención', 'Complete los campos', 'warning');
+                return;
+            }
+            const url = "@Url.Action("AddCareer", "Subject")"
+            const data = { Code:CareerCode, Name:CareerName };
+            console.log(`datos enviado:  ${JSON.stringify(data)}`)
+            fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Éxito', data.message, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            });
+        }
+
+        // GUARDAR ASIGNATURA (NUEVO)
+        function saveSubject() {
+            const subjectId = document.getElementById('codigoAsignatura').value;
+            const subjetName = document.getElementById('nombreAsignatura').value;
+            const careerId = document.getElementById('carreraAsignatura').value;
+            const academiYear = document.getElementById('AcademicYear').value;
+            const semeter = document.getElementById('Semeter').value;
+            const area = document.getElementById('Area').value;
+            const credits = document.getElementById('Credits').value
+            getToken()
+            if (!subjectId || !subjetName || !careerId || !academiYear || !semeter || !area  ||!credits) {
+                Swal.fire('Atención', 'Complete todos los campos de la asignatura', 'warning');
+                return;
+            }
+            const data = { 
+                SubjectId: subjectId, 
+                SubjetName: subjetName, 
+                CareerId: parseInt(careerId),
+                AcademiYear: parseInt(academiYear),
+                Semester: semeter,
+                Area: area,
+                Credits : parseInt(credits)
+            };
+            const url = "@Url.Action("AddSubject", "Subject")"
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getToken()
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Éxito', data.message, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            }).catch( e =>{
+                console.error('Fetch error:', error);
+                Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+            });
+        }
+
+        function loadCourses(subjectId, subjectName) {
+        // 1. Preparar UI del Modal
+        document.getElementById('modalSubjectNameTitle').innerText = subjectName;
+        const tbody = document.getElementById('coursesTableBody');
+        const loading = document.getElementById('loadingMessage');
+        const empty = document.getElementById('emptyMessage');
+        const modalElement = document.getElementById('coursesModal');
+        
+        // Limpiar tabla y mostrar loading
+        tbody.innerHTML = '';
+        loading.style.display = 'block';
+        empty.style.display = 'none';
+
+
+        // 3. Petición Fetch
+        // Asegúrate que tu Controller tenga este método
+        fetch(`/Subject/GetCourses?subjectId=${subjectId}`)
+            .then(response => {
+                if (!response.ok) throw new Error("Error en servidor");
+                return response.json();
+            })
+            .then(data => {
+                loading.style.display = 'none';
+                if (data.success && data.courses && data.courses.length > 0) {    
+                    // Recorremos los cursos recibidos
+                    data.courses.forEach(curso => {
+                        // Lógica para el switch (activo/inactivo)
+                        const checked = curso.isActive ? 'checked' : '';
+                        
+                        const row = `
+                            <tr>
+                                <td><span class="fw-bold">${curso.academicYear}</span></td>
+                                <td>
+                                    <span class="badge bg-success rounded-pill">${curso.studentCount}</span>
+                                </td>
+                                <td>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="switch-${curso.id}" ${checked} disabled>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
+                } else {
+                    empty.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-danger text-center">Error al cargar datos</td></tr>';
+                console.error(error);
+            });
+        }
+    </script>
+}

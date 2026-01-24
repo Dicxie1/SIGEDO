@@ -1,0 +1,224 @@
+@model Asistencia.Models.ViewModels.CourseDetailsViewModel
+@if (Model.EnrolledStudents != null && Model.EnrolledStudents.Any())
+{
+<div class="position-relative" style="min-height: 600px;">
+    <div id="setup-overlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" 
+         style="z-index: 10; background-color: rgba(255, 255, 255, 0.6); backdrop-filter: blur(5px);">
+        <div class="card border-0 shadow-lg" style="width: 400px; max-width: 90%;">
+            <div class="card-body p-4 text-center">
+                <div class="mb-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3">
+                        <i class="fas fa-clipboard-check fa-3x text-primary"></i>
+                    </div>
+                </div>
+                <h4 class="fw-bold mb-3">Registrar Asistencia</h4>
+                <p class="text-muted small mb-4">Configura los parámetros antes de desbloquear la lista.</p>
+                <div class="text-start bg-light p-3 rounded mb-3">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Fecha</label>
+                        <input type="date" class="form-control" id="overlayDate" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold text-muted">Duración (Horas)</label>
+                        <input type="number" class="form-control" id="overlayHours" value="2" min="1" max="10">
+                    </div>
+                </div>
+                <button class="btn btn-primary w-100 fw-bold py-2 shadow-sm" data-courseid="@Model.CourseId" id="btnUnlock" onclick="unlockAttendance(this)">
+                    <i class="fas fa-unlock-alt me-2"></i> Comenzar Registro
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="workspace-container" class="attendance-workspace opacity-50" style="filter: blur(3px); transition: all 0.5s ease;" >
+         <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-5">
+                        <h4 class="fw-bold text-primary mb-0">@Model.CourseName</h4>
+                        <p class="text-muted mb-0"> <i class="fas fa-calendar me-1"></i> 5 |  <i class="fas fa-clock me-1"></i> Presencial</p>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-muted">Fecha de Sesión</label>
+                        <input type="date" class="form-control" id="attendanceDate" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold small text-primary">Horas Sesión</label>
+                        <input type="number" id="sessionHours" class="form-control fw-bold text-center" 
+                           value="2" min="1" max="10" onchange="updateAllPresentHours()">
+                    </div>
+                    <div class="col-md-3 text-end mt-5">
+                        <button type="button" class="btn btn-outline-success w-100" onclick="markAllPresent()">
+                            <i class="fas fa-check-double me-2"></i>Todos Presentes
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <input type="text" class="form-control form-control-sm border-0 bg-light" id="sessionTopic" placeholder="Tema de la clase (Opcional)...">
+                </div>
+            </div>
+        </div>
+        <div class="row g-3 mb-4 row-cols-2 row-cols-md-3 row-cols-xl-5 justify-content-center">
+            <div class="col">
+                <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 me-2">
+                        <i class="fas fa-users fa-lg"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Matriculados</small>
+                        <h4 class="mb-0 fw-bold text-dark" id="statTotal">@Model.TotalEnrolledStudents</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
+                    <div class="rounded-circle bg-success bg-opacity-10 text-success p-3 me-2">
+                        <i class="fas fa-check fa-lg"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Presentes</small>
+                        <h4 class="mb-0 fw-bold text-success" id="statPresent">0</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
+                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning p-3 me-2">
+                        <i class="fas fa-clock fa-lg"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Tardanzas</small>
+                        <h4 class="mb-0 fw-bold text-warning" id="statLate">0</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
+                    <div class="rounded-circle bg-danger bg-opacity-10 text-danger p-3 me-2">
+                        <i class="fas fa-times fa-lg"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Ausentes</small>
+                        <h4 class="mb-0 fw-bold text-danger" id="statAbsent">0</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
+                    <div class="rounded-circle bg-info bg-opacity-10 text-info p-3 me-2">
+                        <i class="fas fa-file-medical fa-lg"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Justificadas</small>
+                        <h4 class="mb-0 fw-bold text-info" id="statJustified">0</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-uppercase small text-muted">
+                        <tr>
+                            <th class="ps-4">Estudiante</th>
+                            <th class="text-center" style="width: 40%;">Estado</th>
+                            <th class="text-center" style="width: 120px;">Horas Asist.</th>
+                            <th class="text-center" >Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                        @foreach (var student in Model.EnrolledStudents)
+                        {
+                            <tr data-student-id="@student.StudentId" data-enrollment="@student.EnrollmentId">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex justify-content-center align-items-center me-3 fw-bold" style="width: 40px; height: 40px;">
+                                            @student.StudentInitials
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">@student.FullName</div>
+                                            <div class="small text-muted">@student.StudentId</div>
+                                            <div class="small text-muted">@student.EnrollmentId</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2 attendance-options">
+                                        <input type="radio" class="btn-check status-radio" name="status_@student.StudentId" id="p_@student.StudentId" value="P" autocomplete="off"
+                                            onchange="handlerStatusChange('@student.StudentId', 'P')">
+                                        <label class="btn btn-outline-success btn-sm rounded-pill px-3" for="p_@student.StudentId" title="Presente">
+                                            <i class="fas fa-check"></i>
+                                        </label>
+                                        <input type="radio" class="btn-check status-radio" name="status_@student.StudentId" id="t_@student.StudentId" value="T" autocomplete="off"
+                                            onchange="handlerStatusChange('@student.StudentId', 'T')">
+                                        <label class="btn btn-outline-warning btn-sm rounded-pill px-3" for="t_@student.StudentId" title="Tardanza">
+                                            <i class="fas fa-clock"></i>
+                                        </label>
+
+                                        <input type="radio" class="btn-check status-radio" name="status_@student.StudentId" id="a_@student.StudentId" value="A" autocomplete="off"
+                                            onchange="handlerStatusChange('@student.StudentId', 'A')">
+                                        <label class="btn btn-outline-danger btn-sm rounded-pill px-3" for="a_@student.StudentId" title="Ausente">
+                                            <i class="fas fa-times"></i>
+                                        </label>
+
+                                        <input type="radio" class="btn-check status-radio" name="status_@student.StudentId" id="j_@student.StudentId" value="J" autocomplete="off"
+                                            onchange="handlerStatusChange('@student.StudentId', 'J')">
+                                        <label class="btn btn-outline-info btn-sm rounded-pill px-3" for="j_@student.StudentId" title="Justificado">
+                                            <i class="fas fa-file-medical"></i>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="number" 
+                                        id="hours_@student.StudentId" 
+                                        class="form-control text-center fw-bold bg-light hours-input" 
+                                        value="0" min="0" max="10" 
+                                        readonly>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm border-0 border-bottom rounded-0 comment-input" placeholder="Nota...">
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white py-3">
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary" onclick="resetSession()">Cancelar</button>
+                    <button type="button" class="btn btn-primary px-5" data-courseid="@Model.CourseId" onclick="saveAttendance()">
+                        <i class="fas fa-save me-2"></i>Guardar Asistencia
+                    </button>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-success"><i class="fas fa-envelope"></i> Notificar Ausentes</button>
+            </div>
+        </div>
+    </div>
+</div>
+}else{
+<!-- Empty Status -->
+<div class="card-body text-center py-5">
+            <div class="py-4">
+                <div class="mb-4">
+                        <i class="fas fa-user-plus fa-2xl text-primary opacity-50"></i>
+                </div>
+
+                <h4 class="fw-bold text-dark">Aún no hay estudiantes matriculados</h4>
+                <p class="text-muted col-md-6 mx-auto mb-4">
+                    Este curso está recién creado o vacio. 
+                    Para comenzar a tomar asistencia, necesitas matricular a los estudiantes primero.
+                </p>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="@Url.Action("Enroll", "Student", new { courseId = Model.CourseId })" class="btn btn-primary px-4 py-2 shadow-sm">
+                        <i class="fas fa-user-graduate me-2"></i> Matricular Estudiantes
+                    </a>
+                    
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2" data-bs-toggle="modal" data-bs-target="#importStudentsModal">
+                        <i class="fas fa-file-excel me-2"></i> Importar desde Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+        }

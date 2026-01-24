@@ -1,0 +1,183 @@
+<!-- Modal para Registrar Nuevo Curso -->
+<div class="modal fade" id="registerCourseModal" tabindex="-1" aria-labelledby="registerCourseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerCourseModalLabel">
+                    <i class="fas fa-plus-circle text-primary"></i> Registrar Nuevo Curso
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="registerCourseForm">
+                    <!-- Información Básica -->
+                    <h6 class="text-primary fw-bold mb-3">
+                        <i class="fas fa-info-circle"></i> Información Básica
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="courseCode" class="form-label">Código del Curso *</label>
+                            <input type="text" class="form-control" id="courseCode" placeholder="Ej: MAT301" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="courseName" class="form-label">Nombre del Curso *</label>
+                            <input type="text" class="form-control" id="courseName" placeholder="Ej: Matemáticas Avanzadas" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="courseDescription" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="courseDescription" rows="3" placeholder="Breve descripción del curso..."></textarea>
+                    </div>
+
+                    <!-- Detalles Académicos -->
+                    <h6 class="text-primary fw-bold mb-3">
+                        <i class="fas fa-graduation-cap"></i> Detalles Académicos
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="courseCareer" class="form-label">Carrera *</label>
+                            <select class="form-select" id="courseCareer" required>
+                                <option value="">Seleccionar...</option>
+                                <option>Ingeniería Informática</option>
+                                <option>Ingeniería Civil</option>
+                                <option>Matemáticas</option>
+                                <option>Física</option>
+                                <option>Química</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="courseProfessor" class="form-label">Profesor Asignado *</label>
+                            <select class="form-select" id="courseProfessor" required>
+                                <option value="">Seleccionar...</option>
+                                <option>Dr. Juan Pérez</option>
+                                <option>Dra. María González</option>
+                                <option>Prof. Carlos Rodríguez</option>
+                                <option>Dra. Ana López</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="courseCredits" class="form-label">Créditos *</label>
+                            <input type="number" class="form-control" id="courseCredits" min="1" max="10" placeholder="4" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="courseHours" class="form-label">Horas Semanales *</label>
+                            <input type="number" class="form-control" id="courseHours" min="1" max="40" placeholder="4" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="courseDuration" class="form-label">Duración (semanas) *</label>
+                            <input type="number" class="form-control" id="courseDuration" min="1" max="52" placeholder="16" required>
+                        </div>
+                    </div>
+
+                    <!-- Horarios y Ubicación -->
+                    <h6 class="text-primary fw-bold mb-3">
+                        <i class="fas fa-calendar-alt"></i> Horarios y Ubicación
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="courseClassroom" class="form-label">Aula Asignada *</label>
+                            <select class="form-select" id="courseClassroom" required>
+                                <option value="">Seleccionar...</option>
+                                <option>A101 - Aula Magna</option>
+                                <option>B202 - Aula de Informática</option>
+                                <option>C303 - Laboratorio de Física</option>
+                                <option>D404 - Sala de Conferencias</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="courseDays" class="form-label">Días de Clase *</label>
+                            <select class="form-select" id="courseDays" multiple required>
+                                <option>Lunes</option>
+                                <option>Martes</option>
+                                <option>Miércoles</option>
+                                <option>Jueves</option>
+                                <option>Viernes</option>
+                                <option>Sábado</option>
+                            </select>
+                            <small class="form-text text-muted">Mantén Ctrl (o Cmd) para seleccionar múltiples.</small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="courseStartTime" class="form-label">Hora de Inicio *</label>
+                            <input type="time" class="form-control" id="courseStartTime" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="courseEndTime" class="form-label">Hora de Fin *</label>
+                            <input type="time" class="form-control" id="courseEndTime" required>
+                        </div>
+                    </div>
+
+                    <!-- Fechas y Estado -->
+                    <h6 class="text-primary fw-bold mb-3">
+                        <i class="fas fa-clock"></i> Fechas y Estado
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="courseStartDate" class="form-label">Fecha de Inicio *</label>
+                            <input type="date" class="form-control" id="courseStartDate" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="courseEndDate" class="form-label">Fecha de Fin *</label>
+                            <input type="date" class="form-control" id="courseEndDate" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="courseStatus" class="form-label">Estado del Curso *</label>
+                            <select class="form-select" id="courseStatus" required>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                                <option value="Pendiente">Pendiente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="courseCapacity" class="form-label">Capacidad Máxima *</label>
+                        <input type="number" class="form-control" id="courseCapacity" min="1" placeholder="50" required>
+                    </div>
+
+                    <!-- Requisitos y Notas -->
+                    <h6 class="text-primary fw-bold mb-3">
+                        <i class="fas fa-list-check"></i> Requisitos y Notas
+                    </h6>
+                    <div class="mb-3">
+                        <label for="coursePrerequisites" class="form-label">Prerrequisitos</label>
+                        <textarea class="form-control" id="coursePrerequisites" rows="2" placeholder="Cursos o conocimientos previos requeridos..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="courseNotes" class="form-label">Notas Adicionales</label>
+                        <textarea class="form-control" id="courseNotes" rows="2" placeholder="Información adicional sobre el curso..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="registerCourse()">
+                    <i class="fas fa-save"></i> Registrar Curso
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para manejar el registro (simulado) -->
+<script>
+    function registerCourse() {
+        // Simular validación y envío
+        const form = document.getElementById('registerCourseForm');
+        if (form.checkValidity()) {
+            // Aquí iría el código para enviar los datos al servidor
+            alert('Curso registrado exitosamente!');
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('registerCourseModal'));
+            modal.hide();
+            // Limpiar formulario
+            form.reset();
+        } else {
+            alert('Por favor, completa todos los campos obligatorios.');
+        }
+    }
+</script>

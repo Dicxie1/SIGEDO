@@ -1,0 +1,97 @@
+@model Asistencia.Models.DashboardViewModel;
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Panel Principal</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fas fa-plus"></i> <i class="fa-solid fa-book-open-reader"></i>Curso</button>
+                    </div>
+                </div>
+
+                <!-- Cursos Activos -->
+                <div class="row">
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-book fa-2x text-primary"></i>
+                                <h5 class="card-title">Cursos Activos</h5>
+                                <p class="card-text h4">@Model.courseAvtive</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-users fa-2x text-success"></i>
+                                <h5 class="card-title">Estudiantes</h5>
+                                <p class="card-text h4">@Model.studentCount</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-tasks fa-2x text-warning"></i>
+                                <h5 class="card-title">Tareas Pendientes</h5>
+                                <p class="card-text h4">15</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-calendar fa-2x text-info"></i>
+                                <h5 class="card-title">Próximas Clases</h5>
+                                <p class="card-text h4">3</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Cursos -->
+                <h3>Mis Cursos</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Estudiantes</th>
+                                <th>Progreso</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Matemáticas Avanzadas</td>
+                                <td>45</td>
+                                <td><div class="progress"><div class="progress-bar" style="width: 75%"></div></div></td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i> Editar</button>
+                                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Archivar</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Física Básica</td>
+                                <td>30</td>
+                                <td><div class="progress"><div class="progress-bar" style="width: 60%"></div></div></td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i> Editar</button>
+                                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Archivar</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Notificaciones Recientes -->
+                <h3>Notificaciones Recientes</h3>
+                <ul class="list-group">
+                    <li class="list-group-item"><i class="fas fa-user-plus"></i> Nuevo estudiante se matriculó en 'Matemáticas Avanzadas'.</li>
+                    <li class="list-group-item"><i class="fas fa-clock"></i> Tarea pendiente de calificación en 'Física Básica'.</li>
+                    <li class="list-group-item"><i class="fas fa-calendar-check"></i> Clase programada para mañana.</li>
+                </ul>
+<!--ejemplo de IP local-->
+@ViewBag.ipadress <br>
+<br>
+@ViewBag.currentUrl
+
+

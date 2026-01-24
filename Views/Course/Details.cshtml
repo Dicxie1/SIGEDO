@@ -1,0 +1,383 @@
+
+@model Asistencia.Models.ViewModels.CourseDetailsViewModel
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center border-bottom">
+                    <h2 class="h3"><a class="btn" asp-action="Admin"><i class="fa-solid fa-arrow-left fa-2x"></i> </a> Detalle de Curso - <span class="text-mutted">#@Model.CourseId</span></h2>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <a type="button" href="@Url.Action("AttentionLog", "Attention", new{courseid = Model.CourseId})" class="btn btn-sm btn-outline-secondary" title="Bitacora de Atención"><i class=" fas fa-file-lines"></i></a>
+                        <a type="button" href="@Url.Action("EvaluationConfig", "AcademicTerm", new {courseid = Model.CourseId})" class="btn btn-sm btn-outline-secondary ms-2"><i class="fas fa-gear"></i></a>
+                    </div>
+                </div>
+                <!-- Menú Secundario Horizontal -->
+                <div class="secondary-menu scroll-tab-container border-bottom">
+                    <ul class="nav nav-pills nav-fill border-bottom-0 flex-nowrap bg-light rounded p-1" id="secondaryMenu" role="tablist" style="overflow-x: auto; overflow-y: hidden;">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab" aria-controls="info" aria-selected="true">
+                                <i class="fas fa-calendar-check"></i> Detalle de Curso
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="syllabus-tab" data-bs-toggle="tab" data-bs-target="#syllabus" type="button" role="tab" aria-controls="syllabus" aria-selected="false">
+                                <i class="fas fa-table"></i> Syllabus
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="asistencia-tab" data-bs-toggle="tab" data-bs-target="#asistencia" type="button" role="tab" aria-controls="asistencia" aria-selected="false">
+                                <i class="fas fa-calendar-check"></i> Asistencia
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="gradebook-tab" data-bs-toggle="tab" data-bs-target="#calificacion" type="button" role="tab" aria-controls="calificacion" aria-selected="false">
+                                <i class="fas fa-chart-line"></i> Calificaciones
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="trabajos-tab" data-bs-toggle="tab" data-bs-target="#trabajos" type="button" role="tab" aria-controls="trabajos" aria-selected="false">
+                                <i class="fas fa-tasks"></i> Trabajos
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="evaluaciones-tab" data-bs-toggle="tab" data-bs-target="#evaluaciones" type="button" role="tab" aria-controls="evaluaciones" aria-selected="false">
+                                <i class="fas fa-clipboard-check"></i> Evaluaciones
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="enrolledstudents-tab" data-bs-toggle="tab" data-bs-target="#listEstudiante" type="button" role="tab" aria-controls="evaluaciones" aria-selected="false">
+                                <i class="fas fa-user-group"></i> Estudiante
+                            </button>
+                        </li> 
+                    </ul>
+                </div>
+                <!-- Contenido Dinámico -->
+                <div class="tab-content" id="secondaryMenuContent">
+                    <!-- Tab Asistencia -->
+                    <div class="tab-pane fade show" id="asistencia" role="tabpanel" aria-labelledby="asistencia-tab">
+                        <partial name="_AttendancesCourse" />
+                    </div> <!-- End Tab Asistencia -->
+
+                    <!-- Tab Trabajos -->
+                    <div class="tab-pane fade" id="trabajos" role="tabpanel" aria-labelledby="trabajos-tab">
+                        <partial name="_AssessmentList" model="@Model.AssignmentLists" />
+                    </div>
+
+                    <!-- Tab Calificacion -->
+                    <div class="tab-pane fade" id="calificacion" role="tabpanel" aria-labelledby="calificacion-tab">
+                        <partial name="_AssigmentTab" />
+                    </div>
+                    <!-- Tab Evaluaciones -->
+                    <div class="tab-pane fade" id="evaluaciones" role="tabpanel" aria-labelledby="evaluaciones-tab">
+                        <h3>Evaluaciones</h3>
+                        <p>Contenido para gestionar evaluaciones (exámenes, quizzes). <a  class="btn btn-secondary" href="@Url.Action("ProgrammaticProgress", "CourseReport", new{courseId = Model.CourseId, termId = 1})">cortes</a>
+                    </div></p>
+                        <!-- Agregar contenido similar a trabajos -->
+                        
+                    <!-- Tab Syllabus -->
+                    <div class="tab-pane fade" id="syllabus" role="tabpanel" aria-labelledby="syllabus-tab">
+                        <!--Syllabus Table -->
+                        <partial name="_SyllabusTab"  model="@Model.SyllabusItems"/>
+                    </div>
+                    <!-- Tab Matriculado -->
+                    <div class="tab-pane fade" id="listEstudiante" role="tabpanel" aria-labelledby="evaluaciones-tab">
+                        <partial name="_EnrolledStudent"/>
+                        <!-- Agregar contenido similar a trabajos -->
+                    </div>
+                    <!--Course  Details Tab-->
+                    <div class="tab-pane fade show active" id="info" role="tabpanel">
+                        <div class="row g-4"> 
+                            <!-- Course Subject Column -->
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-header bg-white border-0 fw-bold text-uppercase text-secondary small">
+                                        <i class="fas fa-university me-2"></i> Datos de Asignatura
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                                <span class="text-muted">Carrera</span>
+                                                <span class="fw-bold text-end">@Model.CareerName</span>
+                                            </li>
+                                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                                <span class="text-muted">Código Asignatura:</span>
+                                                <span class="fw-bold text-end flex-grow-1"> @Model.CourseCode</span>
+                                            </li>
+                                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                                <span class="text-muted">Nombre Asignatura: <i class="fw-bold text-black text-end">@Model.CourseName</i></span>
+                                            </li>
+                                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                                <span class="text-muted">Código Curso:</span>
+                                                <span class="fw-bold text-end flex-grow-1"> @Model.CourseId <i class="fas fa-hashtag text-primary"></i></span>
+                                            </li>
+                                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                                <span class="text-muted">Créditos:</span>
+                                                <span class="fw-bold text-end" > @Model.CreditCourse <i class="fas fa-award text-primary"></i></span>
+                                            </li>
+                                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                                <span class="text-muted">Año Académico:</span>
+                                                <span class="fw-bold text-end"> @Model.AcademicYear  <i class="fas fa-calendar text-primary"></i></span>
+                                            </li>
+                                            <li class="list-group-item px-0">
+                                                <span class="text-muted d-block mb-1">Descripción:</span>
+                                                <p class="small text-secondary mb-0">
+                                                    Sin Descripción
+                                                </p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div> <!-- End Subject Column -->
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-white border-0 fw-bold text-uppercase text-secondary small">
+                    <i class="fas fa-circle-info me-2"></i> Informacion de curso
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center p-3 bg-light rounded border">
+                        <div class="avatar-circle bg-white text-primary border rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 45px; height: 45px;">
+                            <i class="fas fa-user-tie fa-lg"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block" style="font-size: 10px;">DOCENTE ASIGNADO</small>
+                            <span class="fw-bold text-dark"> @Model.TeacherName </span>
+                        </div>
+                        <button class="btn btn-sm btn-link ms-auto text-decoration-none" title="Cambiar Docente">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </div>
+                    <ul class="list-unstyled">
+                        <li class="mb-1">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-hourglass-half text-secondary me-3 fa-fw"></i>
+                                <div>
+                                    <small class="text-muted d-block">Año Lectivo</small>
+                                    <strong> @Model.Year  </strong>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-calendar-day text-secondary me-3 fa-fw"></i>
+                                <div>
+                                    <small class="text-muted d-block">Horario</small>
+                                    <strong> Calendario</strong>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-map-marker-alt text-secondary me-3 fa-fw"></i>
+                                <div>
+                                    <small class="text-muted d-block">Aula / Ubicación</small>
+                                    <strong> @Model.ClassroomName </strong>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-sun text-secondary me-3 fa-fw"></i>
+                                <div>
+                                    <small class="text-muted d-block">Turno</small>
+                                    <strong> Matutino </strong>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-white border-0 fw-bold text-uppercase text-secondary small">
+                    <i class="fas fa-chart-pie me-2"></i> Estado del Cupo
+                </div>
+                <div class="card-body">
+                    
+                    <div class="text-center mb-3">
+                        <h1 class="display-4 fw-bold mb-0"> @Model.TotalEnrolledStudents <span class="text-muted fs-6">/  @Model.MaxCapacity</span></h1>
+                        <small class="text-muted">Estudiantes Matriculados</small>
+                    </div>
+                    @{
+                            var occupancyRate = ((double) Model.TotalEnrolledStudents / Model.MaxCapacity) * 100;
+                            occupancyRate = Math.Round(occupancyRate, 2);
+                        }
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar bg-primary" role="progressbar" 
+                             style="width: @occupancyRate%;" 
+                             aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted mb-4">
+                        
+                        <span>0%</span>
+                        <span>@occupancyRate% Ocupado</span>
+                        <span>100%</span>
+                    </div>
+
+                    <hr class="text-muted opacity-25">
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i> Editar Información
+                        </button>
+                        <a asp-controller="Course" asp-action="Imprint" asp-route-courseId="@Model.CourseId" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-print me-2"></i> Imprimir Lista de Clase
+                        </a>
+                            <button class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-ban me-2"></i> Cerrar Curso
+                            </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-white border-0 fw-bold text-uppercase text-secondary small">
+                    <i class="fas fa-chart-line me-2"></i> Avance Académico
+                </div>
+                <div class="card-body d-flex flex-column justify-content-center">
+                    @{
+                    // Lógica segura para evitar división por cero
+                    decimal totalHours = Model.TotalCourseHours > 0 ? Model.TotalCourseHours : 1; 
+                    decimal completed = Model.CompletedHours;
+                    var progressPct = (int)((completed / totalHours) * 100);
+                    progressPct = progressPct > 100 ? 100 : progressPct; // Tope visual
+                    }
+                    <div class="text-center mb-4">
+                        <div class="position-relative d-inline-block">
+                            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-2">
+                                <i class="fas fa-stopwatch fa-2x text-primary"></i>
+                            </div>
+                            @if(progressPct >= 100){
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            }
+                        </div>
+                        <h2 class="fw-bold mb-0 text-dark">@completed 
+                            <span class="text-muted fs-5 fw-normal">/ @Model.TotalCourseHours Hrs</span>
+                        </h2>
+                        <small class="text-muted">Horas Ejecutadas</small>
+                    </div>
+                    <div class="mb-2">
+                    <div class="d-flex justify-content-between small fw-bold mb-1">
+                        <span class="text-primary">Progreso del Syllabus</span>
+                        <span class="text-dark"> @progressPct%</span>
+                    </div>
+                    <div class="progress" style="height: 12px; background-color: #e9ecef;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                             role="progressbar" 
+                             style="width: @progressPct%;" 
+                             aria-valuenow="@progressPct" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 text-center"> 
+
+                    @if(progressPct >= 100){
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill">
+                            <i class="fas fa-check-circle me-1"></i> Curso Completado
+                        </span>
+                    }else if(progressPct >= 50){
+                        <span class="badge bg-info bg-opacity-10 text-info border border-info px-3 py-2 rounded-pill">
+                            <i class="fas fa-running me-1"></i> En Desarrollo
+                        </span>
+                    }else{
+                         <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-2 rounded-pill">
+                            <i class="fas fa-play me-1"></i> Iniciando
+                        </span>
+                    }
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-4">
+            <div class="row g-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 fw-bold text-uppercase text-secondary small">
+                        <i class="fas fa-venus-mars me-2"></i> Distribución por Sexo
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <div class="row text-center mb-4 align-items-end">
+                            <div class="col-6 border-end">
+                                <div class="text-primary mb-2">
+                                    <i class="fas fa-male fa-3x"></i>
+                                </div>
+                                <h3 class="fw-bold mb-0">@Model.MaleCount</h3>
+                                <small class="text-muted">Hombres</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-pink mb-2"> <i class="fas fa-female fa-3x"></i>
+                            </div>
+                            <h3 class="fw-bold mb-0">@Model.FemaleCount</h3>
+                            <small class="text-muted">Mujeres</small>
+                        </div>
+
+                        </div>
+                        @{
+                            double totalGen = Model.MaleCount + Model.FemaleCount;
+                            double malePct = totalGen > 0 ? (Model.MaleCount / totalGen) * 100 : 0;
+                            double femalePct = totalGen > 0 ? (Model.FemaleCount / totalGen) * 100 : 0;
+                        }
+                        <div class="progress" style="height: 15px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: @malePct%" 
+                                data-bs-toggle="tooltip" title="Hombres: @Math.Round(malePct)%"></div>
+                            <div class="progress-bar bg-pink bg-opacity-75" role="progressbar" style="width: @femalePct%" 
+                                data-bs-toggle="tooltip" title="Mujeres: @Math.Round(femalePct)%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mt-2">
+                            <span><i class="fas fa-square text-primary me-1"></i> Masc (@Math.Round(malePct)%)</span>
+                            <span>Fem (@Math.Round(femalePct)%) <i class="fas fa-square text-pink opacity-75 ms-1"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- Column Sex End-->
+        
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-white border-0 fw-bold text-uppercase text-secondary small">
+                    <i class="fas fa-users-rays me-2"></i> Identidad Étnica
+                </div>
+                <div class="card-body">
+                    @if (Model.EthnicityStat != null && Model.EthnicityStat.Any())
+                    { 
+                        <div class="d-flex flex-column gap-3">
+                            @foreach(var etnia in Model.EthnicityStat)
+                            {
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1 small">
+                                        <span class="fw-bold text-dark">@etnia.Name</span>
+                                        <span class="text-muted">@etnia.Count est. (@(Math.Round(etnia.Percentage, 1))%)</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar @(etnia.ColorClass) rounded-pill" role="progressbar" 
+                                             style="width: @(Math.Round(etnia.Percentage, 1))%;">
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-globe-americas fa-2x mb-2 opacity-50"></i>
+                            <p class="small mb-0">No hay datos étnicos registrados.</p>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer bg-white border-0 text-center">
+                    <small class="text-muted" style="font-size: 0.75rem;">* Datos basados en ficha de matrícula</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<partial name="_EnrollmentModal" />
+
+@section Scripts 
+{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_Scripts");}
+    @{await Html.RenderPartialAsync("_ScriptsSyllabus");}
+    
+}

@@ -1,0 +1,452 @@
+@model Asistencia.Models.ViewModels.CourseDetailsViewModel
+<div class="d-flex justify-content-between align-items-center mb-4 mt-4">
+    <div>
+        <h4 class="fw-bold mb-0">Sábana de Calificaciones</h4>
+    </div>
+        <div class="d-flex gap-2 align-items-center">
+            <span id="saveStatus" class="text-muted small me-2">
+                <i class="fas fa-check-circle text-success"></i> Al día
+            </span>
+            <a class="btn btn-outline-secondary" asp-action="ExportToExcel" asp-controller="Gradebook" asp-route-id="@Model.CourseId">
+                <i class="fas fa-file-export me-2"></i>Excel
+            </a>
+            <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#newAssignmentModal">
+                <i class="fas fa-plus-circle me-2"></i>Nuevo Trabajo
+            </button>
+        </div>
+</div>
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3" style="min-width: 250px; position: sticky; left: 0; z-index: 5; background-color: #f8f9fa;">
+                            Estudiante
+                        </th>
+                        @foreach(var term in Model?.Gradebook?.Terms!)
+                        {
+                            // Colspan = Tareas + 1 (Columna de Total del Corte)
+                            <th colspan="@(term?.Assignments?.Count + 1)" class="text-center py-2 border-bottom-0" style="background-color: #f8f9fa;">
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                    <span class="fw-bold text-dark text-uppercase">@term?.Name</span>
+                                    <span class="badge bg-dark rounded-pill">@term?.Weight%</span>
+                                </div>
+                            </th>
+                        }
+                        <th rowspan="2" class="text-center align-middle bg-primary text-white sticky-col-right" style="width: 80px;">
+                            NOTA<br>FINAL
+                        </th>
+                    </tr>
+                    <tr class="text-center" style="min-width: 120px;">
+                        <th></th>
+                        @foreach(var term in Model.Gradebook.Terms){
+                            @foreach(var task in term?.Assignments!){
+                                var colorClass = task.IsExam ? "text-danger border-bottom-danger" : "text-primary border-bottom-primary";
+                                var bgClass = task.IsExam ? "bg-danger bg-opacity-10" : "bg-white";
+                                <th class="text-center p-1 @bgClass" style="min-width: 90px; height: 70px;">
+                                <div class="d-flex flex-column align-items-center h-100"
+                                    data-bs-toggle="tooltip" title="@task.Title">
+                                    <small class="fw-bold @colorClass text-truncate" style="max-width: 85px;" title="@task.Title">
+                                        @task.Title
+                                    </small>
+                                    <span class="badge bg-white border text-muted rounded-pill mt-1 fw-normal mx-auto" style="font-size: 0.7rem;">
+                                        /@task.MaxPoints 
+                                    </span>
+                                </div>
+                            </th>
+                            }
+                            // Columna Total del Corte
+                            <th class="text-center bg-light border-start border-end fw-bold text-secondary" style="min-width: 70px;">
+                                Total<br>@term.Name
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var student in Model?.Gradebook?.Students!){
+                        <tr data-enrollment-id="@student.EnrollmentId">
+                            <td class="ps-4 bg-white border-end" style="position: sticky; left: 0; z-index: 1;">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle small me-2 bg-primary bg-opacity-10 text-primary fw-bold rounded-circle d-flex justify-content-center align-items-center" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                        @student.StudentInitials
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@student.StudentFullName</div>
+                                        <div class="small text-muted">@student.StudentId</div>
+                                    </div>
+                                </div>
+                            </td>
+                            @foreach(var term in Model.Gradebook.Terms){
+                                double termSum = 0;
+                                @foreach(var task in term?.Assignments!){
+                                    // Buscar nota si existe
+                                    double? gradeVal = student!.Grades!.ContainsKey(task.AssignmentId) 
+                                                       ? student.Grades[task.AssignmentId] : (double?)null;
+                                    
+                                    if(gradeVal.HasValue) { termSum += gradeVal.Value; }
+                                    <td class="p-1 text-center @(task.IsExam ? "bg-danger bg-opacity-10" : "")">
+                                        <input type="number" 
+                                               class="form-control form-control-sm text-center border-0 fw-bold grade-input input-number"
+                                               style="background: transparent;"
+                                               value="@gradeVal"
+                                               min="0" 
+                                               max="@task.MaxPoints"
+                                               data-term-id="@term.TermId"
+                                               data-assignment-id="@task.AssignmentId"
+                                               data-max="@task.MaxPoints"
+                                               onfocus="this.select()"
+                                               onchange="saveGrade(this)">
+                                    </td>
+                                }
+                                // TOTAL DEL CORTE (Calculado)
+                                <td class="text-center fw-bold bg-light border-start border-end term-total" 
+                                    data-term-weight="@term.Weight" 
+                                    id="term_total_@(student.EnrollmentId)_@(term.TermId)">
+                                    @termSum
+                                </td>
+                            }
+                            <td class="text-center fw-bold bg-primary text-white sticky-col-right final-grade">
+                                @student.FinalGrade
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<!-- Modal New Assgiment-->
+<div class="modal fade" id="newAssignmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog ">
+        <div class="modal-content ">
+            <div class="modal-header bg-purple text-white ">
+                <h5 class="modal-title  fw-bold"><i class="fas fa-plus-circle me-2"></i> Nueva Actividad</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickAssignForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">¿A qué corte pertenece?</label>
+                        <select class="form-select" id="qa_termId" required>
+                            <option value="" selected disabled>Seleccionar...</option>
+                            @foreach(var term in Model.Gradebook.Terms){
+                            <option value="@term.TermId">@term.Name (Peso: @term.Weight%)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Tipo</label>
+                            <select class="form-select" id="qa_isExam">
+                                <option value="false">Acumulado (Tarea)</option>
+                                <option value="true">Examen</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Puntos Máximos</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control fw-bold" id="qa_maxPoints" value="10" min="1">
+                                <span class="input-group-text bg-light">pts</span>
+                            </div>
+                        </div>
+                    </div>
+                   <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="qa_title" placeholder="Título" required>
+                        <label for="qa_title">Título (Ej: Ensayo Historia)</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <textarea class="form-control" id="qa_desc" placeholder="Descripción" style="height: 80px"></textarea>
+                        <label for="qa_desc">Descripción (Opcional)</label>
+                    </div>
+                    
+                    <div class="mb-2">
+                         <label class="form-label small text-muted">Fecha de Vencimiento (Opcional)</label>
+                         <input type="date" class="form-control" id="qa_dueDate">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveQuickAssignment()">Guardar Evaluación</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+   document.addEventListener("DOMContentLoaded", function() {
+    // Inicializar tooltips de Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+
+// ==========================================
+// 1. GUARDADO Y CÁLCULO DE NOTAS
+// ==========================================
+
+function saveGrade(input) {
+    const row = input.closest('tr');
+    const enrollmentId = row.dataset.enrollmentId;
+    const assignmentId = input.dataset.assignmentId;
+    const maxPoints = parseFloat(input.dataset.max);
+    
+    let val = parseFloat(input.value);
+
+    // Validaciones
+    if (isNaN(val)) {
+        // Si borra el dato, lo tratamos como 0 o null. 
+        // Visualmente para cálculo usamos 0
+        val = 0; 
+    }
+
+    if (val < 0) {
+        Swal.fire('Error', 'No se permiten negativos', 'error');
+        input.value = 0; val = 0;
+    }
+    
+    if (val > maxPoints) {
+        Swal.fire('Cuidado', `El valor máximo es ${maxPoints}`, 'warning');
+        input.value = maxPoints; val = maxPoints;
+    }
+
+    // Feedback Visual (Cargando...)
+    input.classList.remove('text-success', 'text-danger');
+    input.classList.add('text-muted');
+    
+    // Objeto a enviar
+    const payload = {
+        EnrollmentId: parseInt(enrollmentId),
+        AssignmentId: parseInt(assignmentId),
+        Score: val
+    };
+
+    // Token Antiforgery (Asegúrate de tenerlo en tu Layout o Vista)
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    // Llamada AJAX
+    fetch('/Gradebook/SaveGrade', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Éxito Visual
+            input.classList.remove('text-muted');
+            input.classList.add('text-success', 'fw-bold');
+            
+            // Recalcular Fila
+            recalculateRow(row);
+        } else {
+            Swal.fire('Error', data.message || 'No se pudo guardar', 'error');
+            input.classList.add('text-danger');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire('Error', 'Fallo de conexión', 'error');
+    });
+}
+
+/**
+ * LÓGICA DE CÁLCULO: PROMEDIO SIMPLE DE CORTES
+ * Fórmula: (Suma Total Corte 1 + Suma Total Corte 2) / Cantidad de Cortes
+ */
+function recalculateRow(row) {
+    let grandTotal = 0;
+    let termCount = 0;
+
+    // 1. Iterar sobre las celdas de totales de cada corte
+    const termTotals = row.querySelectorAll('.term-total');
+
+    termTotals.forEach(termCell => {
+        // Extraemos el ID del corte del ID de la celda: term_total_ENROLL_TERM
+        const parts = termCell.id.split('_'); 
+        const termId = parts[3]; // Ajusta el índice según tu estructura ID
+
+        // Sumar todos los inputs que pertenecen a este corte
+        const inputs = row.querySelectorAll(`input[data-term-id="${termId}"]`);
+        let termSum = 0;
+
+        inputs.forEach(inp => {
+            let v = parseFloat(inp.value);
+            if (!isNaN(v)) termSum += v;
+        });
+
+        // Actualizar visualmente el total del corte
+        termCell.innerText = termSum.toFixed(2).replace(/[.,]00$/, "");
+        
+        // Acumular para el promedio final
+        grandTotal += termSum;
+        termCount++;
+    });
+
+    // 2. Calcular Promedio Final
+    let finalGrade = termCount > 0 ? (grandTotal / termCount) : 0;
+
+    // 3. Actualizar Celda Final
+    const finalCell = row.querySelector('.final-grade');
+    finalCell.innerText = finalGrade.toFixed(2).replace(/[.,]00$/, "");
+
+    // 4. Aplicar Colores Condicionales
+    if (finalGrade < 60) {
+        finalCell.style.backgroundColor = '#dc3545'; // Rojo
+        finalCell.classList.add('text-white');
+    } else {
+        finalCell.style.backgroundColor = '#0d6efd'; // Azul
+        finalCell.classList.add('text-white');
+    }
+}
+
+
+// ==========================================
+// 2. CREACIÓN RÁPIDA DE ACTIVIDAD (MODAL)
+// ==========================================
+
+function saveQuickAssignment() {
+    // Obtener datos
+    const termId = document.getElementById('qa_termId').value;
+    const isExam = document.getElementById('qa_isExam').value === 'true';
+    const title = document.getElementById('qa_title').value;
+    const maxPoints = document.getElementById('qa_maxPoints').value;
+    const desc = document.getElementById('qa_desc').value;
+    const date = document.getElementById('qa_dueDate').value;
+
+    // Validaciones básicas
+    if (!termId) {
+        Swal.fire('Atención', 'Selecciona un corte.', 'warning');
+        return;
+    }
+    if (!title) {
+        Swal.fire('Atención', 'El título es obligatorio.', 'warning');
+        return;
+    }
+
+    const payload = {
+        TermId: parseInt(termId),
+        Title: title,
+        MaxPoints: parseFloat(maxPoints),
+        IsExam: isExam,
+        Description: desc,
+        DueDate: date ? date : null
+    };
+
+    // UI Loading
+    const btn = event.target; // El botón que disparó el evento
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
+    // Token
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    fetch('/Evaluation/CreateAssignment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Cerrar modal
+            const modalEl = document.getElementById('newAssignmentModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            Swal.fire({
+                title: '¡Creado!',
+                text: 'La actividad se ha agregado correctamente.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                // Recargar para dibujar la nueva columna
+                location.reload();
+            });
+        } else {
+            Swal.fire('Error', data.message, 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire('Error', 'Error de servidor', 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+// ==========================================
+// 3. MEJORA UX: NAVEGACIÓN CON TECLADO (ENTER)
+// ==========================================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.classList.contains('grade-input')) {
+        e.preventDefault();
+        
+        const currentInput = e.target;
+        const currentTd = currentInput.closest('td');
+        const currentTr = currentInput.closest('tr');
+        
+        // Intentar encontrar la misma columna en la siguiente fila
+        const nextTr = currentTr.nextElementSibling;
+        if (nextTr) {
+            // Obtenemos el índice de la celda actual
+            const cellIndex = Array.from(currentTr.children).indexOf(currentTd);
+            
+            // Buscamos la celda en la misma posición en la fila siguiente
+            const nextTd = nextTr.children[cellIndex];
+            if (nextTd) {
+                const nextInput = nextTd.querySelector('input');
+                if (nextInput) {
+                    nextInput.focus();
+                    nextInput.select();
+                }
+            }
+        }
+    }
+});
+</script>
+<style>
+    /* Contenedor con scroll */
+.gradebook-container {
+    overflow: auto;
+    position: relative;
+}
+
+/* Columna Izquierda Congelada (Nombres) */
+.sticky-col-left {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background-color: #fff; /* Tapar contenido al scrollear */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05); /* Sombra sutil divisoria */
+}
+
+/* Nota Final Congelada a la Derecha (Opcional, pero útil) */
+.sticky-col-right {
+    position: sticky;
+    right: 0;
+    z-index: 5;
+}
+
+/* Input limpio que parece texto hasta que le das click */
+.grade-input:focus {
+    background-color: #fff !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+.grade-input::-webkit-inner-spin-button, 
+.grade-input::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+</style>

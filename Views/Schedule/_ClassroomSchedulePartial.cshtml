@@ -1,0 +1,75 @@
+@model Asistencia.Models.ViewModels.ClassroomScheduleDto
+
+@{
+    // Configuración de la hora 
+    int horaInicio = 7;
+    int horaFin = 22;
+    var dias = new Dictionary<int, string>{
+        {1, "Lunes"}, {2, "Martes"}, {3, "Miercoles"}, {4, "Jueves"},
+        {5, "Viernes"}, {6, "Sabado"}, {7,"Domingo"}
+        };
+}
+<div class="table-responsive shadow-sm rounded">
+    <table class="table table-bordered table-sm text-center align-middle mb-0" style="table-layout: fixed;">
+        <thead class="bg-purple text-white">
+            <tr>
+                <th style="width: 80px;" class="py-3"><i class="far fa-clock"></i></th>
+                @foreach( var dia in dias){
+                    <td>@dia.Value</td>
+                }
+            </tr>
+        </thead>
+        <tbody class="bg-white">
+            @for(int hora = horaInicio; hora < horaFin; hora++)
+            {
+                <tr>
+                <td class="fw-bold text-muted bg-light border-end">
+                    @hora:00
+                </td>
+                @foreach(var dia in dias)
+                {
+                    var claseActual = Model.Sessions!.FirstOrDefault(s => 
+                        s.DayOfWeek == dia.Key &&
+                        s.StartTime.Hours <= hora &&
+                        s.EndTime.Hours > hora 
+                    );
+                    if(claseActual != null){
+                        bool esInicio = (claseActual.StartTime.Hours == hora);
+                        string colorClass = claseActual.ColorHex!;
+                        <td class="p-1 border-0">
+                             <div class="card border-0 bg-@colorClass bg-opacity-10 border-start border-4 border-@colorClass h-100 p-2 text-start shadow-sm" 
+                                style="min-height: 50px; border-radius: 4px;">
+                        if(@esInicio){
+                        <div class="animate__animated animate__fadeIn">
+                            <span class="badge bg-@colorClass mb-1">Activo</span>
+                            <div class="small fw-bold text-dark lh-sm">@claseActual.CourseName</div>
+                            <div class="small text-muted" style="font-size: 0.70rem">
+                                @claseActual.StartTime.ToString(@"hh\\:mm") - @claseActual.EndTime.ToString(@"hh\\:mm") 
+                            </div>
+                        </div>
+                    }else{
+                        <div class="d-flex align-items-center h-100 text-@colorClass opacity-50 justify-content-center">
+                            <i class="fas fa-arrow-down"></i>
+                                        </div>
+                    }
+                    </div>
+                </td>
+                }else{
+                    // CELDA VACÍA (LIBRE)
+                            <td class="text-muted bg-light bg-opacity-10 small align-middle transition-hover">
+                                <span class="badge bg-light text-muted border fw-normal">Libre</span>
+                            </td>
+                }
+            }
+            </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <style>
+    /* Pequeño efecto hover para ver mejor las celdas vacías */
+    .transition-hover:hover {
+        background-color: #f8f9fa !important;
+        cursor: pointer;
+    }
+</style>

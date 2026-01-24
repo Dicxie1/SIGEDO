@@ -1,0 +1,162 @@
+@model IEnumerable<Asistencia.Models.Classroom>
+@{
+    Layout = "../Shared/_LayoutDefault.cshtml";
+    ViewData["Section"] = "Administración de Aulas";
+    ViewData["Title"] = "Aulas";
+}
+@section Buttons{
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newClassroomModal">
+                <i class="fas fa-plus"></i> Crear Aula
+            </button>
+        </div>
+    </div>
+}
+<!-- Tabs para Administración -->
+<ul class="nav nav-tabs" id="adminTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="admin-tab" data-bs-toggle="tab" data-bs-target="#adminTabsContent" type="button" role="tab" aria-controls="overview" aria-selected="true">
+            <i class="fas fa-home"></i> Gestion de Aulas
+        </button>
+    </li>
+        <li class="nav-item" role="presentation">
+        <button class="nav-link" id="enrollments-tab" data-bs-toggle="tab" data-bs-target="#enrollments" type="button" role="tab" aria-controls="enrollments" aria-selected="false">
+            <i class="fas fa-users"></i> Otros
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#Reports" type="button" role="tab" aria-controls="reports" aria-selected="false">
+            <i class="fas fa-chart-bar"></i> Reportes
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#scheduleTabContent" type="button" role="tab" aria-controls="schedule" aria-selected="false">
+            <i class="fas fa-building"></i> Horarios
+        </button>
+    </li>
+
+</ul>
+
+<!-- Tabs in partial Views-->
+<div class="tab-content" id="TabContent">
+    <!--Admin Classroom Tab-->
+    <div class="tab-pane fade show active" id="adminTabsContent" role="tabpanel" aria-labelledby="overview-tab">
+        <partial name="_AdminTab.cshtml"/>
+    </div>
+    <!-- Schedule Classroom Tab-->
+    <div class=" tab-pane fade" id="scheduleTabContent" role="tabpanel" aria-labelledby="schedule-tab">
+        <partial name="_ScheduleTab" />
+    </div>
+    <!--Schedule Enrollments Tab -->
+    <div class="tab-pane fade" id="enrollments" role="tabpanel" aria-labelledby="enrollments-tab">
+        <h3>Modulo En contrucción</h3>
+    </div>
+    <!-- Reports Classroom Tab -->
+     <div class=" tab-pane fade" id="Reports" role="tabpanel" aria-labelledby="reports-tab">
+        <h3>En contrucción</h3>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="modalContentContainer">
+            </div>
+    </div>
+</div>
+<!-- Add New Classroom Modal -->
+<partial name="../Course/_AddClassroomModal"/>
+<script>
+
+    
+document.addEventListener('DOMContentLoaded', function () { 
+    // Seleccionamos todos los botones de editar
+    // Nota: Si usas paginación o recargas la tabla dinámicamente, 
+    // deberás usar "Event Delegation" en su lugar.
+    const editButtons = document.querySelectorAll('.btn-edit');
+    const modalElement = document.getElementById('editModal');
+    const modalContainer = document.getElementById('modalContentContainer');
+    const editModal = new bootstrap.Modal(modalElement);
+    editButtons.forEach(button => {
+        button.addEventListener('click', function () {
+        const id = this.getAttribute('data-id');
+        let path = '@Url.Action("Edit", "Classroom")' + '';
+        let url  = `${path}?classroom`;
+        Swal.fire({ title: 'Cargando...', didOpen: () => Swal.showLoading() });
+        // Hacemos la petición al servidor
+        fetch(`/Classroom/EditClassroom?classroomId=${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al cargar el formulario');
+                }
+                return response.text();
+                })
+                .then(html => {
+                    Swal.close();
+                    // Insertamos el HTML en el modal
+                    modalContainer.innerHTML = html;
+                    // Mostramos el modal
+                    editModal.show();
+
+                    let form = document.getElementById('editClassroomForm');
+                    form.addEventListener('submit', function(e){
+                        e.preventDefault();
+                        const formData = new FormData(form);
+                        const actionUrl = form.getAttribute('action');
+                        Swal.fire({
+                            title: 'Cargadando',
+                            text: 'Por favor espere',
+                            didOpen: () => Swal.showLoading()
+                        });
+                        fetch(actionUrl,{
+                            method: 'POST',
+                            body: formData
+                        }).then(response =>{
+                            if(response.ok) Swal.fire({
+                                title: "Error",
+                                text: `Error en el Servidor ${response.status}`});
+                            return response.json();
+                        }).then(data =>{
+                            if(data.success){
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '!Éxito¡',
+                                    text: data.message
+                                }).then(() =>{
+                                    editModal.hide()
+                                    location.reload()
+                                })
+                            }else{
+                                Swal.fire({
+                                    title:'Atención',
+                                    text: data.message, 
+                                    icon: 'warning'
+                                })
+                            }
+                        }).catch(e =>{
+                            // --- GESTIÓN DE SISTEMA NO DISPONIBLE ---
+                            console.error(error);
+                            let msg = 'Ocurrió un error inesperado.';
+                            let title = 'Error';
+
+                            if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+                                title = 'Sistema no disponible';
+                                msg = 'No hay conexión con el servidor. Sus cambios no se guardaron.';
+                            }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: title,
+                                text: msg
+                            });
+                        });
+                    })
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({text: 'No se pudo cargar la información del aula.', icon: 'error'});
+                });
+            });
+        });
+    });
+</script>

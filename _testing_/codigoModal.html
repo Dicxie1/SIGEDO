@@ -1,0 +1,151 @@
+<!-- Detalles Académicos -->
+                    <h6 class="text-primary fw-bold mb-3">
+                        <i class="fas fa-info-circle"></i> Información Básica 
+                    </h6>
+                    <div class="row">
+                        <!--Career Field-->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <select class="form-select" id="courseCareer" required>
+                                    <option value="" selected disabled>Seleccionar...</option>
+                                    <option>Ingeniería Informática</option>
+                                    <option>Ingeniería Civil</option>
+                                    <option>Matemáticas</option>
+                                    <option>Física</option>
+                                    <option>Química</option>
+                                </select>
+                                <label for="courseCareer" class="form-label">Carrera *</label>
+                            </div>
+                        </div> <!--End Career Field-->
+                        <!-- Subject Field-->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <select class="form-select" id="courseSubjectr" required disabled>
+                                    <option value="">Seleccionar...</option>
+                                    <option>Dr. Juan Pérez</option>
+                                    <option>Dra. María González</option>
+                                    <option>Prof. Carlos Rodríguez</option>
+                                    <option>Dra. Ana López</option>
+                                </select>
+                                <label for="coursesubject" class="form-label">Asignatura *</label>
+                            </div> <!-- End Subject Field -->
+                        </div> <!-- EndColuma Subject -->
+                    </div> <!--End Row 1 -->
+                    <div class="row">  
+                        <!---Creadit Field Column -->
+                        <div class="col-md-4 mb-3">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="courseCredits" min="1" max="10" placeholder="4" required>
+                                <label for="courseCredits" class="form-label">Créditos *</label>
+                            </div> <!--End Creadit Field-->
+                        </div> <!--End Credit Field Column-->
+                        <!-- Hours Cours Field Column -->
+                        <div class="col-md-4 mb-3">
+                            <!-- course Field -->
+                            <div class="form-floating"> 
+                                <input type="number" class="form-control" id="courseHours" min="1" max="40" placeholder="4" required>
+                                <label for="courseHours" class="form-label">Horas Semanales *</label>
+                            </div> <!-- End CourseHourse Field-->
+                            <div class="form-text text-center d-flex align-items-center justify-content-center text-muted small" id="freqCounter">
+                                <div class="d-block">
+                                    Horarios asignados: 
+                                    <span id="currentAcademicHours" class="fw-bold text-danger fs-5">0.0</span> /
+                                    <span id="targetFrequencyDisplay" class="text-muted small">0</span>
+                                    <span class="badge bg-secondary">Hrs</span>
+                                </div>
+                            </div>   
+                        </div>
+                        <!-- courseCapacity Flield -->
+                        <div class="col-4 mb-3">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="courseCapacity" placeholder="ingrese la cantida de estudiante">
+                                <label for="courseCapacity">Cupo Máximo</label>
+                            </div> <!--End courseCapacity Field-->
+                        </div><!--End courseCapacity Field column-->
+                    </div> <!--End Row 2-->
+                    <!-- Horarios Semanales Card -->
+                    <div class="card border-0"> 
+                        <div class="card-head text-primary d-flex justify-content-between align-items-center">
+                            <!--Card Title-->
+                            <h6><i class="fas fa-clock me-1"></i> Horarios Semanales</h6>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addScheduleRow()">
+                                <i class="fas fa-plus me-1"></i> Agregar Día
+                            </button>
+                            </div> <!--End Card Title-->
+                            <div class="card-body">
+                                <!--Row 3-->
+                                <div class="row"> 
+                                    <!-- Classroom Field -->
+                                    <div class="col-md-12">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="courseClassroom" required>
+                                                <option value="">Seleccionar...</option>
+                                                <option>A101 - Aula Magna</option>
+                                                <option>B202 - Aula de Informática</option>
+                                                <option>C303 - Laboratorio de Física</option>
+                                                <option>D404 - Sala de Conferencias</option>
+                                            </select>
+                                            <label for="courseClassroom" class="form-label">Aula Asignada *</label>
+                                        </div> <!-- End col -->
+                                    </div> <!-- End Classroom Field -->
+                                </div>
+                                <div id="scheduleContainer">
+                                </div>
+                                <div id="emptyScheduleMsg" class="text-center py-3 text-muted border border-dashed rounded bg-light">
+                                    <div>
+                                        <i class="fas fa-calendar-times me-1"></i> 
+                                        <p class="mt-2 mb-0 fw-bold">
+                                            No hay horarios definidos aún.
+                                        </p>
+                                        <small>Es necesario asignar al menos un día y hora.</small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary px-4 rounded-pill" onclick="addScheduleRow()">
+                                        <i class="fas fa-plus me-2"></i> Agregar Primer Horario
+                                    </button>
+                                </div> <!--End Empty Schedule msg-->
+                            </div> <!-- End Card Body -->
+                        </div> <!--End Card-->
+                    </div>
+                        <!-- Fin Horario Semana-->
+                        <h6 class="text-primary fw-bold mb-3">
+                            <i class="fas fa-calendar-alt"></i> Horarios Semenales
+                        </h6>
+                        <div class="row">
+                            <div class="col mb-3">
+                                <div class="form-floating">
+                                    <select class="form-select" id="courseClassroom" required>
+                                        <option value="">Seleccionar...</option>
+                                        <option>A101 - Aula Magna</option>
+                                        <option>B202 - Aula de Informática</option>
+                                        <option>C303 - Laboratorio de Física</option>
+                                        <option>D404 - Sala de Conferencias</option>
+                                    </select>
+                                    <label for="courseClassroom" class="form-label">Aula Asignada *</label>
+                                </div>
+                            </div>
+                        </div>
+                         
+                    <!-- Fechas y Estado -->
+                    <h6 class="text-primary fw-bold mb-3">
+                        <i class="fas fa-clock"></i> Fechas y Estado
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" id="courseStartDate" required>
+                                <label for="courseStartDate" class="form-label">Fecha de Inicio *</label>
+                            </div>
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" id="courseEndDate" required>
+                                <label for="courseEndDate" class="form-label">Fecha de Fin *</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <div class="form-check form-switch d-flex justify-content-center">
+                                <input class="form-check-input" type="checkbox" id="isActive" checked style="transform: scale(1.3);">
+                            </div>
+                                <div class="text-center super-small text-muted mt-1" style="font-size:0.7rem">Activo</div>
+                        </div>
+                    </div>

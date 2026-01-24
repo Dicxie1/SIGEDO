@@ -1,0 +1,46 @@
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><a class="btn" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-arrow-left fa-2x"></i> </a> Lista de Estudiante</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a type="button" class="btn btn-sm btn-outline-secondary" asp-controller="Students" asp-action="Agregar">
+            <i class="fas fa-plus"></i> Estudiantes
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card student-card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <img src="https://via.placeholder.com/150" alt="Foto del estudiante" class="img-fluid rounded-circle">
+                    </div>
+                    <div class="col-md-9">
+                        <h4>Juan Pérez <small class="text-muted">Matrícula: 123456</small>
+                        </h4>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <p><strong>Carrera:</strong> Ingeniería de Software</p>
+                                <p><strong>Semestre:</strong> 5to Semestre</p>
+                            </div>
+                            <div class="col-md-4">
+                            <p><strong>Promedio General:</strong> 8.5</p>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" style="width: 85%">
+                                </div>
+                            </div>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Asistencia General:</strong> 92%</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info" style="width: 92%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+        </div>
+    </div>
+</div>

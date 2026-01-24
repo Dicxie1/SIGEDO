@@ -1,0 +1,213 @@
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Administración de Curso - Matemáticas Avanzadas</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fas fa-save"></i> Guardar Cambios</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary ms-2"><i class="fas fa-download"></i> Exportar Datos</button>
+                    </div>
+                </div>
+
+                <!-- Menú Secundario Horizontal -->
+                <div class="secondary-menu">
+                    <ul class="nav nav-tabs" id="secondaryMenu" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="asistencia-tab" data-bs-toggle="tab" data-bs-target="#asistencia" type="button" role="tab" aria-controls="asistencia" aria-selected="true">
+                                <i class="fas fa-calendar-check"></i> Asistencia
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="trabajos-tab" data-bs-toggle="tab" data-bs-target="#trabajos" type="button" role="tab" aria-controls="trabajos" aria-selected="false">
+                                <i class="fas fa-file-alt"></i> Trabajos
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="evaluaciones-tab" data-bs-toggle="tab" data-bs-target="#evaluaciones" type="button" role="tab" aria-controls="evaluaciones" aria-selected="false">
+                                <i class="fas fa-clipboard-check"></i> Evaluaciones
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contenido Dinámico -->
+                <div class="tab-content" id="secondaryMenuContent">
+                    <!-- Tab Asistencia -->
+                    <div class="tab-pane fade show active" id="asistencia" role="tabpanel" aria-labelledby="asistencia-tab">
+                        <h3>Gestión de Asistencia</h3>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label for="fechaFilter" class="form-label">Fecha de la Clase</label>
+                                <input type="date" class="form-control" id="fechaFilter" value="2023-10-01">
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-users fa-2x text-primary"></i>
+                                        <h5 class="card-title">Total Estudiantes</h5>
+                                        <p class="card-text h4">45</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                                        <h5 class="card-title">Presentes</h5>
+                                        <p class="card-text h4 presente">38</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-times-circle fa-2x text-danger"></i>
+                                        <h5 class="card-title">Ausentes</h5>
+                                        <p class="card-text h4 ausente">7</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre Completo</th>
+                                        <th>ID Estudiante</th>
+                                        <th>Asistencia</th>
+                                        <th>Hora de Llegada</th>
+                                        <th>Notas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Juan Pérez</td>
+                                        <td>001</td>
+                                        <td>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input asistencia-checkbox" type="checkbox" id="asistencia1" checked>
+                                                <label class="form-check-label" for="asistencia1">Presente</label>
+                                            </div>
+                                        </td>
+                                        <td><input type="time" class="form-control" value="08:30"></td>
+                                        <td><input type="text" class="form-control" placeholder="Notas opcionales"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>María González</td>
+                                        <td>002</td>
+                                        <td>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input asistencia-checkbox" type="checkbox" id="asistencia2" checked>
+                                                <label class="form-check-label" for="asistencia2">Presente</label>
+                                            </div>
+                                        </td>
+                                        <td><input type="time" class="form-control" value="08:45"></td>
+                                        <td><input type="text" class="form-control" placeholder="Notas opcionales"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Carlos Rodríguez</td>
+                                        <td>003</td>
+                                        <td>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input asistencia-checkbox" type="checkbox" id="asistencia3">
+                                                <label class="form-check-label" for="asistencia3">Ausente</label>
+                                            </div>
+                                        </td>
+                                        <td><input type="time" class="form-control" disabled></td>
+                                        <td><input type="text" class="form-control" placeholder="Notas opcionales"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-success"><i class="fas fa-envelope"></i> Notificar Ausentes</button>
+                        </div>
+                    </div>
+
+                    <!-- Tab Trabajos -->
+                    <div class="tab-pane fade" id="trabajos" role="tabpanel" aria-labelledby="trabajos-tab">
+                        <h3>Gestión de Trabajos</h3>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-primary"><i class="fas fa-plus"></i> Crear Nuevo Trabajo</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Título del Trabajo</th>
+                                        <th>Fecha de Entrega</th>
+                                        <th>Entregados</th>
+                                        <th>Calificados</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Problemas de Ecuaciones</td>
+                                        <td>2023-10-15</td>
+                                        <td>40/45</td>
+                                        <td>35/45</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Ver</button>
+                                            <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Editar</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Proyecto de Aplicaciones</td>
+                                        <td>2023-10-20</td>
+                                        <td>38/45</td>
+                                        <td>30/45</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Ver</button>
+                                            <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Editar</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary"><i class="fas fa-download"></i> Exportar Calificaciones</button>
+                        </div>
+                    </div>
+
+                    <!-- Tab Evaluaciones -->
+                    <div class="tab-pane fade" id="evaluaciones" role="tabpanel" aria-labelledby="evaluaciones-tab">
+                        <h3>Evaluaciones</h3>
+                        <p>Contenido para gestionar evaluaciones (exámenes, quizzes).</p>
+                        <!-- Agregar contenido similar a trabajos -->
+                    </div>
+                </div>
+            </main>
+@section Scripts 
+{
+    <script>
+        function updateCounters() {
+            const checkboxes = document.querySelectorAll('.asistencia-checkbox');
+            let presentes = 0;
+            checkboxes.forEach(cb => {
+                if (cb.checked) presentes++;
+            });
+            const total = checkboxes.length;
+            const ausentes = total - presentes;
+            document.querySelector('.presente').textContent = presentes;
+            document.querySelector('.ausente').textContent = ausentes;
+        }
+
+        document.querySelectorAll('.asistencia-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const row = this.closest('tr');
+                const timeInput = row.querySelector('input[type="time"]');
+                if (this.checked) {
+                    timeInput.disabled = false;
+                    this.nextElementSibling.textContent = 'Presente';
+                } else {
+                    timeInput.disabled = true;
+                    timeInput.value = '';
+                    this.nextElementSibling.textContent = 'Ausente';
+                }
+                updateCounters();
+            });
+        });
+
+        updateCounters();
+    </script>
+}

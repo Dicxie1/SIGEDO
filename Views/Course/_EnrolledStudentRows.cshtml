@@ -1,0 +1,27 @@
+@model Asistencia.Models.ViewModels.CourseDetailsViewModel
+@foreach( var student in Model.EnrolledStudents){
+ <tr id="est-@student.EnrollmentId">
+    <td class="ps-4">
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle bg-primary text-primary bg-opacity-10 fw-bold d-flex justify-content-center align-items-center me-3" style="width: 60px; height: 60px;">
+                @student.StudentInitials
+            </div>
+            <div>
+                <div class="fw-bold text-dark">@student.FullName </div>
+                <div class="small text-muted">@student.StudentId</div>
+            </div>
+        </div>
+    </td>
+    <td>@student.Email</td>
+    <td>@student.Cellphone</td>
+    <td>@student.Sexo</td>
+    <td>@student.Ethnic</td>
+    <td>
+        <button class="btn btn-secondary btn-sm"><i class="fas fa-eye"></i></button>
+        <button class="btn btn-danger btn-delete btn-sm" data-code="@Model!.CourseId" data-student="@student.EnrollmentId" data-name="@student.FullName">
+            <i class="fas fa-square-xmark"></i>
+        </button> 
+   </td>
+
+</tr>
+}

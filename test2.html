@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Estudiante</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            width: 250px;
+            transition: all 0.3s;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .student-card {
+            border-left: 4px solid #0d6efd;
+            background-color: #f8f9fa;
+        }
+        .accordion-button:not(.collapsed) {
+            color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        .progress {
+            height: 20px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -100%;
+            }
+            .sidebar.show {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container-fluid">
+            <button class="btn btn-primary me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <span class="navbar-brand">Detalle del Estudiante</span>
+        </div>
+    </nav>
+
+    <!-- Sidebar (Offcanvas en móviles) -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Menú</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-home me-2"></i>Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#"><i class="fas fa-user-graduate me-2"></i>Estudiantes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-book me-2"></i>Cursos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-chart-line me-2"></i>Reportes</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Sidebar para escritorio -->
+    <div class="d-none d-lg-block sidebar">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-home me-2"></i>Inicio</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="#"><i class="fas fa-user-graduate me-2"></i>Estudiantes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-book me-2"></i>Cursos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="fas fa-chart-line me-2"></i>Reportes</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content mt-5">
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-user-graduate me-2"></i>Detalle de Estudiante</h2>
+                <a href="#" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Regresar a la lista
+                </a>
+            </div>
+        </div>
+
+        <!-- Información General del Estudiante en el Curso -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card student-card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <h4>Juan Pérez Morales <small class="badge bg-secondary text-white"> #123456</small></h4>
+                                <div class="row mt-3">
+                                    <div class="col-md-4">
+                                        <p><strong>Curso:</strong> Programación II</p>
+                                        <p><strong>Semestre:</strong> 2025-2</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Promedio en el curso:</strong> 8.5</p>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Asistencia:</strong> 92%</p>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-info" style="width: 92%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acordeón por Tema/Unidad del Curso -->
+        <div class="accordion" id="courseAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#unit1">
+                        <i class="fas fa-book me-2"></i>Unidad 1: Introducción a la Programación
+                    </button>
+                </h2>
+                <div id="unit1" class="accordion-collapse collapse show" data-bs-parent="#courseAccordion">
+                    <div class="accordion-body">
+                        <!-- Actividades -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-tasks me-2"></i>Actividades</h5>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Fecha</th>
+                                        <th>Calificación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tarea 1: Hola Mundo</td>
+                                        <td>Tarea</td>
+                                        <td>15/09/2025</td>
+                                        <td>9.0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Examen Parcial 1</td>
+                                        <td>Examen</td>
+                                        <td>30/09/2025</td>
+                                        <td>8.5</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Asistencia -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-calendar-check me-2"></i>Asistencia</h5>
+                            <div class="progress mb-3">
+                                <div class="progress-bar bg-warning" style="width: 90%">90%</div>
+                            </div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>10/09/2025</td>
+                                        <td><span class="badge bg-success">Presente</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>17/09/2025</td>
+                                        <td><span class="badge bg-success">Presente</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Acumulativo -->
+                        <div>
+                            <h5><i class="fas fa-chart-pie me-2"></i>Acumulativo</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Promedio:</strong> 8.75</p>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" style="width: 87.5%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#unit2">
+                        <i class="fas fa-book me-2"></i>Unidad 2: Estructuras de Control
+                    </button>
+                </h2>
+                <div id="unit2" class="accordion-collapse collapse" data-bs-parent="#courseAccordion">
+                    <div class="accordion-body">
+                        <!-- Actividades -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-tasks me-2"></i>Actividades</h5>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Fecha</th>
+                                        <th>Calificación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tarea 2: Condicionales</td>
+                                        <td>Tarea</td>
+                                        <td>10/10/2025</td>
+                                        <td>8.0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Examen Parcial 2</td>
+                                        <td>Examen</td>
+                                        <td>25/10/2025</td>
+                                        <td>9.0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Asistencia -->
+                        <div class="mb-4">
+                            <h5><i class="fas fa-calendar-check me-2"></i>Asistencia</h5>
+                            <div class="progress mb-3">
+                                <div class="progress-bar bg-warning" style="width: 85%">85%</div>
+                            </div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>08/10/2025</td>
+                                        <td><span class="badge bg-success">Presente</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>15/10/2025</td>
+                                        <td><span class="badge bg-danger">Ausente</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Acumulativo -->
+                        <div>
+                            <h5><i class="fas fa-chart-pie me-2"></i>Acumulativo</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Promedio:</strong> 8.5</p>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS y Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

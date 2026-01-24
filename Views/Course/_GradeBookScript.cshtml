@@ -1,0 +1,177 @@
+<script>
+    /**
+    * Maneja el guardado y cálculo de notas en la sábana de calificaciones.
+    */
+
+// Referencia al Token de Seguridad (Anti-Forgery)
+const getToken = () => document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+// ==========================================
+// 1. FUNCIÓN PRINCIPAL: GUARDAR NOTA
+// Se dispara con el evento onchange del input
+// ==========================================
+function saveGrade(input) {
+    // 1. Obtener datos del DOM
+    const row = input.closest('tr'); // La fila del estudiante
+    const enrollmentId = parseInt(row.dataset.enrollmentId);
+    const assignmentId = parseInt(input.dataset.assignmentId);
+    const maxPoints = parseFloat(input.dataset.max);
+    
+    // Convertir valor a número (si está vacío es 0)
+    let score = parseFloat(input.value);
+    if (isNaN(score)) score = 0;
+
+    // 2. Validaciones Frontend
+    if (score < 0) {
+        showError(input, 'La nota no puede ser negativa');
+        input.value = 0;
+        return;
+    }
+    if (score > maxPoints) {
+        showError(input, `La nota máxima es ${maxPoints}`);
+        input.value = maxPoints; // Ajuste automático o dejarlo vacío
+        score = maxPoints;
+    }
+
+    // Quitar estilos de error si pasó validación
+    input.classList.remove('is-invalid', 'text-danger');
+    input.classList.add('fw-bold');
+
+    // 3. Feedback Visual "Guardando..."
+    const statusBadge = document.getElementById('saveStatus');
+    statusBadge.innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span> Guardando...';
+
+    // 4. Enviar al Backend
+    const payload = {
+        EnrollmentId: enrollmentId,
+        AssignmentId: assignmentId,
+        Score: score
+    };
+
+    fetch('/Gradebook/SaveGrade', { // Asegúrate que esta ruta coincida con tu Controller
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': getToken()
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Error en el servidor");
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // ÉXITO
+            onSaveSuccess(input, statusBadge);
+            
+            // 5. RECALCULAR TOTALES DE LA FILA (Sin recargar página)
+            recalculateRow(row);
+        } else {
+            // ERROR CONTROLADO (Backend dijo false)
+            onSaveError(input, statusBadge, data.message);
+        }
+    })
+    .catch(error => {
+        // ERROR DE RED
+        console.error(error);
+        onSaveError(input, statusBadge, "Fallo de conexión");
+    });
+}
+
+// ==========================================
+// 2. CÁLCULO EN VIVO (CLIENT SIDE MATH)
+// Suma las celdas para actualizar totales visualmente
+// ==========================================
+function recalculateRow(row) {
+    let finalGrade = 0;
+
+    // Buscar todas las celdas de "Total Corte" en esa fila
+    const termCells = row.querySelectorAll('.term-total');
+
+    termCells.forEach(cell => {
+        // El ID es term_total_ENROLLMENT_TERMID. Sacamos el TERMID (índice 3)
+        // Ejemplo ID: "term_total_105_2" -> TermId = 2
+        const termId = cell.id.split('_')[3]; 
+        
+        // Buscar todos los inputs que pertenecen a este corte
+        const inputs = row.querySelectorAll(`input[data-term-id="${termId}"]`);
+        
+        let termSum = 0;
+        inputs.forEach(inp => {
+            const val = parseFloat(inp.value);
+            if (!isNaN(val)) termSum += val;
+        });
+
+        // Actualizar la celda del Total Corte
+        // cell.dataset.value = termSum; // Opcional: guardar en data attribute
+        cell.innerText = termSum.toFixed(2).replace(/[.,]00$/, ""); // Quitar decimales si es entero
+        
+        // Sumar a la nota final
+        // NOTA: Esto asume que la suma de cortes da la nota final directa.
+        // Si usas ponderación compleja, aquí deberías aplicar el % del corte.
+        finalGrade += termSum; 
+    });
+
+    // Actualizar la celda de Nota Final
+    const finalCell = row.querySelector('.final-grade');
+    finalCell.innerText = finalGrade.toFixed(2).replace(/[.,]00$/, "");
+
+    // Colorear Nota Final (Rojo si reprueba, Azul si aprueba)
+    updateFinalGradeColor(finalCell, finalGrade);
+}
+
+// ==========================================
+// 3. FUNCIONES AUXILIARES DE UI
+// ==========================================
+
+function onSaveSuccess(input, statusBadge) {
+    // Indicador Global
+    statusBadge.innerHTML = '<i class="fas fa-check-circle text-success"></i> Al día';
+    
+    // Indicador en el Input (Flash verde)
+    input.classList.add('text-success', 'bg-success', 'bg-opacity-10');
+    setTimeout(() => {
+        input.classList.remove('text-success', 'bg-success', 'bg-opacity-10');
+    }, 1000);
+}
+
+function onSaveError(input, statusBadge, msg) {
+    statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle text-danger"></i> Error al guardar';
+    input.classList.add('is-invalid'); // Borde rojo de Bootstrap
+    
+    // Usamos Toast de SweetAlert para no ser intrusivos
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'No se guardó',
+        text: msg,
+        showConfirmButton: false,
+        timer: 3000
+    });
+}
+
+function showError(input, msg) {
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'warning',
+        title: msg,
+        showConfirmButton: false,
+        timer: 3000
+    });
+    input.classList.add('is-invalid');
+}
+
+function updateFinalGradeColor(cell, grade) {
+    // Asumiendo escala 0-100 y aprobación en 60
+    cell.className = "text-center fw-bold sticky-col-right final-grade text-white"; // Reset clases base
+    
+    if (grade < 60) {
+        cell.style.backgroundColor = "#dc3545"; // Rojo (Danger)
+    } else {
+        cell.style.backgroundColor = "#0d6efd"; // Azul (Primary)
+    }
+}
+</script>

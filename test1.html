@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Estudiante en el Curso</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .sidebar { min-height: 100vh; background-color: #f8f9fa; }
+        .main-content { padding: 20px; }
+        .card { margin-bottom: 20px; }
+        .progress { height: 20px; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <button class="btn btn-outline-secondary d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="#"><i class="fas fa-graduation-cap"></i> Gestión Académica</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-bell"></i> Notificaciones <span class="badge bg-danger">3</span></a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> Administrador
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Perfil</a></li>
+                            <li><a class="dropdown-item" href="#">Configuración</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Offcanvas Sidebar -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menú</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <nav class="sidebar">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-book"></i> Cursos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-users"></i> Estudiantes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-chalkboard-teacher"></i> Profesores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-calendar-alt"></i> Horarios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reportes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-cogs"></i> Configuración</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Desktop -->
+            <nav class="col-lg-2 d-none d-lg-block sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#"><i class="fas fa-book"></i> Cursos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-users"></i> Estudiantes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-chalkboard-teacher"></i> Profesores</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-calendar-alt"></i> Horarios</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reportes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-cogs"></i> Configuración</a>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-lg-10 ms-sm-auto px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Detalles del Estudiante en el Curso: Matemáticas Avanzadas</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="history.back()"><i class="fas fa-arrow-left"></i> Volver al Curso</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary ms-2"><i class="fas fa-download"></i> Exportar Datos</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary ms-2"><i class="fas fa-edit"></i> Editar Estudiante</button>
+                    </div>
+                </div>
+
+                <!-- Información del Estudiante en el Curso -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-user"></i> Información Personal</h5>
+                                <p><strong>Nombre:</strong> Juan Pérez</p>
+                                <p><strong>ID:</strong> 001</p>
+                                <p><strong>Email:</strong> juan.perez@universidad.edu</p>
+                                <p><strong>Carrera:</strong> Ingeniería Informática</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-chart-line"></i> Rendimiento en el Curso</h5>
+                                <p><strong>Promedio en el Curso:</strong> 9.8</p>
+                                <p><strong>Asistencia en el Curso:</strong> 90%</p>
+                                <p><strong>Estado:</strong> <span class="badge bg-success">Aprobado</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-trophy"></i> Logros en el Curso</h5>
+                                <p><strong>Mejor Calificación:</strong> 10.0 (Proyecto Final)</p>
+                                <p><strong>Participaciones:</strong> 5</p>
+                                <p><strong>Comentarios:</strong> Excelente desempeño.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actividades en el Curso -->
+                <h3><i class="fas fa-tasks"></i> Actividades en el Curso</h3>
+                <div class="table-responsive mb-4">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Actividad</th>
+                                <th>Fecha</th>
+                                <th>Calificación</th>
+                                <th>Estado</th>
+                                <th>Comentarios</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Examen Parcial 1</td>
+                                <td>2023-10-05</td>
+                                <td>9.5</td>
+                                <td><span class="badge bg-success">Aprobado</span></td>
+                                <td>Buen manejo de ecuaciones.</td>
+                            </tr>
+                            <tr>
+                                <td>Tarea 1: Ecuaciones</td>
+                                <td>2023-10-10</td>
+                                <td>9.0</td>
+                                <td><span class="badge bg-success">Aprobado</span></td>
+                                <td>Presentación clara.</td>
+                            </tr>
+                            <tr>
+                                <td>Proyecto Final</td>
+                                <td>2023-10-20</td>
+                                <td>10.0</td>
+                                <td><span class="badge bg-success">Aprobado</span></td>
+                                <td>Trabajo excepcional.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Asistencia en el Curso -->
+                <h3><i class="fas fa-calendar-check"></i> Asistencia en el Curso</h3>
+                <div class="mb-4">
+                    <p><strong>Asistencia Total:</strong> 18/20 clases (90%)</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" style="width: 90%"></div>
+                    </div>
+                </div>
+                <div class="table-responsive mb-4">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Asistencia</th>
+                                <th>Notas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2023-10-01</td>
+                                <td><i class="fas fa-check text-success"></i> Presente</td>
+                                <td>Puntual</td>
+                            </tr>
+                            <tr>
+                                <td>2023-10-03</td>
+                                <td><i class="fas fa-times text-danger"></i> Ausente</td>
+                                <td>Justificado</td>
+                            </tr>
+                            <tr>
+                                <td>2023-10-05</td>
+                                <td><i class="fas fa-check text-success"></i> Presente</td>
+                                <td>Activo en clase</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Acumulativo en el Curso -->
+                <h3><i class="fas fa-chart-bar"></i> Acumulativo en el Curso</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>Promedio Acumulativo</h6>
+                                <h4 class="text-success">9.8</h4>
+                                <p>Basado en todas las actividades del curso.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>Progreso en el Curso</h6>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info" style="width: 95%"></div>
+                                </div>
+                                <p>95% completado.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

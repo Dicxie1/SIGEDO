@@ -1,0 +1,210 @@
+@model Asistencia.Models.ViewModels.AssignmentListViewModel
+
+<div class="container py-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Gestión de Evaluaciones</h4>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="changeTab('gradebook-tab')">
+            <i class="fas fa-table me-1"></i> Ver Sábana Completa
+        </button>
+    </div>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        
+        <div class="btn-group" role="group" aria-label="Filtro de actividades">
+            <input type="radio" class="btn-check" name="viewFilter" id="btnFilterAll" value="all" checked onchange="filterAssignments(this.value)">
+            <label class="btn btn-outline-primary px-3" for="btnFilterAll">
+                <i class="fas fa-layer-group me-1"></i> Todo
+            </label>
+
+            <input type="radio" class="btn-check" name="viewFilter" id="btnFilterWork" value="work" onchange="filterAssignments(this.value)">
+            <label class="btn btn-outline-primary px-3" for="btnFilterWork">
+                <i class="fas fa-book-open me-1"></i> Acumulados
+            </label>
+
+            <input type="radio" class="btn-check" name="viewFilter" id="btnFilterExam" value="exam" onchange="filterAssignments(this.value)">
+            <label class="btn btn-outline-primary px-3" for="btnFilterExam">
+                <i class="fas fa-file-signature me-1"></i> Exámenes
+            </label>
+        </div>
+
+        <button type="button" class="btn btn-success btn-sm shadow-sm" onclick="exportExcel()">
+            <i class="fas fa-file-excel me-1"></i> Exportar Calificaciones
+        </button>
+    </div>
+
+    <div class="accordion custom-accordion" id="parcialAccordion">
+        
+        @foreach (var term in Model.Terms)
+        {
+            var collapseId = "collapse_" + term.TermId;
+            var headingId = "heading_" + term.TermId;
+            var showClass = term.IsActive ? "show" : "";
+            var collapsedClass = term.IsActive ? "" : "collapsed";
+
+            <div class="accordion-item border-0 shadow-sm mb-3 overflow-hidden rounded-3">
+                <h2 class="accordion-header" id="@headingId">
+                    <button class="accordion-button @collapsedClass bg-white text-dark fw-bold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId">
+                        <div class="d-flex align-items-center w-100 pe-3">
+                            <div class="me-auto d-flex align-items-center">
+                                <span class="avatar-icon bg-primary bg-opacity-10 text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                    <i class="fas fa-hashtag small"></i>
+                                </span>
+                                <div>
+                                    <span class="d-block text-dark">@term.Name</span>
+                                    <small class="text-muted fw-normal" style="font-size: 0.75rem;">Peso: @term.Weight%</small>
+                                </div>
+                            </div>
+                            <div class="d-none d-md-flex gap-2">
+                                <span class="badge bg-light text-secondary border fw-normal">
+                                    <i class="fas fa-tasks me-1"></i> @term.Assignments.Count Actividades
+                                </span>
+                            </div>
+                        </div>
+                    </button>
+                </h2>
+                
+                <div id="@collapseId" class="accordion-collapse collapse @showClass" aria-labelledby="@headingId">
+                    <div class="accordion-body p-0">
+                        @if (term.Assignments.Count == 0)
+                        {
+                            <div class="text-center py-5 text-muted">
+                                <i class="fas fa-folder-open fa-3x mb-3 opacity-25"></i>
+                                <p>No hay actividades registradas.</p>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#quickAssignmentModal">
+                                    <i class="fas fa-plus me-1"></i> Agregar Actividad
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light text-secondary small text-uppercase">
+                                        <tr>
+                                            <th class="ps-4 py-3" style="min-width: 250px;">Actividad</th>
+                                            <th style="min-width: 120px;">Vencimiento</th>
+                                            <th style="min-width: 200px;">Progreso Calificación</th>
+                                            <th class="text-end pe-4" style="min-width: 140px;">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var task in term.Assignments)
+                                        {
+                                            // Lógica visual basada en si es Examen o Tarea
+                                            var rowType = task.IsExam ? "row-exam" : "row-work"; // Para filtrar con JS
+                                            var iconClass = task.IsExam ? "fas fa-file-signature text-danger" : "fas fa-book-open text-primary";
+                                            var badgeClass = task.IsExam ? "bg-danger text-danger" : "bg-primary text-primary";
+                                            var badgeText = task.IsExam ? "Examen" : "Acumulado";
+                                            var progressColor = task.IsExam ? "bg-success" : "bg-warning"; // Ejemplo: Exámenes en verde
+
+                                            // Lógica de color de barra: Verde si > 90%, Amarillo si > 50%, Rojo si bajo
+                                            if(task.ProgressPercent >= 90) { progressColor = "bg-success"; }
+                                            else if(task.ProgressPercent >= 50) { progressColor = "bg-warning"; }
+                                            else { progressColor = "bg-danger"; }
+
+                                            <tr class="assignment-row @rowType">
+                                                <td class="ps-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="me-3 opacity-75 @(task.IsExam ? "text-danger" : "text-primary")">
+                                                            <i class="@iconClass fa-lg"></i>
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold text-dark">@task.Title</div>
+                                                            <span class="badge @badgeClass bg-opacity-10 border-0" style="font-size: 0.65rem;">
+                                                                @badgeText (@task.MaxPoints pts)
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-secondary">
+                                                    @if(task.DueDate.HasValue)
+                                                    {
+                                                        <i class="far fa-calendar me-1"></i> @task.DueDate.Value.ToString("dd MMM")
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted small">--</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex justify-content-between small mb-1">
+                                                        <span class="fw-bold text-dark">@task.GradedCount</span> 
+                                                        <span class="text-muted">/ @task.TotalStudents calificados</span>
+                                                    </div>
+                                                    <div class="progress" style="height: 6px; background-color: #e9ecef;">
+                                                        <div class="progress-bar @progressColor" role="progressbar" 
+                                                             style="width: @task.ProgressPercent%"></div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-end pe-4">
+                                                    <div class="btn-group">
+                                                        <a href="@Url.Action("AssessmentDetails", "Assigment", new{courseid = @Model.CourseId, id = task.AssignmentId})" class="btn btn-sm btn-primary" title="Calificar">
+                                                            <i class="fas fa-pen-alt me-1"></i> Calificar
+                                                        </a>
+                                                        <button class="btn btn-sm btn-outline-secondary" title="Configurar">
+                                                            <i class="fas fa-cog"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+    <script>
+        // LÓGICA DE FILTRADO (Cliente)
+        function filterAssignments(type) {
+            const rows = document.querySelectorAll('.assignment-row');
+            
+            rows.forEach(row => {
+                // 1. Resetear animación
+                row.style.display = ''; 
+                
+                // 2. Aplicar filtro
+                if (type === 'all') {
+                    row.style.display = 'table-row';
+                } else if (type === 'work') {
+                    if (row.classList.contains('row-work')) row.style.display = 'table-row';
+                    else row.style.display = 'none';
+                } else if (type === 'exam') {
+                    if (row.classList.contains('row-exam')) row.style.display = 'table-row';
+                    else row.style.display = 'none';
+                }
+            });
+        }
+        
+        // Exportar a Excel (Misma función que teníamos)
+        function exportExcel() {
+            window.location.href = '/Gradebook/ExportToExcel/@Model.CourseId';
+        }
+        
+    </script>
+
+
+<style>
+    /* Ajustes visuales para el acordeón */
+    .accordion-button:not(.collapsed) {
+        background-color: #fff;
+        color: #000;
+        box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
+    }
+    .accordion-button:focus {
+        box-shadow: none; 
+        border-color: rgba(0,0,0,.125);
+    }
+    /* Hover en filas */
+    .assignment-row {
+        transition: background-color 0.2s;
+    }
+</style>

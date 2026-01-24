@@ -1,0 +1,157 @@
+@model Asistencia.Models.ViewModels.CourseListViewModel
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><a class="btn" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-arrow-left fa-2x"></i> </a> Administración de Cursos</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#registerCourseModal">
+                <i class="fas fa-plus"></i> Crear Curso
+            </button>
+            <button type="button" 
+            class="btn btn-sm btn-outline-secondary dropdown-toggle"  
+            data-bs-toggle="dropdown" aria-expanded="false" id="dropdownMenu">
+            </button>
+            <!--DropdownMenu-->
+            <div class="dropdown dropdown-menu-sm">
+                <ul class="dropdown-menu dropdown-menu-sm" aria-labelledby="dropdownMenu">
+                    <li>
+                        <button type="button" class="dropdown-item text-xxs" data-bs-toggle="modal" data-bs-target="#newClassroomModal">
+                            <i class="fas fa-plus"></i> 
+                            Agregar Aula
+                        </button>
+                    </li>
+                     <li>
+                        <button type="button" class="dropdown-item text-xxs" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#classroomModal">
+                            <i class="fas fa-eye">
+                            </i> Ver Aulas
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<h3>Cursos Activos</h3>
+<div class="row">
+    @if(Model.ActiveCourses != null && Model.ActiveCourses.Any()) {
+    @foreach(Course course in Model.ActiveCourses)
+    {
+        <div class="col-6 col-md-6 col-lg-3">
+       <div class="card course-card">
+            <div class="position-relative">
+                 <img src="~/img/unplash_course.png" alt="imagen de curso" class="card-img-top" alt="Fundamentos de Programación">
+                 <span class="badge bg-success course-badge">Activo</span>
+            </div>
+            <div class="card-body mt-2">
+                <h5 class="card-title">@course.Subject!.SubjetName </h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-none d-md-block">
+                        <i class="fas fa-clock me-1"></i>
+                        <span class="small">@course.TotalHours horas</span>
+                    </div>
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-controller="Course" asp-route-courseid="@course.IdCourse">
+                        <i class="fas fa-info-circle me-1"></i> <i class="">Ver detalles</i>
+                    </a>
+                </div>
+            </div>
+       </div>
+    </div>
+    }   
+}else{
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card text-center border-0">
+        <div class="card-body">
+          <!-- Ícono opcional (usa Bootstrap Icons) -->
+          <i class="bi bi-pause-circle display-1 text-muted mb-3"></i>
+          <h3 class="card-title text-muted">No hay cursos activos</h3>
+          <p class="card-text">Todos tus cursos están inactivos o archivados. Revisa y activa los que necesites para continuar gestionando actividades y estudiantes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    }
+
+<h3>Todos los cursos</h3>
+<!-- Filtros y Búsqueda -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <label for="searchInput" class="form-label">Buscar Curso</label>
+        <input type="text" class="form-control" id="searchInput" placeholder="Nombre del curso...">
+    </div>
+    <div class="col-md-6">
+        <label for="estadoFilter" class="form-label">Estado</label>
+        <select class="form-select" id="estadoFilter">
+            <option selected>Todos</option>
+            <option>Activo</option>
+            <option>Inactivo</option>
+        </select>
+    </div>
+</div>
+@if(Model.Courses != null && Model.Courses.Any()){
+ <h2>Cursos lista </h2>
+    @foreach(Course course in Model.Courses)
+    {
+        <div class="col-md-6 col-lg-3">
+       <div class="card course-card">
+            <div class="position-relative">
+                 <img src="~/img/unplash_course.png" alt="imagen de curso" class="card-img-top" alt="Fundamentos de Programación">
+                 <span class="badge bg-success course-badge">Activo</span>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">@course.Subject!.SubjetName </h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-clock me-1"></i>
+                        <span class="small">40 horas</span>
+                    </div>
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-controller="Course" asp-route-courseid="@course.IdCourse">
+                        <i class="fas fa-info-circle me-1"></i>Ver detalles
+                    </a>
+                </div>
+            </div>
+       </div>
+    </div>
+    }
+}else{
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card text-center border-0 shadow-sm">
+        <div class="card-body">
+          <!-- Ícono opcional (usa Bootstrap Icons) -->
+          <i class="bi bi-person-video3 display-1 text-muted mb-3"></i>
+          <h3 class="card-title text-muted">No hay cursos registrados</h3>
+          <p class="card-text">Aún no has creado o registrado actividades en ningún curso. ¡Comienza a gestionar tus clases y actividades para organizar tu enseñanza!</p>
+          <a href="#" class="btn btn-primary">Crear Nuevo Curso</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+    @if(ViewBag.CourseList == null)
+{
+    <div class="alert alert-danger">El ViewBag es NULL</div>
+}
+else
+{
+    <div class="alert alert-success">Datos cargados: @((ViewBag.CourseList as SelectList)?.Count()) items</div>
+}
+</div>
+
+<partial name="_CourseModal" />
+<partial name="_AddClassroomModal"/>
+<partial name="_ListClassrooms" model="Model.Classrooms"/>
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+    <partial name="_CourseModalScript" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+}

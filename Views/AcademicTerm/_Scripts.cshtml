@@ -1,0 +1,284 @@
+<script>
+    
+        let currentTotalAllocated = @Model.TotalWeightAllocated;
+        
+        // Lógica de UI para abrir el modal correctamente
+        function addAssignment(termId, isExam, maxAllowed) {
+            // Setear valores ocultos
+            document.getElementById('termId').value = termId;
+            document.getElementById('isExam').value = isExam;
+
+            // Elementos de UI
+            const title = document.getElementById('modalTitle');
+            const alert = document.getElementById('typeAlert');
+            const alertTitle = document.getElementById('alertTitle');
+            const alertDesc = document.getElementById('alertDesc');
+            const alertIcon = document.getElementById('alertIcon');
+            const btnSave = document.getElementById('btnSaveAssignment');
+            const inputPoints = document.getElementById('maxPoints');
+
+            // Limpiar campos
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('maxPoints').value = isExam ? 20 : 10; // Sugerencia de valor
+            document.getElementById('assignmentForm').reset();
+            
+            inputPoints.max = maxAllowed; // HTML5 constraint
+            inputPoints.value = maxAllowed > 10 ? 10 : maxAllowed; // Valor sugerido inteligente
+
+            const helpText = `Disponibles: ${maxAllowed} pts`;
+
+            if (isExam) {
+                title.innerText = "Definir Examen";
+                // Estilo Rojo
+                alert.className = "alert alert-danger d-flex align-items-center mb-4";
+                alertTitle.innerText = "Nota de Examen";
+                alertDesc.innerText = `Este examen puede valer máximo ${maxAllowed} puntos.`;
+                alertIcon.className = "fas fa-file-signature fa-lg me-3";
+                btnSave.className = "btn btn-danger px-4 rounded-pill";
+                inputPoints.value = maxAllowed;
+            } else {
+                title.innerText = "Nueva Tarea";
+                // Estilo Azul
+                alert.className = "alert alert-primary d-flex align-items-center mb-4";
+                alertTitle.innerText = `Acumulado (Restan ${maxAllowed} pts)`;
+                alertDesc.innerText = "Esta actividad sumará puntos al acumulado."
+                alertIcon.className = "fas fa-layer-group fa-lg me-3";
+                btnSave.className = "btn btn-primary px-4 rounded-pill";
+            }
+            var myModal = new bootstrap.Modal(document.getElementById('assignmentModal'));
+            myModal.show();
+        }
+
+        // Aquí irían tus fetch para guardar (saveAssignment, createNewTerm, etc)
+
+        function createNewTerm() {
+            // 1. Calcular disponible
+            const remaining = 100 - currentTotalAllocated;
+    
+            // 2. Setear UI Inicial
+            document.getElementById('termName').value = '';
+    
+            // Asignar peso sugerido (si queda 40%, sugerimos 40, sino 30 por defecto)
+            const suggestedWeight = remaining > 30 ? 30 : remaining;
+            document.getElementById('termWeight').value = suggestedWeight > 0 ? suggestedWeight : 0;
+            document.getElementById('termWeight').max = remaining; // No dejar pasar del tope
+
+            // Actualizar Badge de disponible
+            const badgeVal = document.getElementById('availableWeightVal');
+            const badge = document.getElementById('availableWeightBadge');
+    
+            badgeVal.innerText = remaining;
+            if(remaining === 0) {
+                badge.className = "badge bg-danger bg-opacity-10 text-danger";
+                badgeVal.innerText = "0 (Lleno)";
+            } else {
+                badge.className = "badge bg-success bg-opacity-10 text-success";
+            }
+            // 3. Resetear Distribución Interna a un estándar 60/40
+            updateDistribution(60);
+            // 4. Mostrar Modal
+            var myModal = new bootstrap.Modal(document.getElementById('createTermModal'));
+            myModal.show();
+        }
+        // LÓGICA DEL SLIDER DE DISTRIBUCIÓN
+        const range = document.getElementById('distributionRange');
+            range.addEventListener('input', function() {
+            updateDistribution(this.value);
+        });
+        function updateDistribution(accumValue) {
+            // Asegurar enteros
+            let acc = parseInt(accumValue);
+            let exam = 100 - acc;
+
+            // Actualizar Slider
+            document.getElementById('distributionRange').value = acc;
+
+            // Actualizar Inputs numéricos
+            document.getElementById('accumWeight').value = acc;
+            document.getElementById('examWeight').value = exam;
+            // Actualizar Barra Visual
+            document.getElementById('barAccumulated').style.width = acc + '%';
+            document.getElementById('barExam').style.width = exam + '%';
+            // Tooltips visuales en la barra (opcional)
+            document.getElementById('barAccumulated').innerText = acc > 15 ? acc + '%' : '';
+            document.getElementById('barExam').innerText = exam > 15 ? exam + '%' : '';
+        }
+        function submitNewTerm() {
+            // Obtener valores
+            const name = document.getElementById('termName').value;
+            const weight = parseInt(document.getElementById('termWeight').value);
+            const accW = parseInt(document.getElementById('accumWeight').value);
+            const examW = parseInt(document.getElementById('examWeight').value);
+            const btnSave = document.querySelector('#createTermModal .btn-primary'); // El botón de guardar
+            // Validaciones
+            if(!name) return Swal.fire('Error', 'Ingresa un nombre', 'error');
+            if(weight <= 0) return Swal.fire('Error', 'El peso debe ser mayor a 0', 'error');
+            if((weight + currentTotalAllocated) > 100) return Swal.fire('Error', 'Excedes el 100% del curso', 'error');
+
+            // Aquí tu llamada Fetch al backend...
+            console.log(JSON.stringify({ Name: name, WeightOnFinalGrade: weight,AccumulatedWeight: accW, ExamWeight: examW, CourseId : @Model.CourseId }));
+            // Obtenemos el Token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const data = {
+                Name: name, 
+                WeightOnFinalGrade: weight,
+                AccumulatedWeight: accW,
+                ExamWeight: examW, 
+                CourseId : @Model.CourseId
+            }
+            const originalBtnText = btnSave.innerHTML;
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+        fetch('@Url.Action("SaveEvaluationConfig", new{courseid = @Model.CourseId})',
+            {
+                method: 'POST',
+                headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                },
+                body : JSON.stringify(data)
+            }).then(response =>{
+                if(response.success){
+                       Swal.fire('Guardado', 'Corte creado correctamente', 'success');
+                }else{
+                    Swal.fire('Error', 'Corte No creado', 'error');
+                }
+            })
+    }
+        function saveAssignment() {
+            // 1. REFERENCIAS A ELEMENTOS
+            // Usamos el ID específico que corregimos en el paso anterior
+            const btnSave = document.getElementById('btnSaveAssignment');
+    
+            // Obtener valores del formulario
+            const termId = document.getElementById('termId').value;
+            const isExam = document.getElementById('isExam').value === 'true'; // Convertir string a bool
+            const title = document.getElementById('taskTitle').value.trim();
+            const maxPoints = document.getElementById('maxPoints').value;
+            const dueDate = document.getElementById('dueDate').value;
+            const description = document.getElementById('description').value;
+            // 2. VALIDACIONES BÁSICAS
+            if (!title) {
+                return Swal.fire('Campo requerido', 'Debes escribir un título para la actividad.', 'warning');
+            }
+            if (!maxPoints || maxPoints <= 0 ) {
+                return Swal.fire('Error', 'El puntaje debe ser mayor a 0.', 'warning');
+            }
+            // 3. PREPARAR EL PAYLOAD
+            const data = {
+                TermId: parseInt(termId),
+                Title: title,
+                MaxPoints: parseFloat(maxPoints),
+                IsExam: isExam,
+                DueDate: dueDate ? dueDate : null, // Si está vacío enviar null
+                Description: description
+            };
+            // Obtener Token de Seguridad (Anti-Forgery)
+            // Asegúrate de tener @Html.AntiForgeryToken() en tu vista
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenInput ? tokenInput.value : '';
+            const originalText = btnSave.innerHTML;
+            const originalClass = btnSave.className;
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+            fetch('@Url.Action("AddAssigment", "Assigment", new {courseid = @Model.CourseId})',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                },
+                body: JSON.stringify(data)
+            }).then(response => {
+                if (!response.ok) throw new Error("Error en la respuesta del servidor");
+                return response.json();
+            }).then(data => {
+                if (data.success) {
+                    // CERRAR MODAL
+                    var myModalEl = document.getElementById('assignmentModal');
+                    var modal = bootstrap.Modal.getInstance(myModalEl);
+                    modal.hide();
+
+                    // MENSAJE DE ÉXITO
+                    Swal.fire({
+                        title: '¡Registrado!',
+                        text: 'La actividad ha sido agregada correctamente.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+            }).then(() => {
+                // RECARGAR PARA VER CAMBIOS
+                 location.reload();
+            });
+            } else {
+            Swal.fire('Error', data.message, 'error');
+        }
+            })
+            // Validar y Fetch...
+            Swal.fire('Guardado', 'La actividad ha sido registrada', 'success');
+        }
+        // eliminar deleteAssigment
+        function deleteAssignment(id) {
+    Swal.fire({
+        title: '¿Eliminar actividad?',
+        text: "Se liberarán los puntos asignados a esta actividad.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            
+            // Obtener Token Anti-Forgery
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenInput ? tokenInput.value : '';
+
+            fetch(`/Course/${@Model.CourseId}/Assignment/${id}`, { // Ajusta la ruta a tu controlador
+                method: 'POST', // Usamos POST para mayor seguridad
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({attendanceid: id, courseid : @Model.CourseId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Eliminado',
+                        text: 'La actividad ha sido eliminada.',
+                        icon: 'success',
+                        timer: 1000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload(); // Recargar para actualizar los contadores
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+            });
+        }
+    });
+}
+function editTerModal(){
+    let editTermModal = new bootstrap.Modal(document.getElementById('editTermModal'));
+    editTermModal.show();
+    // datos de formularios
+    const termid = document.getElementById('et_TermId').value;
+    const name = document.getElementById('et_Name').value;
+    const weight = parseInt(document.getElementById('et_Weight').value);
+    const accW = parseInt(document.getElementById('accumWeight').value);
+    const examW = parseInt(document.getElementById('examWeight').value);
+    const btnSave = document.querySelector('#createTermModal .btn-primary');
+}
+
+document.getElementById('et_Name').addEventListener('input', function(e){
+    document.getElementById('editModalTitle').innerText = e.target.value; 
+});
+</script>

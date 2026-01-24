@@ -1,0 +1,40 @@
+<!-- Enrollment Course Modal (Empty State) -->
+<div class="modal fade" id="enrollModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEnroll">
+                    <input type="hidden" name="CourseId" value="@Model.CourseId" />
+                    <div class="mb-3">
+                        <label class="form-label" >Buscar Estudiante (Carnet o Nombre)</label>
+                        <select type="text" id="searchStudent" class="form-control" placeholder="Escriba para buscar..."> 
+                            <option></option>
+                            <option value="001">001 - Juan Pérez</option>
+                            <option value="002">002 - María González</option>
+                            <option value="003">003 - Carlos Rodríguez</option>
+                            <option value="004">004 - Ana Martínez</option>
+                            <option value="005">005 - Luis Fernández</option>
+                        </select>
+                    </div>
+                    <h6 class="fw-bold">
+                        <i class="fa-solid fa-list-check me-1"></i>
+                        Estudiantes por matricular
+                    </h6>
+                    <div id="listaSeleccionados" class="list-group small">
+                        <div class="text-muted text-center" id="sinSeleccion">
+                            No hay estudiantes seleccionados
+                        </div>
+        </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnEnroll" class="btn btn-primary">Matricular</button>
+            </div>
+        </div>
+    </div>
+</div>
+

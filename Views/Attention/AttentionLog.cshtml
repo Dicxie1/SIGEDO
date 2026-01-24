@@ -1,0 +1,308 @@
+@model Asistencia.Models.ViewModels.CourseAttentionViewModel
+
+<div class="container py-4">
+    
+    <div class="row g-4 justify-content-between mb-4 align-items-end">
+        
+        <div class="col-lg-5">
+            <a href="@Url.Action("Details", "Course",new {courseid = Model.CourseId})" class="text-decoration-none text-muted small mb-2 d-inline-block hover-underline">
+                <i class="fas fa-arrow-left me-1"></i> Volver a Curso
+            </a>
+            <h3 class="fw-bold text-dark mb-1">Bitácora de Atención</h3>
+            <p class="text-muted mb-0">@Model.CourseName</p>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="d-flex gap-2 justify-content-lg-end">
+                <div class="stat-card border-start border-4 border-primary bg-primary bg-opacity-10 p-2 rounded shadow-sm text-center flex-fill">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Total</div>
+                    <div class="h4 fw-bold text-dark mb-0">@Model.TotalIncidents</div>
+                </div>
+                <div class="stat-card border-start border-4 border-success bg-success bg-opacity-10 p-2 rounded shadow-sm text-center flex-fill">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Académico</div>
+                    <div class="h4 fw-bold text-dark mb-0">@Model.AcademicCount</div>
+                </div>
+                <div class="stat-card border-start border-4 border-danger bg-danger bg-opacity-10 p-2 rounded shadow-sm text-center flex-fill">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Conducta</div>
+                    <div class="h4 fw-bold text-dark mb-0">@Model.BehavioralCount</div>
+                </div>
+                <div class="stat-card border-start border-4 border-secondary bg-secondary bg-opacity-10 p-2 rounded shadow-sm text-center flex-fill">
+                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Pendientes</div>
+                    <div class="h4 fw-bold text-dark mb-0">@Model.PendingCount</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-4 opacity-25">
+    <div class="row g-4">
+        
+        <div class="col-lg-5 col-xl-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 20px; z-index: 1;">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="fas fa-plus-circle me-2"></i>Nuevo Reporte</h6>
+                </div>
+                <div class="card-body">
+                    <form id="attentionForm">
+                        <input type="hidden" id="hdnCourseId" value="@Model.CourseId">
+                        <div class="btn-group w-100 mb-3" role="group">
+                            <input type="radio" class="btn-check" name="attType" id="typeInd" value="individual" checked onchange="toggleSelect(this.value)">
+                            <label class="btn btn-outline-primary btn-sm" for="typeInd">Individual</label>
+
+                            <input type="radio" class="btn-check" name="attType" id="typeGroup" value="group" onchange="toggleSelect(this.value)">
+                            <label class="btn btn-outline-primary btn-sm" for="typeGroup">Grupal</label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Estudiante(s)</label>
+                            
+                            <div id="divSelectIndividual">
+                                <select class="form-select" id="selStudent" required>
+                                    <option selected disabled value="">Seleccionar alumno...</option>
+                                    @foreach(var st in Model.EnrolledStudents) {
+                                        <option value="@st.Id">@st.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            
+                            <div id="divSelectGroup" class="d-none">
+                                <select class="form-select" multiple id="selGroup" size="7">
+                                    @foreach(var st in Model.EnrolledStudents) {
+                                        <option value="@st.Id">@st.Name</option>
+                                    }
+                                </select>
+                                <div class="form-text small text-muted">Ctrl + Clic para seleccionar varios.</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-secondary">Motivo</label>
+                                <select class="form-select form-select-sm" id="selCategory">
+                                    <option value="1">Académico</option>
+                                    <option value="2">Conducta</option>
+                                    <option value="3">Asistencia</option>
+                                    <option value="4">Salud/Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-secondary">Prioridad</label>
+                                <select class="form-select form-select-sm" id="selPriority">
+                                    <option value="1">Baja</option>
+                                    <option value="2" selected>Media</option>
+                                    <option value="3" class="text-danger fw-bold">Alta</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Observación</label>
+                            <textarea class="form-control" id="txtObservation" rows="4" placeholder="Describa el incidente o acuerdo..."></textarea>
+                        </div>
+
+                        <button class="btn btn-primary w-100 rounded-pill" onclick="saveAttentionRecord()" id="btnSaveAttention">
+                            <i class="fas fa-save me-1"></i> Guardar en Bitácora
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7 col-xl-8">
+            <div class="card border-0 shadow-sm h-100">
+                
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                        <h6 class="fw-bold mb-0 text-dark">Historial del Curso</h6>
+                        
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" id="filterCategory" style="width: auto;">
+                                <option value="all">Todo</option>
+                                <option value="1">Académico</option>
+                                <option value="2">Conducta</option>
+                                <option value="3">Asistencia</option>
+                                <option value="4">Salud/Otro</option>
+                            </select>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0" id="searchHistory" placeholder="Buscar alumno...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-0 position-relative">
+                    <div class="list-group list-group-flush "id="historyList">
+                        @if(Model.History.Count == 0)
+                        {
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <span class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle" style="width: 70px; height: 70px;">
+                                    <i class="fas fa-check fa-2x"></i>
+                                </span>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-1">Sin Novedades</h5>
+                            <p class="text-muted small">No se han registrado incidencias en este curso.</p>
+                        </div>
+                        }else{
+                            @foreach(var history in Model.History){
+                                var badgeClass = history.PriorityColor == "danger" ? "bg-danger text-danger border-danger" : 
+                                                 (history.PriorityColor == "warning" ? "bg-warning text-dark border-warning" : "bg-success text-success border-success");
+                                
+                                var avatarBg = history.PriorityColor == "danger" ? "bg-danger" : "bg-light text-secondary border";
+                                var avatarText = history.PriorityColor == "danger" ? "text-white" : "";
+                                <div class="list-group-item px-4 py-3 border-bottom hover-bg-light record-item @(history.Status == AttentionStatus.Resolved ? "bg-light-500  " : "")">
+                                    <div class="d-flex w-100 justify-content-between align-items-start mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm @avatarBg @avatarText rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width:38px; height:38px; font-size: 0.8rem;">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold text-dark record-name">@history.StudentName</h6>
+                                                <span class="badge @badgeClass bg-opacity-10 border border-opacity-25 py-0 mt-1" style="font-size: 0.65rem;">
+                                                    @history.Category.ToUpper() 
+                                                </span>
+                                                <span class="badge text-secondary">@history.Status</span>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted text-end" style="line-height: 1.2;">
+                                            <span class="fw-bold text-dark">@history.Date.ToString("dd MMM")</span><br>
+                                            @history.Date.ToString("hh:mm tt")
+                                        </small>
+                                    </div>
+                                    <p class="mb-1 text-secondary small record-obs" style="white-space: pre-wrap;">@history.Observation</p>
+                                    @if(history.PriorityColor == "danger" || history.PriorityColor == "warning") {
+                                        <div class="mt-2 pt-2 border-top border-light d-flex gap-3">
+                                            <button id="btnAttentionEdit"
+                                                class="btn btn-link btn-sm p-0 text-decoration-none text-muted" 
+                                                style="font-size: 0.75rem;" onclick="openEditModal(@history.Id)">
+                                                <i class="fas fa-edit me-1"></i> Editar</button> 
+                                            @if(history.Status == AttentionStatus.Resolved){
+                                                <button class="btn btn-link text-decoration-none text-success small" style="font-size: 0.75rem;" disabled>
+                                                    <i class="fas fa-check-double me-1"></i>Resuelto</button>
+                                            }else{
+                                                <button class="btn btn-link text-decoration-none text-muted small" onclick="markResolved(@history.Id, this)" 
+                                                    style="font-size: 0.75rem;"><i class="fas fa-check-circle me-1"></i>
+                                                    Marcar Resuelto
+                                                </button>
+                                            }
+                                            <button class="btn btn-link text-decoration-none text-muted small" onclick="openNoti()" style="font-size: 0.75rem;"><i class="fas fa-envelope me-1"></i> Notificar</button>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            
+                        }
+                        
+                    </div>
+                    <!-- Empty Status -->
+                             <div id="emptySearchState" class="text-center py-5  d-none">
+                                <div class="mb-3 opacity-50">
+                                    <i class="fas fa-filter fa-3x text-muted"></i> </div>
+                                    <h6 class="fw-bold text-secondary">No se encontraron coincidencias</h6>
+                                    <p class="text-muted small mb-0">
+                                        No hay registros para <span id="searchTermDisplay" class="fw-bold text-dark">...</span>.
+                                    </p>
+                                    <button class="btn btn-link btn-sm text-decoration-none mt-2" onclick="clearSearch()">
+                                        Borrar filtros
+                                    </button>
+                                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Attention Edit Modal-->
+<div class="modal fade" id="editAttentionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            
+            <div class="modal-header bg-light border-bottom-0">
+                <h5 class="modal-title fw-bold text-dark">
+                    <i class="fas fa-edit me-2 text-primary"></i>Editar Reporte
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <form id="editAttentionForm">
+                    <input type="hidden" id="edit_RecordId" />
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Estudiantes Implicados</label>
+                        <div id="edit_ParticipantsList" class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark border">Cargando...</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 bg-light p-3 rounded border">
+                        <label class="form-label small fw-bold text-secondary">Estado del Caso</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="editStatus" id="statusPending" value="1">
+                                <label class="form-check-label" for="statusPending">
+                                    <i class="far fa-clock text-warning me-1"></i> Pendiente
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="editStatus" id="statusResolved" value="2">
+                                <label class="form-check-label fw-bold text-success" for="statusResolved">
+                                    <i class="fas fa-check-circle me-1"></i> Resuelto
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-muted">Motivo</label>
+                            <select class="form-select" id="edit_Category">
+                                <option value="1">Académico</option>
+                                <option value="2">Conducta</option>
+                                <option value="3">Asistencia</option>
+                                <option value="4">Salud/Otro</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-muted">Prioridad</label>
+                            <select class="form-select" id="edit_Priority">
+                                <option value="1">Baja</option>
+                                <option value="2">Media</option>
+                                <option value="3" class="text-danger fw-bold">Alta</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Observación / Actualización</label>
+                        <textarea class="form-control" rows="5" id="edit_Observation"></textarea>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="modal-footer border-top-0 bg-light">
+                <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4 rounded-pill" onclick="updateAttentionRecord()">
+                    Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<partial name="_NotifyModal" />
+<style>
+    .hover-bg-light:hover { background-color: #fcfcfc; transition: background 0.2s; }
+    .label-stat { font-size: 0.65rem; letter-spacing: 0.5px; }
+    .stat-card { min-width: 100px; }
+    
+    /* Scroll suave para select múltiple */
+    #selGroup { 
+        scrollbar-width: thin; 
+        border-color: #dee2e6;
+    }
+    .hover-underline:hover { text-decoration: underline !important; }
+</style>
+
+@section Scripts {
+    <partial name = "_ScriptsNotify" />
+}

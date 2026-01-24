@@ -1,0 +1,127 @@
+@{
+    ViewData["Title"] = "Estudiante";
+}
+<div class="container py-7" >
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-9 col-m-9 col-xl-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-gradient-primary p-4 rounded-top-4">
+                <h3 class="text-center font-weight-light my-4">Registro de Estudiante</h3></div>
+                <div class="card-body p-5">
+                 <h5 class="fw-semibold mb-4 pb-2 border-bottom clearfix">
+                            <i class="fas fa-user-graduate text-primary me-2"></i>
+                            Datos del Estudiante
+                            <button type="button" class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#listaestudiantes"><i class="fas fa-file-csv"></i></button>
+                        </h5>
+                            <!-- Modal -->
+                            <div class="modal fade" id="listaestudiantes" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Lista de Estudiantes</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                  <h3>Ingresar el archivo CSV</h3>
+                                  <input type="file" accept=".csv text/csv" name="" id="">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre</th>
+                                                <th>Apellido</th>
+                                                <th>Sexo</th>
+                                                <th>Etnia</th>
+                                                <th>Movil</th>
+                                                <th>Correo Electrónico</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Aquí se agregarán las filas de estudiantes -->
+                                        </tbody>
+                                    </table>
+                                  </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+
+                    <form>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" id="idStudent" type="text" required placeholder="ID Estudiante" />
+                                    <label for="idStudent">ID</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" id="inputFirstName" type="text" required placeholder="First name" />
+                                    <label for="inputFirstName">Nombre</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" id="lastname" name="lastname" placeholder="Apellido" required maxlength="50" />
+                                    <label for="lastname">Apeliido</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" id="gender" name="gender" required>
+                                            <option value="" disabled selected>Seleccionar sexo</option>
+                                            <option value="M">Masculino</option>
+                                            <option value="F">Femenino</option>
+                                        </select>
+                                    <label for="level">
+                                        <i class="fas fa-graduation-cap me-1"></i>
+                                        Sexo *
+                                    </label>
+                                    <div class="invalid-feedback" id="levelError"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" id="etnia" name="etnia" required>
+                                            <option value="" disabled selected>Seleccionar etnia</option>
+                                            <option value="M">Miskitu</option>
+                                            <option value="F">Mestizo</option>
+                                            <option value="F">Creole</option>
+                                        </select>
+                                    <label for="etnia">
+                                        <i class="fas fa-graduation-cap me-1"></i>
+                                        Etnia *
+                                    </label>
+                                    <div class="invalid-feedback" id="levelError"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <input type="tel" class="form-control" id="movil" name="movil" placeholder="Edad" required maxlength="2" />
+                                    <label for="movil">Movil</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" id="inputEmail" type="email" placeholder="Email" />
+                                    <label for="inputEmail">Correo Electrónico</label>
+                                </div>  
+                            </div>
+                        </div>
+                        <div class="mt-4 mb-0">
+                            <div class="d-grid">
+                                <button class="btn btn-primary btn-block" type="submit">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
