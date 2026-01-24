@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Asistencia</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Asistencia.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/dataTable/css/dataTables.dataTables.min.css" />
+    <link rel="stylesheet" href="~/lib/summernote/summernote-lite.min.css">
+    <!-- Font Awesome CSS Local -->
+    <link href="~/lib/fontawesome/css/all.min.css" rel="stylesheet" />
+    <!-- Otras librerías -->
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
+                    <i class="fas fa-tachometer-alt"></i>
+                </button>
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index"> <i class="fas fa-chalkboard-teacher"></i>Gestión de Docencia</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> Usuario
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Perfil</a></li>
+                            <li><a class="dropdown-item" href="#">Configuración</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-none d-md-block sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" asp-controller="Dashboard" asp-action="Index"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  asp-controller="Subject" asp-action="Index"><i class="fas fa-book"></i> Asignaturas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  asp-controller="Course" asp-action="Admin"><i class="fas fa-door-open"></i> Curso</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Students" asp-action="Index"><i class="fas fa-users-gear"></i> Estudiantes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Classroom" asp-action="Index" ><i class="fas fa-chalkboard-user"></i> Aulas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reportes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-calendar"></i> Calendario</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- Main Content -->
+            <main  role="main" class="pb-3 col-md-10 main-content">
+                    @RenderBody()
+             </main>
+        </div>
+    </div>
+    <form id="__AjaxAntiForgeryForm" asp-action="Index" asp-controller="Home" method="post" style="display: none;">
+        @Html.AntiForgeryToken()
+    </form>
+    <!---->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome JS Local (Opcional, para efectos avanzados) -->
+    <script src="~/lib/fontawesome/js/all.min.js"></script>
+    <script src="~/lib/dataTable/js/dataTables.min.js"></script>
+    <script src="~/lib/fullcalendar/index.global.js"></script>
+    <script src="~/lib/chart/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="~/lib/summernote/summernote-lite.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

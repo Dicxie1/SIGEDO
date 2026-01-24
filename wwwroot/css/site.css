@@ -1,0 +1,317 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+.text-xxs {
+  font-size: 0.8rem;
+}
+
+.text-xs{
+  font-size: 0.9rem;
+}
+.error-container {
+  max-width: 600px;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  text-align: center;
+  animation: fadeIn 0.8s ease-in-out;
+}
+        .error-icon {
+            font-size: 6rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        .error-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #343a40;
+            margin-bottom: 15px;
+        }
+        .error-message {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+        .btn-back {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-back:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+            transform: translateY(-2px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 576px) {
+            .error-title {
+                font-size: 2rem;
+            }
+            .error-icon {
+                font-size: 4rem;
+            }
+        }
+.bg-purple{
+  background-color: #4B0081;
+}
+ .schedule-row { transition: all 0.3s ease; }
+        .schedule-row:hover { background-color: #f1f3f5; }
+        /* Ajuste para que el botón de eliminar quede alineado con los inputs floating */
+        .btn-delete-row { height: 58px; display: flex; align-items: center; justify-content: center; }
+
+.course-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .course-card img {
+            height: 180px;
+            object-fit: cover;
+        }
+        .course-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+/* El tab activo será blanco con sombra (Estilo Tarjeta) */
+    .nav-pills .nav-link.active {
+        background-color: #ffffff !important;
+        color: #0d6efd !important; /* Color primario de Bootstrap */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+    }
+    /* El tab inactivo gris oscuro */
+    .nav-pills .nav-link {
+        color: #6c757d;
+        transition: all 0.2s ease;
+    }
+    
+    /* Ajuste para pantallas muy pequeñas */
+    @media (max-width: 360px) {
+        .small-text-mobile { font-size: 0.85rem; }
+    }
+/* Ocultar la barra de desplazamiento fea pero permitir scroll */
+    .scroll-tab-container ul::-webkit-scrollbar {
+        height: 0px;
+        background: transparent!;
+    }
+.text-pink{
+  color:  #FF0080;
+}
+.bg-pink{
+  background-color: #FF0080!important;
+}
+.bg-purple{ background-color: #4B0081!important; }
+
+.input-number::-webkit-outer-spin-button, .input::-webkit-inner-spin-button{
+ -webkit-appearance: none; /* Requerido para el pseudoelemento */
+  appearance: none;         /* Estándar moderno */
+  margin: 0;  
+}
+.input-number[type=number]{
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.bg-light-500{
+  background-color: #F3F4F4!important;
+}
+/* Hacemos que la transición de altura sea suave */
+.note-editable {
+    transition: height 0.3s ease-in-out;
+}
+
+/* Opcional: Cambiar el color del borde cuando está activo para resaltar */
+.note-editor.note-frame.active-editor {
+    border-color: #0d6efd !important; /* Color azul Bootstrap */
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+.note-editor.note-frame.editor{
+  width: 200px!important;
+}
+
+/* 3. Altura pequeña y transición suave */
+.note-editor .note-editable {
+    height: 50px; /* Altura compacta inicial */
+    overflow: hidden; /* Ocultar scrollbar si no tiene foco */
+    background-color: transparent;
+    transition: all 0.3s ease-in-out; /* Animación suave */
+    padding: 10px; /* Espaciado interno ligero */
+}
+
+/* --- ESTADO ACTIVO (Cuando tiene Focus) --- */
+
+/* 1. Mostrar la barra de herramientas */
+.note-editor.active-editor .note-toolbar {
+    display: block;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    animation: fadeIn 0.3s; /* Pequeña animación de entrada */
+}
+
+/* 2. Resaltar el borde (Azul estilo Bootstrap) */
+.note-editor.active-editor.note-frame {
+    border: 1px solid #86b7fe !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    background-color: #fff;
+}
+
+/* 3. Aumentar altura y permitir scroll */
+.note-editor.active-editor .note-editable {
+    height: 250px; /* Crece al hacer clic */
+    overflow-y: auto;
+}
+
+/* Animación opcional para que la toolbar no aparezca de golpe */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Columnas */
+.editor-col { min-width: 260px; }
+.date-col { width: 150px; }
+
+/* Alineación */
+.table th, .table td {
+    vertical-align: top;
+}
+
+/* Fila activa */
+tr.row-active {
+    background-color: rgba(13, 110, 253, 0.06) !important;
+}
+
+/* Sticky header + primera columna */
+thead th {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+}
+
+td:first-child, tr > td:first-child,
+th:first-child {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 5;
+}
+
+/* Editor */
+.note-editor.editor {
+    opacity: 0.6;
+    transition: all .2s ease;
+    width: 100%;
+}
+
+.note-editor.active-editor {
+    opacity: 1;
+    box-shadow: 0 0 0 2px rgba(13,110,253,.25);
+    border-radius: .5rem;
+    background: #fff;
+    
+}
+/* Editor compacto (default) */
+.note-editor.editor .note-editable {
+    min-height: 400px;
+    max-height: 300px;
+    transition: all 0.25s ease;
+    overflow-y: hidden;
+}
+
+/* Editor expandido (focus) */
+.note-editor.active-editor .note-editable {
+    min-height: 400px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* Evita que rompa la tabla */
+.note-editor {
+    width: 100%;
+}
+
+    /* Estado normal de las columnas */
+.editor-col {
+    min-width: 260px;
+    transition: width 0.25s ease, min-width 0.25s ease;
+}
+
+/* Columna activa (cuando hay focus) */
+td.col-active {
+    min-width: 480px !important;
+    width: 480px;
+}
+
+/* Para que no rompa el layout */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.sticky-actions {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    background: #fff;
+    min-width: 70px;
+    max-width: 70px;
+}
+.sticky-date {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #fff;
+    min-width: 140px;
+    max-width: 140px;
+}
+.summernote-area{
+    width: 100%;
+}
+.note-frame{
+    width: 100%;
+}

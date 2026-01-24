@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Asistencia</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Asistencia.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/dataTable/css/dataTables.dataTables.min.css" />
+    <!-- Font Awesome CSS Local -->
+    <link href="~/lib/fontawesome/css/all.min.css" rel="stylesheet" />
+    <!-- Otras librerías -->
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .header { text-align: center; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 5px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <!-- Main Content -->
+    <main  role="main" class="pb-3 col-md-10 main-content container">
+    @RenderBody()
+    </main>
+    <form id="__AjaxAntiForgeryForm" asp-action="Index" asp-controller="Home" method="post" style="display: none;">
+        @Html.AntiForgeryToken()
+    </form>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Font Awesome JS Local (Opcional, para efectos avanzados) -->
+    <script src="~/lib/fontawesome/js/all.min.js"></script>
+    <script src="~/lib/dataTable/js/dataTables.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
