@@ -28,6 +28,7 @@ Properties/launchSettings.json
 
 # Archivos de configuración sensibles
 appsettings.Development.json
+appsettings.json
 secrets.json
 *.config
 *.pfx
