@@ -201,7 +201,7 @@
 <div class="card-body text-center py-5">
             <div class="py-4">
                 <div class="mb-4">
-                        <i class="fas fa-user-plus fa-2xl text-primary opacity-50"></i>
+                        <i class="fas fa-user-graduate fa-2xl text-primary opacity-50"></i>
                 </div>
 
                 <h4 class="fw-bold text-dark">Aún no hay estudiantes matriculados</h4>
@@ -211,12 +211,8 @@
                 </p>
 
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="@Url.Action("Enroll", "Student", new { courseId = Model.CourseId })" class="btn btn-primary px-4 py-2 shadow-sm">
-                        <i class="fas fa-user-graduate me-2"></i> Matricular Estudiantes
-                    </a>
-                    
-                    <button type="button" class="btn btn-outline-secondary px-4 py-2" data-bs-toggle="modal" data-bs-target="#importStudentsModal">
-                        <i class="fas fa-file-excel me-2"></i> Importar desde Excel
+                    <button class="btn btn-outline-primary px-4 py-2 shadow-sm" onclick="changeTab('enrolledstudents-tab');">
+                        <i class="fas fa-plus-circle me-2"></i> Matricular Estudiantes
                     </button>
                 </div>
             </div>
