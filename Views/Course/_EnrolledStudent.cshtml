@@ -34,15 +34,18 @@
     </div>
 }else{
     <div class="text-center py-5" id="enrollmentEmpty">
-                            <div class="mb-3">
-                                <i class="fas fa-user-graduate fa-3x text-muted opacity-25"></i>
-                            </div>
-                            <h5 class="text-muted">Aún no hay estudiantes en este curso</h5>
-                            <p class="small text-muted mb-3">Utiliza el botón para agregar matriculas.</p>
-                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#enrollModal">
-                                Matricular Ahora
-                            </button>
-                        </div>
+        <div class="mb-3">
+            <i class="fas fa-user-graduate fa-3x text-muted opacity-25"></i>
+        </div>
+        <h5 class="text-muted">Aún no hay estudiantes en este curso</h5>
+        <p class="small text-muted mb-3">Utiliza el botón para agregar matriculas.</p>
+        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#enrollModal">
+            Matricular Ahora
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#importStudentsModal" title="Importar desde Excel">
+            <i class="fas fa-file-excel me-2"></i> Importar
+        </button>
+    </div>
 }
 
 <script>
