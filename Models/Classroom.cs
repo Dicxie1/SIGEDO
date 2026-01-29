@@ -10,5 +10,6 @@ public class Classroom
     public int Capacity{get;set;}
     [Required]
     public string Location {get;set;} = string.Empty;
+
     public ICollection<Schedule> Schedules {get;set;} = new List<Schedule>();
 }
