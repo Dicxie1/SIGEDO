@@ -25,8 +25,8 @@ Antes de contribuir, asegúrate de:
 
 ### **3.1. Clonar el Repositorio**
 ```bash
-git clone <URL_DEL_REPOSITORIO>
-cd <NOMBRE_DEL_PROYECTO>
+git clone https://github.com/Dicxie1/SIGEDO.git
+cd SIGEDO
 ```
 ### **3.2. Configurar el Entorno** 
 Restaura las dependencias de NuGet:
@@ -44,6 +44,7 @@ Si trabajas en una característica pequeña o un bugfix, puedes hacerlo directam
 ```bash
 git checkout -b feature/<nombre-corto>
 ```
+Leer [Nomenclatura de rama](./docs/NamingBranch.md)
 
 ### **3.4. Realizar Cambios** 
 
