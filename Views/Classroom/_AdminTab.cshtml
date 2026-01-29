@@ -16,9 +16,14 @@
         <tr>
             <td>@classrooms.ClassroomId</td>
             <td>@classrooms.ClassroomName</td>
-            <td>@classrooms.Capacity</td>
-            <td>@classrooms.Location</td>
-            <td>Disponble</td>
+            <td><span class="fas fa-user-group text-primary"></span> @classrooms.Capacity </td>
+            <td> <span class=" fas fa-building text-primary"></span> @classrooms.Location</td>
+            <td>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" checked  id="isAvalid@classrooms.ClassroomId" disabled/>
+                    <label class="form-check-label"> No Disponible</label>
+                </div>
+            </td>
             <td>
                 <!--Edit Classroom-->
                 <a href="javascript:void(0)" class="btn btn-warning btn-sm btn-edit" data-id="@classrooms.ClassroomId"> <i class="fas fa-edit"></i></a>
