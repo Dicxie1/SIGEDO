@@ -224,6 +224,7 @@ public class CourseController : Controller
             EthnicityStat = ethnicityStats,
             Gradebook = gradeBook,
             SyllabusItems = await _syllabusService.GetByCourseAsync(courseId),
+            Shift = course.Shift,
             AssignmentLists = new AssignmentListViewModel
     {
         CourseId = course.IdCourse,
