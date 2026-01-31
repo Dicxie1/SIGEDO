@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Asistencia.Models;
+using Asistencia.Data.Configurations;
 namespace Asistencia.Data;
 
 public class ApplicationDbContext: DbContext
@@ -29,10 +30,10 @@ public class ApplicationDbContext: DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Enrollment>(entity =>
         {
-            entity.HasIndex(e => new { e.StudentId, e.IdCourse, e.Status})
-            .HasFilter($"\"Status\" = {(int) EnrollmentStatus.Active}")
+            entity.HasIndex(e => new { e.StudentId, e.IdCourse, e.Status })
+            .HasFilter($"\"Status\" = {(int)EnrollmentStatus.Active}")
                 .IsUnique();
-            
+
             entity.HasOne(e => e.Course)
                 .WithMany(c => c.Enrollments)
                 .HasForeignKey(e => e.IdCourse)
@@ -54,7 +55,7 @@ public class ApplicationDbContext: DbContext
             .HasForeignKey(ap => ap.AttentionRecordId)
             .OnDelete(DeleteBehavior.Cascade); // Si borro el reporte, borro los participantes
 
-            // 3. Relación Participante -> Matrícula (Enrollment)
+        // 3. Relación Participante -> Matrícula (Enrollment)
         modelBuilder.Entity<AttentionParticipant>()
             .HasOne(ap => ap.Enrollment)
             .WithMany(e => e.AttentionParticipants)
@@ -71,13 +72,13 @@ public class ApplicationDbContext: DbContext
 
         modelBuilder.Entity<Attendance>(entity =>
         {
-           entity.HasKey(e => e.AttendanceId);
-           entity.HasIndex(e => new {e.IdCourse, e.Date})
-            .IsUnique()
-            .HasDatabaseName("uq_course_attendance_date"); 
-            entity.Property( e => e.Date)
+            entity.HasKey(e => e.AttendanceId);
+            entity.HasIndex(e => new { e.IdCourse, e.Date })
+             .IsUnique()
+             .HasDatabaseName("uq_course_attendance_date");
+            entity.Property(e => e.Date)
                 .IsRequired();
-            
+
             // Configure the foreign key to use the correct column name
             entity.HasOne(a => a.Course)
                 .WithMany(c => c.Attendances)
@@ -85,8 +86,10 @@ public class ApplicationDbContext: DbContext
                 .HasPrincipalKey(c => c.IdCourse);
         });
         modelBuilder.Entity<AttendanceDetail>()
-            .HasIndex(d => new {d.AttendanceId, d.EnrollmentId})
+            .HasIndex(d => new { d.AttendanceId, d.EnrollmentId })
             .IsUnique();
+        // add schedule configuration 
+        modelBuilder.ApplyConfiguration(new ScheduleConfiguration());
     }
   
 }

@@ -13,5 +13,6 @@ namespace Asistencia.Models
         public DateOnly StartPeriod { get; set; }
         public DateOnly ENdPeriodñ { get; set; }
         public EnumPeriodStatus Status { get; set; }
+        public List<Schedule>? Schedules { get; set; }
     }
 }
