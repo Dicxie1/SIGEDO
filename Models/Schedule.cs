@@ -18,6 +18,8 @@ public class Schedule
     public TimeSpan StartTime {get; set;}
     [Required]
     public TimeSpan EndTime {get; set;}
+    public int AcademicPeriodId { get; set; }
+    public AcademicPeriod AcademicPeriod { get; set; }
     [NotMapped]
     public string TimeRange => $"{StartTime:hh\\mm} - {EndTime:hh\\mm}";
 }
