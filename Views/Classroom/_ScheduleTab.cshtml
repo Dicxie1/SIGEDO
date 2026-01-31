@@ -3,12 +3,9 @@
             <div class="row mb-4">
                 <div class="col-md-6">
                     <label for="selectClassroom" class="form-label">Seleccionar Aula</label>
-                    <select class="form-select" id="selectClassroom" onchange="loadClassroomSchedule()">
-                        <option value="">Seleccionar...</option>
-                        <option value="A101">A101 - Aula Magna</option>
-                        <option value="B202">B202 - Aula de Informática</option>
-                        <option value="C303">C303 - Laboratorio de Física</option>
-                    </select>
+            <select class="form-select" id="selectClassroom" asp-items="@ViewBag.ClassroomList">
+                        <option value="" disabled selected>Seleccionar...</option>
+                    </select> 
                 </div>
                 <div class="col-md-6">
                     <label for="weekFilter" class="form-label">Semana</label>

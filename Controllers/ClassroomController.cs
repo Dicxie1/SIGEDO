@@ -1,18 +1,18 @@
-using System.Data.SqlTypes;
 using Asistencia.Data;
 using Asistencia.Models;
+using Asistencia.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Npgsql;
 namespace Asistencia.Controllers;
 public class ClassroomController : Controller
 {
     private readonly ApplicationDbContext _context;
-    public ClassroomController(ApplicationDbContext context)
+    private readonly ClassroomService _classroomService;
+    public ClassroomController(ApplicationDbContext context, ClassroomService classroomService)
     {
         _context = context;
+        _classroomService = classroomService;
     }
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -48,9 +48,14 @@ public class ClassroomController : Controller
         }
         return Json(new {success = false, data = "Datos No registrado registrado"});
     }
+    /// <summary>
+    /// Controller /Classroom
+    /// </summary>
+    /// <returns></returns>
     public async Task<IActionResult> Index()
     {
-        var classrooms =  await _context.Classrooms.ToListAsync();
+        var classrooms = await _classroomService.GetClassroomsAsync();
+        ViewBag.ClassroomList = await _classroomService.GetClassroomsList();
         return View(classrooms);
     }
     [HttpGet]
