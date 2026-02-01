@@ -24,6 +24,7 @@ public class ApplicationDbContext: DbContext
     public DbSet<AttentionRecord> AttentionRecords => Set<AttentionRecord>();
     public DbSet<AttentionParticipant> AttentionParticipants => Set<AttentionParticipant>();
     public DbSet<SyllabusItem> SyllabusItems => Set<SyllabusItem>();
+    public DbSet<AcademicPeriod> AcademicPeriods => Set<AcademicPeriod>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

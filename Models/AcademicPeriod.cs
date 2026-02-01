@@ -5,6 +5,7 @@ namespace Asistencia.Models
     {
         Closed = 0,
         Active = 1,
+        Planning = 2
     }
     public class AcademicPeriod
     {

@@ -70,8 +70,7 @@
                                 </label>
                             </div>
                         </div>
-
-
+                        <!--Shift Field column-->
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
                                 <select class="form-select" id="courseShift" placeholder="Agregar el turno del curso" disabled >
@@ -84,7 +83,7 @@
                                     <span class="text-danger">Turno *</span>
                                 </label>
                             </div>
-                        </div>
+                        </div> <!--End Shift Field column-->
                          <!---Creadit Field Column -->
                         <div class="col-md-3 mb-3">
                             <div class="form-floating">
@@ -94,13 +93,13 @@
                         </div> <!--End Credit Field Column-->
                     </div>
                     <div class="row"> 
-                        <div class="col-md-3 mb-3">
+                        <!--TotalHours Field Column-->
+                        <div class="col-md-4 mb-3">
                             <div class="form-floating">
                                 <input type="number" class="form-control" id="TotalHours" placeholder="Agregar las horas total de curso" disabled />
                                 <label for="TotalHours">Horas Totales </label>
                             </div>
                         </div> 
-                       
                         <!-- Hours Cours Field Column -->
                         <div class="col-md-4 mb-3">
                             <!-- course Field -->
@@ -129,46 +128,59 @@
                         </div><!--End courseCapacity Field column-->
                     </div> <!--End Row 2-->
                     <!-- Horarios Semanales Card -->
-                    <div class="card border-0"> 
+                    <div class="card border-0">
                         <div class="card-head text-primary d-flex justify-content-between align-items-center">
                             <!--Card Title-->
                             <h6><i class="fas fa-clock me-1"></i> Horarios Semanales</h6>
                             <button type="button" class="btn btn-sm btn-outline-primary me-3" onclick="addScheduleRow()">
                                 <i class="fas fa-plus me-1"></i> Agregar Día
                             </button>
-                            </div> <!--End Card Title-->
-                            <div class="card-body">
-                                <!--Row 3-->
-                                <div class="row mb-2"> 
-                                    <!-- Classroom Field -->
-                                    <div class="col-md-12">
-                                        <div class="form-floating">
-                                            <select class="form-select" id="courseClassroom" asp-items="@(ViewBag.ClassroomList)" required disabled>
-                                                <option value="" selected disabled>Seleccionar...</option>
-                                            </select>
-                                            <label for="courseClassroom" class="form-label">
-                                                <span class="text-danger">Aula Asignada *</span>
-                                            </label>
-                                        </div> <!-- End col -->
-                                    </div> <!-- End Classroom Field -->
-                                </div>
-                                <div id="scheduleContainer">
-                                </div>
-                                <div id="emptyScheduleMsg" class="text-center py-3 text-muted border border-dashed rounded bg-light">
-                                    <div>
-                                        <i class="fas fa-calendar-times me-1"></i> 
-                                        <p class="mt-2 mb-0 fw-bold">
-                                            No hay horarios definidos aún.
-                                        </p>
-                                        <small>Es necesario asignar al menos un día y hora.</small>
+                        </div> <!--End Card Title-->
+                        <div class="card-body">
+                            <!--AcademicPeriod Field-->
+                            <div class="row mb-2">
+                                <div class="col-md-12 my-2">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="academicPeriod" required disabled asp-items="@ViewBag.AcademicPeriod">
+                                            <option value="" disabled selected>Seleccionar...</option>
+                                        </select>
+                                        <label for="academicPeriod">
+                                            <span class="text-danger">Periodo*</span>
+                                        </label>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-primary px-4 rounded-pill" onclick="addScheduleRow()">
-                                        <i class="fas fa-plus me-2"></i> Agregar Primer Horario
-                                    </button>
-                                </div> <!--End Empty Schedule msg-->
-                            </div> <!-- End Card Body -->
-                        </div> <!--End Card-->
-                        <h6 class="text-primary fw-bold mb-3">
+                                </div>
+                            </div>
+                            <!--Row 3-->
+                            <div class="row mb-2"> 
+                            <!-- Classroom Field -->
+                                <div class="col-md-12">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="courseClassroom" asp-items="@(ViewBag.ClassroomList)" required disabled>
+                                            <option value="" selected disabled>Seleccionar...</option>
+                                        </select>
+                                        <label for="courseClassroom" class="form-label">
+                                            <span class="text-danger">Aula Asignada *</span>
+                                        </label>
+                                    </div> <!-- End col -->
+                                </div> <!-- End Classroom Field -->
+                            </div>
+                            <div id="scheduleContainer">
+                            </div>
+                            <div id="emptyScheduleMsg" class="text-center py-3 text-muted border border-dashed rounded bg-light">
+                                <div>
+                                    <i class="fas fa-calendar-times me-1"></i> 
+                                    <p class="mt-2 mb-0 fw-bold">
+                                        No hay horarios definidos aún.
+                                    </p>
+                                    <small>Es necesario asignar al menos un día y hora.</small>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary px-4 rounded-pill" onclick="addScheduleRow()">
+                                    <i class="fas fa-plus me-2"></i> Agregar Primer Horario
+                                </button>
+                            </div> <!--End Empty Schedule msg-->
+                        </div> <!-- End Card Body -->
+                    </div> <!--End Card-->
+                    <h6 class="text-primary fw-bold mb-3">
                         <i class="fas fa-clock"></i> Fechas y Estado
                     </h6>
                     <div class="row">
