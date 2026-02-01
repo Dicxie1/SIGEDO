@@ -22,12 +22,11 @@ public class CourseController : Controller
     {
         return View();
     }
+
     public async Task<IActionResult> Admin()
     {
-        // Lista las carrera 
-        var career =  await _context.Careers
-            .ToListAsync();
-        ViewBag.CourseList = new SelectList(career, "CareerId", "Name");
+        List<Career> careers = await _context.Careers.ToListAsync();
+        ViewBag.CourseList = new SelectList(careers, "CareerId", "Name");
 
         var courses = await _context.Courses
             .Include(c => c.Subject)
@@ -46,6 +45,8 @@ public class CourseController : Controller
             .OrderBy(c => c.ClassroomName)
             .ToListAsync();
         ViewBag.ClassroomList = new SelectList(classrooms, "ClassroomId", "ClassroomName");
+        var academicPeriod = await _context.AcademicPeriods.ToListAsync();
+        ViewBag.AcademicPeriod =  new SelectList(academicPeriod, "AcademicPeriodId","Name" );
         return View(viewModel);
     }
     [HttpGet("Course/{courseId}/Details")]
@@ -303,7 +304,6 @@ public class CourseController : Controller
         return File(file, "application/pdf");
     }
     [HttpPost]
-
     public async Task<JsonResult> RegisterCourse([FromBody] CourseRegistrationDto model)
     {
         if(model == null) return Json(new {success = false, message ="Datos vacios backend"});
@@ -644,5 +644,18 @@ public class CourseController : Controller
             Grades = gradesDict,
             FinalGrade = Math.Round(finalGrade, 2) // Redondeo a 2 decimales
         };
+    }
+    [HttpGet("/Course/Period")]
+    public async Task<IActionResult> AcademicPeriod()
+    {
+        var periods = await _context.AcademicPeriods.OrderBy(x=> x.StartPeriod).ToListAsync();
+        return View("_AcademicPeriod", periods);
+    }
+    [HttpGet("/Course/Period/Edit/{id}")]
+    public async Task<IActionResult>ActivePeriod(int id)
+    {
+        CourseService courseService = new CourseService(_context);
+        await courseService.ActivePeriodAsync(id);
+        return RedirectToAction("AcademicPeriod");
     }
 }

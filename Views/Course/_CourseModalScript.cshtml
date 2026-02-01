@@ -154,6 +154,7 @@
                 formNewCourse.reportValidity(); // Muestra los mensajes nativos del navegador
                 return;
             }
+            const academicPeriod = document.getElementById('academicPeriod').value;
             const subjectId = document.getElementById('courseSubjectr').value;
             const semester = document.getElementById('Semester').value;
             const year = document.getElementById('Year').value;
@@ -168,7 +169,7 @@
             const status = document.getElementById('isActive').checked
             console.log(`classroom Value ${classroomId}`);
             if(!subjectId || !courseCreditsInput || !classroomId || !startDate || !endDate ||
-                !semester || !year || !shift || !totalHours  || !hours || !courseCapacity){
+                !semester || !year || !shift || !totalHours  || !hours || !courseCapacity || !academicPeriod){
                 Swal.fire({
                     title: 'Error!',
                     text: `Por favor complete todos los campos obligatorios.\n${subjectId} ${courseCreditsInput} ${classroomId} ${startDate} ${endDate}`,
@@ -192,7 +193,8 @@
                 scheduleList.push({
                         DayOfWeek: parseInt(day),
                         StartTime : startTime,
-                        EndTime : endTime
+                        EndTime : endTime, 
+                        AcademicPeriod : academicPeriod 
                 });
             });
             if(scheduleList.length == 0){
@@ -296,6 +298,7 @@
             document.getElementById('courseStartDate').disabled = value;
             document.getElementById('courseEndDate').disabled = value;
             document.getElementById('isActive').disabled = value;
+            document.getElementById('academicPeriod').disabled = value;
         }
         function clearInputs(){
             document.getElementById('courseCareer').selectedIndex = 0;
@@ -311,6 +314,7 @@
             document.getElementById('courseStartDate').value = "";
             document.getElementById('courseEndDate').value = "";
             document.getElementById('isActive').checked = true ;
+            document.getElementById('academicPeriod').selectedIndex = 0;
         }
         function cancelcourseModal(){
             document.getElementById('courseCareer').selectedIndex = 0;
