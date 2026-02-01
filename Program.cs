@@ -15,6 +15,7 @@ builder.Services.AddDbContext<Asistencia.Data.ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
 builder.Services.AddScoped<Asistencia.Services.ReportTermService>();
 builder.Services.AddScoped<Asistencia.Services.SyllabusService>();
+builder.Services.AddScoped<Asistencia.Services.ClassroomService>();
     // En tu Program.cs o Startup.cs
 builder.Services.AddScoped<IGradebookExportService, ExcelGradeBookDocument>();
 
