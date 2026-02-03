@@ -158,5 +158,252 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
         });
+        initCalendar();
     });
+        function toggleLoading(isLoading) {
+            const spinner = document.getElementById('calendarSkeleton');
+            const grid = document.getElementById('calendarGrid');
+            if (isLoading) {
+                spinner.classList.remove('d-none');
+                grid.style.opacity = '0.5';
+            }else {
+                spinner.classList.add('d-none');
+                grid.style.opacity = '1';
+            }
+        }
+        const CONFIG = {
+            startHour : 7,
+            endHour : 22,
+            hourHeight: 60,
+            currentDate : new Date()
+        }
+        function initCalendar(){
+            renderTimeLabels();
+            renderGridLines();
+            loadEvents(CONFIG.currentDate);
+        }
+        async function loadClassroomEvents()
+        {
+            const index = document.getElementById('selectClassroom').selectedIndex;
+            if(!index == 0) loadEvents(CONFIG.currentDate);
+        }
+
+        function formatDateISO(dateInput) {
+            // 1. Si es nulo o indefinido, usar hoy
+            if (!dateInput) return new Date().toISOString().split('T')[0];
+            // 2. Si YA es un string (ej: "2026-02-02"), devolverlo tal cual (cortando hora si tiene)
+            if (typeof dateInput === 'string') {
+                return dateInput.split('T')[0];
+            }
+
+            // 3. Si es un objeto Date, ajustar la zona horaria para que no cambie de día
+            if (dateInput instanceof Date) {
+                const offset = dateInput.getTimezoneOffset();
+                // Restamos el offset para ajustar a local antes de pasar a ISO
+                const localDate = new Date(dateInput.getTime() - (offset * 60 * 1000));
+                return localDate.toISOString().split('T')[0];
+            }
+        return ''; // Fallback
+        }
+        function getClassroomSchedule()
+        {
+            document.getElementById('calendarEmptyState').classList.add('d-none');
+            const calendar = document.getElementById('calendarClassroom');
+            calendar.classList.remove('d-none');
+            loadEvents();
+        }
+        async function loadEvents(date){
+            const selectElement = document.getElementById('selectClassroom');
+            const classroomId = selectElement ? selectElement.value : null;
+            if (!classroomId || classroomId === "") {
+                console.warn("No hay un aula seleccionada.");
+                // Opcional: Limpiar el calendario si no hay aula
+                document.querySelectorAll('.calendar-event').forEach(el => el.remove());
+                return;
+            }
+            const dateStr = formatDateISO(date);
+            toggleLoading(true);
+            try {
+                    const response = await fetch(`@Url.Action("GetClassroomSchedule", "Classroom")?classroomId=${classroomId}&startDate=${dateStr}`, {
+                        method : 'POST'
+                    });
+                    if(!response.ok) throw new Error("Error en red");
+                    const data = await response.json();
+                    if(data.weekStart) updateHeaderDate(data.weekStart);
+                    const classroonName = document.getElementById('calendarTitle');
+                    classroonName.textContent = `Aula: ${data.classroomName}`;
+                    document.querySelectorAll('.calendar-event').forEach(el => el.remove());
+                    if(data.events && Array.isArray(data.events ))
+                    {
+                        data.events.forEach(evt => renderEvent(evt));
+                    }
+            }catch(error){
+                console.error("Error cargando horarios", error);
+                Swal.fire({title: "Error", text: "No se pudieron cargar los horarios"});
+            }finally{
+                toggleLoading(false);
+            }
+        }
+        function renderEvent(evt){
+            const eventDate = new Date(evt.date + "T00:00:00");
+            let dayIndex = eventDate.getDay() - 1;
+            if(dayIndex === -1) dayIndex = 6;
+            const column = document.querySelector(`.day-column[data-day-index="${dayIndex}"] .events-container`);
+            if(!column) {
+                console.warn("No se encontro columna para el día indice:" + dayIndex, evt.date);
+                return};
+            const [startH, startM] = evt.start.split(':').map(Number);
+            const [endH, endM] = evt.end.split(':').map(Number);
+            const startMinutesTotal = (startH * 60) + startM;
+            const endMinutesTotal = (endH * 60) + endM;
+            const calendarStartMinutes = CONFIG.startHour * 60;
+
+            const topPx = (startMinutesTotal - calendarStartMinutes) * (CONFIG.hourHeight /60);
+
+            const heightPx = (endMinutesTotal - startMinutesTotal ) * (CONFIG.hourHeight /60);
+
+            const el = document.createElement('div');
+                el.className = `position-absolute p-2 rounded shadow-sm text-truncate calendar-event border-${evt.color} `;
+            console.warn(JSON.stringify(evt));
+            el.style.top = `${topPx}px`;
+            el.style.height = `${heightPx}px`;
+            el.style.left = '2px';
+            el.style.right = '2px';
+            el.style.background = evt.color;
+            el.style.color = '#000';
+            el.style.fontSize = '0.8rem';
+            el.style.zIndex = 10;
+            el.style.borderLeft = '3px solid rgba(0, 0, 0, 0.2)';
+
+            el.innerHTML = `
+                    <div class="fw-bold text-truncate">${evt.title}</div>
+                    <div class="small opacity-75 text-truncate">${evt.teacher}</div>
+            `;
+            el.title = `${evt.title}\n${evt.teacher}\n${evt.start} - ${evt.end}`;
+            column.appendChild(el);
+        }
+        function renderTimeLabels() {
+            const container = document.getElementById('time-labels-container');
+            container.innerHTML = '';
+            for (let h = CONFIG.startHour; h <= CONFIG.endHour; h++) {
+                const div = document.createElement('div');
+                div.className = 'text-muted small text-end pe-2 pt-1';
+                div.style.height = `${CONFIG.hourHeight}px`;
+                div.style.borderBottom = '1px dashed #e0e0e0';
+                div.textContent = `${h.toString().padStart(2, '0')}:00`;
+                container.appendChild(div);
+        }
+    }
+        function renderGridLines() {
+        document.querySelectorAll('.grid-lines').forEach(container => {
+            container.innerHTML = '';
+            for (let h = CONFIG.startHour; h <= CONFIG.endHour; h++) {
+                const div = document.createElement('div');
+                div.style.height = `${CONFIG.hourHeight}px`;
+                div.style.boxSizing ="border-box";
+                div.style.borderBottom = '1px solid #f8f9fa';
+                if(h === 12){
+                    // 1. Estilos visuales para destacar la franja
+                    div.style.backgroundColor = 'rgba(248, 249, 250, 0.7)'; // Gris muy claro (bg-light)
+                    div.style.backgroundImage = 'linear-gradient(45deg, rgba(0,0,0,.02) 25%, transparent 25%, transparent 50%, rgba(0,0,0,.02) 50%, rgba(0,0,0,.02) 75%, transparent 75%, transparent)';
+                    div.style.backgroundSize = '10px 10px';
+                    div.style.borderBottom = '1px solid #e0e0e0';
+                    div.className = 'd-flex align-items-center justify-content-center text-center';
+                    // 3. El Texto "Almuerzo"
+                    div.innerHTML = `
+                        <span class="text-muted text-uppercase fw-bold small" style="letter-spacing: 1px; font-size: 0.7rem; opacity: 0.6;">
+                            <i class="bi bi-cup-hot-fill me-1"></i> Almuerzo
+                        </span>
+                    `;
+                }else{
+                    div.style.borderBottom = '1px solid #f8f9fa';
+                }
+                container.appendChild(div);
+
+            }
+        });
+    }
+        function updateHeaderDate(weekStartStr) {
+        // 1. Validación Defensiva (Senior Check)
+        if (!weekStartStr || typeof weekStartStr !== 'string') {
+            console.error("Error crítico: updateHeaderDates recibió", weekStartStr);
+            return;
+        }
+        // 2. Parsing Manual (Evita problemas de Timezone y formatos inválidos)
+        // Asumimos formato "YYYY-MM-DD" que viene del backend
+        const parts = weekStartStr.split('-');
+
+        if (parts.length !== 3) {
+            console.error("Formato de fecha incorrecto. Se esperaba YYYY-MM-DD");
+            return;
+        }
+
+        const year = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1; // OJO: En JS los meses van de 0 (Enero) a 11 (Diciembre)
+        const day = parseInt(parts[2]);
+
+        // Creamos la fecha usando el constructor numérico (Año, Mes, Día)
+        // Esto crea la fecha en hora LOCAL del navegador, evitando desfases.
+        let currentDate = new Date(year, month, day);
+
+        // 3. Iteración sobre las columnas
+        document.querySelectorAll('.day-column').forEach((col) => {
+            // Validar que la fecha sea válida antes de usarla
+            if (isNaN(currentDate.getTime())) {
+                console.error("Fecha inválida generada");
+                return;
+            }
+
+            const dayNameEl = col.querySelector('.day-name');
+            const dayDateEl = col.querySelector('.day-date');
+            const headerEl = col.querySelector('.header-date');
+
+            if (dayNameEl && dayDateEl) {
+                // Formato Local Seguro
+                const dayName = currentDate.toLocaleDateString('es-ES', { weekday: 'long' });
+                const dayNum = currentDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+
+                dayNameEl.textContent = dayName.toUpperCase();
+                dayDateEl.textContent = dayNum;
+
+                // Lógica de visualización "Hoy"
+                const today = new Date();
+                const isSameDay = currentDate.getDate() === today.getDate() &&
+                                  currentDate.getMonth() === today.getMonth() &&
+                                  currentDate.getFullYear() === today.getFullYear();
+
+                if (isSameDay) {
+                    headerEl.classList.add('bg-primary', 'text-white');
+                    headerEl.classList.remove('bg-white');
+                } else {
+                    headerEl.classList.remove('bg-primary', 'text-white');
+                    headerEl.classList.add('bg-white');
+                }
+            }
+
+            // Avanzar al siguiente día
+            currentDate.setDate(currentDate.getDate() + 1);
+        });
+
+        // 4. Actualizar el rango en el título
+        const startObj = new Date(year, month, day);
+        const endObj = new Date(year, month, day);
+        endObj.setDate(endObj.getDate() + 6);
+
+        const rangeLabel = document.getElementById('calendarRange');
+        if(rangeLabel) {
+            rangeLabel.textContent = `Semana del ${startObj.toLocaleDateString()} al ${endObj.toLocaleDateString()}`;
+        }
+    }
+
+    // 4. Navegación
+    function changeWeek(days) {
+        CONFIG.currentDate.setDate(CONFIG.currentDate.getDate() + days);
+        loadEvents(CONFIG.currentDate);
+    }
+
+    function resetToToday() {
+        CONFIG.currentDate = new Date();
+        loadEvents(CONFIG.currentDate);
+    }
 </script>
