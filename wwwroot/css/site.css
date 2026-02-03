@@ -139,7 +139,7 @@ body {
 /* Ocultar la barra de desplazamiento fea pero permitir scroll */
     .scroll-tab-container ul::-webkit-scrollbar {
         height: 0px;
-        background: transparent!;
+        background: transparent!important;
     }
 .text-pink{
   color:  #FF0080;
@@ -314,4 +314,91 @@ td.col-active {
 }
 .note-frame{
     width: 100%;
+}
+
+/* Definición de la animación de brillo */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Clase base para cajas grises */
+.skeleton-box {
+    background: #e9ecef;
+    background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+
+/* Eventos falsos dentro del calendario */
+.skeleton-event {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    background: #dee2e6; /* Un gris un poco más oscuro que el fondo */
+    background: linear-gradient(90deg, #dee2e6 25%, #e9ecef 50%, #dee2e6 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-left: 3px solid #ced4da;
+    opacity: 0.7;
+}
+
+/* Líneas horizontales sutiles para imitar el grid */
+.skeleton-grid-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(#e9ecef 1px, transparent 1px);
+    background-size: 100% 60px; /* Misma altura que tu hourHeight */
+    z-index: 0;
+}
+/* Definición de la animación de brillo */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Clase base para cajas grises */
+.skeleton-box {
+    background: #e9ecef;
+    background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+
+/* Eventos falsos dentro del calendario */
+.skeleton-event {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    background: #dee2e6; /* Un gris un poco más oscuro que el fondo */
+    background: linear-gradient(90deg, #dee2e6 25%, #e9ecef 50%, #dee2e6 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-left: 3px solid #ced4da;
+    opacity: 0.7;
+}
+
+/* Líneas horizontales sutiles para imitar el grid */
+.skeleton-grid-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(#e9ecef 1px, transparent 1px);
+    background-size: 100% 60px; /* Misma altura que tu hourHeight */
+    z-index: 0;
 }

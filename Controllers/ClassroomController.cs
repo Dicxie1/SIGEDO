@@ -56,6 +56,8 @@ public class ClassroomController : Controller
     {
         var classrooms = await _classroomService.GetClassroomsAsync();
         ViewBag.ClassroomList = await _classroomService.GetClassroomsList();
+        string[] days = { "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo" };
+        ViewBag.Days = days;
         return View(classrooms);
     }
     [HttpGet]
@@ -92,5 +94,54 @@ public class ClassroomController : Controller
     public async Task<JsonResult> IsClassroomAvaliable([FromBody]Schedule schedule)
     {
         return Json(new {success = false, message = "Caracteristica en Construcción"});
+    }
+
+    [HttpPost]
+    public async Task<JsonResult> GetClassroomSchedule(string classroomId, string startDate)
+    {
+
+        if (string.IsNullOrEmpty(classroomId))
+        {
+            return Json(new { success = false, message = "El ID del aula es obligatorio." });
+        }
+        DateTime targetDate;
+        if (DateOnly.TryParse(startDate, out var parsedDate))
+        {
+            targetDate = parsedDate.ToDateTime(TimeOnly.MinValue);
+        }
+        else
+        {
+            targetDate = DateTime.Now;
+        }
+        try
+        {
+            var scheduleView = await _classroomService.Calendar(classroomId, targetDate);
+            var jsonResponse = new
+            {
+                success = true,
+                classroomName = scheduleView.ClassroomName,
+                weekStart = scheduleView.WeekStart.ToString("yyyy-MM-dd"),
+                weekEnd = scheduleView.WeekEnd.ToString("yyyy-MM-dd"),
+                events = scheduleView.Events.Select(e => new
+                {
+                    title = e.CourseName,
+                    start = e.StartTime.ToString(@"hh\:mm"),
+                    end = e.EndTime.ToString(@"hh\:mm"),
+                    date = e.Date.ToString("yyyy-MM-dd"),
+                    color = e.ColorHex ?? "#0D6EFD",
+                    description = $"{e.CourseName}({e.StartTime:hh\\:mm} - {e.EndTime:hh\\:mm})",
+                    teacher = "Dicxie Danuard Madrigal Brack"
+                }) 
+            };
+            return Json(jsonResponse);
+        }catch(Exception ex)
+        {
+            return Json(new {success = false, message = "Error en obtener horarios" + ex.Message});
+        }
+        /*else
+        {
+            var schedule = await _classroomService.Calendar(classroomId, DateTime.Now);
+            return Json(new { success = true, message = $"Lista de clase: {schedule} ", data = schedule });
+        }*/
     }
 }
