@@ -75,48 +75,55 @@
                 badge.className = "badge bg-success bg-opacity-10 text-success";
             }
             // 3. Resetear Distribución Interna a un estándar 60/40
-            updateDistribution(60);
+            updateDistribution(60, "new_");
             // 4. Mostrar Modal
             var myModal = new bootstrap.Modal(document.getElementById('createTermModal'));
             myModal.show();
         }
         // LÓGICA DEL SLIDER DE DISTRIBUCIÓN
-        const range = document.getElementById('distributionRange');
+        const range = document.getElementById('new_distributionRange');
             range.addEventListener('input', function() {
-            updateDistribution(this.value);
+                updateDistribution(this.value, 'new_');
         });
-        function updateDistribution(accumValue) {
+                 // LÓGICA DEL SLIDER DE DISTRIBUCIÓN
+        const rang3 = document.getElementById('edit_distributionRange');
+        rang3.addEventListener('input', function() {
+                updateDistribution(this.value, 'edit_');
+        });
+        function updateDistribution(accumValue, prefix) {
             // Asegurar enteros
             let acc = parseInt(accumValue);
             let exam = 100 - acc;
-
             // Actualizar Slider
-            document.getElementById('distributionRange').value = acc;
-
+            document.getElementById(prefix + 'distributionRange').value = acc;
             // Actualizar Inputs numéricos
-            document.getElementById('accumWeight').value = acc;
-            document.getElementById('examWeight').value = exam;
+            document.getElementById(prefix +'accumWeight').value = acc;
+            document.getElementById(prefix +'examWeight').value = exam;
             // Actualizar Barra Visual
-            document.getElementById('barAccumulated').style.width = acc + '%';
-            document.getElementById('barExam').style.width = exam + '%';
+            document.getElementById(prefix +'barAccumulated').style.width = acc + '%';
+            document.getElementById(prefix +'barExam').style.width = exam + '%';
             // Tooltips visuales en la barra (opcional)
-            document.getElementById('barAccumulated').innerText = acc > 15 ? acc + '%' : '';
-            document.getElementById('barExam').innerText = exam > 15 ? exam + '%' : '';
+            document.getElementById(prefix + 'barAccumulated').innerText = acc > 15 ? acc + '%' : '';
+            document.getElementById( prefix +'barExam').innerText = exam > 15 ? exam + '%' : '';
         }
+
         function submitNewTerm() {
             // Obtener valores
             const name = document.getElementById('termName').value;
             const weight = parseInt(document.getElementById('termWeight').value);
             const accW = parseInt(document.getElementById('accumWeight').value);
             const examW = parseInt(document.getElementById('examWeight').value);
+            const startDate = new Date(document.getElementById('et_StartDate').value);
+            const endDate = new Date(document.getElementById('et_EndDate').value);
             const btnSave = document.querySelector('#createTermModal .btn-primary'); // El botón de guardar
             // Validaciones
             if(!name) return Swal.fire('Error', 'Ingresa un nombre', 'error');
             if(weight <= 0) return Swal.fire('Error', 'El peso debe ser mayor a 0', 'error');
+            if(startDate > endDate ) return Swal.fire({title: 'Error', text: 'La fecha final debe debe deser mayor que la fecha inicial', icon:'error'});
             if((weight + currentTotalAllocated) > 100) return Swal.fire('Error', 'Excedes el 100% del curso', 'error');
-
+           
             // Aquí tu llamada Fetch al backend...
-            console.log(JSON.stringify({ Name: name, WeightOnFinalGrade: weight,AccumulatedWeight: accW, ExamWeight: examW, CourseId : @Model.CourseId }));
+            console.log(JSON.stringify({ Name: name, WeightOnFinalGrade: weight,AccumulatedWeight: accW, ExamWeight: examW, CourseId : @Model.CourseId, StartDate: startDate, EndDate: endDate }));
             // Obtenemos el Token
             const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
             const data = {
@@ -124,8 +131,10 @@
                 WeightOnFinalGrade: weight,
                 AccumulatedWeight: accW,
                 ExamWeight: examW, 
+                StartDate : startDate,
+                EndDate: endDate,
                 CourseId : @Model.CourseId
-            }
+            };
             const originalBtnText = btnSave.innerHTML;
             btnSave.disabled = true;
             btnSave.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
@@ -138,13 +147,32 @@
                 },
                 body : JSON.stringify(data)
             }).then(response =>{
-                if(response.success){
-                       Swal.fire('Guardado', 'Corte creado correctamente', 'success');
-                }else{
-                    Swal.fire('Error', 'Corte No creado', 'error');
+                if(!response.ok){
+                    throw new Error('Error en la red o servidor');
                 }
-            })
-    }
+                return response.json();
+            }).then(data =>{
+                console.debug(data);
+                // PASO 3: Aquí "data" YA ES tu objeto { success: true, message: "..." }
+                if (data.success) {
+                    Swal.fire('Guardado', data.message, 'success')
+                    .then(() => {
+                        // Opcional: Recargar página o limpiar formulario
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', 'No se pudo guardar: ' + data.message, 'error');
+                }
+            }).catch(error => {
+                    console.log('Error:', error);
+                    Swal.fire('Error Crítico', 'Ocurrió un error de comunicación.' + data.message, 'error');
+                })
+                .finally(() => {
+                 // Restaurar el botón siempre, pase lo que pase
+                btnSave.disabled = false;
+                btnSave.innerHTML = originalBtnText;
+                });
+         }
         function saveAssignment() {
             // 1. REFERENCIAS A ELEMENTOS
             // Usamos el ID específico que corregimos en el paso anterior
@@ -266,19 +294,105 @@
         }
     });
 }
-function editTerModal(){
+// edit term modal
+function editTerModal(term){
     let editTermModal = new bootstrap.Modal(document.getElementById('editTermModal'));
     editTermModal.show();
     // datos de formularios
-    const termid = document.getElementById('et_TermId').value;
-    const name = document.getElementById('et_Name').value;
-    const weight = parseInt(document.getElementById('et_Weight').value);
-    const accW = parseInt(document.getElementById('accumWeight').value);
-    const examW = parseInt(document.getElementById('examWeight').value);
+    const termid = document.getElementById('et_TermId');
+    const termName = document.getElementById('et_Name');
+    const termWeight = document.getElementById('et_Weight');
+    const termAccW = document.getElementById('edit_accumWeight');
+    const termExamW = document.getElementById('edit_examWeight');
+    const barExam = document.getElementById('edit_barExam');
+    const barAcumulated = document.getElementById('edit_barExam')
+    const termStartDate = document.getElementById('ed_StartDate');
+    const modalEditTitle = document.getElementById('editModalTitle');
+    const termEndDate = document.getElementById('ed_EndDate');
+    const distributionRange = document.getElementById('edit_distributionRange');
     const btnSave = document.querySelector('#createTermModal .btn-primary');
+    //Retrive Term
+
+    const URL = '@Url.Action("GetEvaluationTerm", new {courseid = @Model.CourseId} )';
+    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+    const token = tokenInput ? tokenInput.value : '';
+    fetch(URL,{
+        method : 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+        },
+            body :JSON.stringify( {TermId: term,CourseId : @Model.CourseId })
+    }).then(response =>{
+        if(!response.ok){
+                throw new Error("Error en la peticion");
+        }
+        return response.json();
+    })
+    .then((data) =>{
+        if(data.success){
+            const {termId, name, weightOnFinalGrade,accumulatedWeight, examWeight, startDate, endDate } = data.data;
+            //link data to the modal fields
+            termid.value = termId;
+            termName.value = name;
+            modalEditTitle.innerText = name;
+            termWeight.value = weightOnFinalGrade;
+            if(termAccW) termAccW.value = accumulatedWeight;
+            if(termExamW) termExamW.value = examWeight;
+            barAcumulated.style.width = `${accumulatedWeight}%`;
+            barExam.style.width = `${examWeight}%`;
+            distributionRange.value = accumulatedWeight;
+            updateDistribution(accumulatedWeight, 'edit_');
+            termStartDate.value = startDate.split('T')[0];
+            termEndDate.value = endDate.split('T')[0];
+        }else{
+            Swal.fire({title: 'Error', text: 'error al recuperar' + data.message, icon: 'error'})
+        }
+    } );
 }
 
 document.getElementById('et_Name').addEventListener('input', function(e){
     document.getElementById('editModalTitle').innerText = e.target.value; 
 });
+function saveTermChanges(){
+    const termid = document.getElementById('et_TermId');
+    const termName = document.getElementById('et_Name');
+    const termWeight = document.getElementById('et_Weight');
+    const termAccW = document.getElementById('edit_accumWeight');
+    const termExamW = document.getElementById('edit_examWeight');
+    const termStartDate = document.getElementById('ed_StartDate');
+    const termEndDate = document.getElementById('ed_EndDate');
+    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+    const data ={
+        termId : termid.value,
+        Name : termName.value,
+        WeightOnFinalGrade : termWeight.value,
+        AccumulatedWeight : termAccW.value,
+        ExamWeight : termExamW.value,
+        StartDate: termStartDate.value,
+        EndDate : termEndDate.value,
+        CourseId : @Model.CourseId
+    };
+    console.log(JSON.stringify(data));
+        fetch('@Url.Action("UpdateEvaluationTerm", new{courseid= @Model.CourseId})',{
+        method : 'POST',
+        headers:
+        {
+        'Content-Type' : 'application/json',
+            'RequestVerificationToken': token
+        },
+        body : JSON.stringify(data)}).then(data =>data.json())
+        .then(response => {
+            console.log(response.success);
+            if(response.success ){
+                Swal.fire({title:'Actualización', text: 'Se ha Actualizado correctamente', icon: 'info' }).then(()=>{
+                   location.reload();
+                } ) ;
+                
+            }else{
+                Swal.fire({title: 'Error', text: 'error: ' + response.message, icon:'error' })
+            }
+        }
+        );
+}
 </script>

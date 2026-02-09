@@ -1,5 +1,6 @@
 ﻿using Asistencia.Data;
 using Asistencia.Models;
+using Asistencia.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Xml.XPath;
 
@@ -12,5 +13,6 @@ namespace Asistencia.Services
         {
             _context = context;
         }
+        
     }
 }

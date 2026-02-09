@@ -75,7 +75,7 @@ public class AssigmentController : Controller
             var assignment = await _context.Assignments
             .Include(a => a.Grades) // Incluimos las notas para verificar
             .Include(c => c.AcademicTerm)
-                .ThenInclude( c => c.Course)
+                .ThenInclude( c => c!.Course)
             .FirstOrDefaultAsync(a => a.AssignmentId == assignmentid);
         if (assignment == null)
         {
@@ -98,7 +98,7 @@ public class AssigmentController : Controller
         }catch (Exception ex)
         {
             // Loguear el error real (ex.Message) en tu sistema de logs
-            return Json(new { success = false, message = "Ocurrió un error en el servidor al intentar eliminar." });
+            return Json(new { success = false, message = $"Ocurrió un error en el servidor al intentar eliminar. {ex.Message}" });
         }
 
     }
@@ -108,8 +108,8 @@ public async Task<IActionResult> AssessmentDetails(int id) // id = AssignmentId
     // 1. Cargar la Asignación y Curso
     var assignment = await _context.Assignments
         .Include(a => a.AcademicTerm)
-        .ThenInclude(t => t.Course)
-        .ThenInclude(s => s.Subject)
+        .ThenInclude(t => t!.Course)
+        .ThenInclude(s => s!.Subject)
         .FirstOrDefaultAsync(a => a.AssignmentId == id);
 
     if (assignment == null) return NotFound();
