@@ -1,0 +1,260 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<style>
+    :root {
+        --uraccan-blue: #003876;
+        --uraccan-orange: #F7931E;
+    }
+
+    /* Fondo decorativo superior en la tarjeta */
+    .profile-header-bg {
+        height: 120px;
+        background: linear-gradient(135deg, var(--uraccan-blue) 0%, #0050a0 100%);
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+
+    /* Imagen de perfil superpuesta */
+    .profile-img-container {
+        margin-top: -60px;
+        position: relative;
+        display: inline-block;
+    }
+
+    .profile-img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 4px solid #fff;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    /* Botón de cámara para cambiar foto */
+    .btn-edit-photo {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background-color: var(--uraccan-orange);
+        color: white;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #fff;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+        .btn-edit-photo:hover {
+            transform: scale(1.1);
+            color: white;
+        }
+
+    /* Estilos de Pestañas */
+    .nav-tabs .nav-link {
+        color: #6c757d;
+        font-weight: 500;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding-bottom: 1rem;
+    }
+
+        .nav-tabs .nav-link.active {
+            color: var(--uraccan-blue);
+            border-bottom: 2px solid var(--uraccan-blue);
+            background: transparent;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--uraccan-blue);
+        }
+
+    .form-control:focus {
+        border-color: var(--uraccan-blue);
+        box-shadow: 0 0 0 0.25rem rgba(0, 56, 118, 0.25);
+    }
+</style>
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark mb-0">Mi Perfil</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/Dashboard" class="text-decoration-none" style="color: var(--uraccan-blue);">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Perfil</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="profile-header-bg"></div>
+
+                <div class="card-body text-center pt-0">
+                    <div class="profile-img-container mb-3">
+                        <img src="https://ui-avatars.com/api/?name=Juan+Perez&background=random&size=200" alt="Foto Docente" class="rounded-circle profile-img">
+                        <label for="uploadPhoto" class="btn-edit-photo shadow-sm" title="Cambiar foto">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="uploadPhoto" class="d-none" accept="image/*">
+                    </div>
+
+                    <h4 class="fw-bold mb-1">Ing. Juan Pérez</h4>
+                    <p class="text-muted mb-2">Docente Titular</p>
+                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill mb-4">
+                        <i class="fas fa-check-circle me-1"></i> Activo
+                    </span>
+
+                    <div class="d-grid gap-2 mb-4">
+                        <button class="btn btn-outline-primary" style="border-color: var(--uraccan-blue); color: var(--uraccan-blue);">
+                            <i class="fas fa-download me-2"></i>Descargar CV
+                        </button>
+                    </div>
+
+                    <div class="text-start border-top pt-4">
+                        <div class="mb-3">
+                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.75rem;">Recinto</small>
+                            <span class="fw-medium"><i class="fas fa-map-marker-alt me-2 text-warning"></i>Bilwi (Puerto Cabezas)</span>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.75rem;">Departamento</small>
+                            <span class="fw-medium"><i class="fas fa-laptop-code me-2 text-primary"></i>Ciencia y Tecnología</span>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.75rem;">Fecha Ingreso</small>
+                            <span class="fw-medium"><i class="fas fa-calendar-alt me-2 text-secondary"></i>15 Enero, 2018</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                    <ul class="nav nav-tabs card-header-tabs" id="profileTabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab">
+                                <i class="far fa-user me-2"></i>Información Personal
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="academic-tab" data-bs-toggle="tab" data-bs-target="#academic" type="button" role="tab">
+                                <i class="fas fa-graduation-cap me-2"></i>Académico
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
+                                <i class="fas fa-lock me-2"></i>Seguridad
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="tab-content" id="profileTabsContent">
+
+                        <div class="tab-pane fade show active" id="personal" role="tabpanel">
+                            <h5 class="fw-bold mb-4 text-dark">Datos Generales</h5>
+                            <form>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-muted">Nombre Completo</label>
+                                        <input type="text" class="form-control" value="Juan Alberto Pérez" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-muted">Correo Institucional</label>
+                                        <input type="email" class="form-control" value="juan.perez@uraccan.edu.ni" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-muted">Teléfono / Celular</label>
+                                        <input type="text" class="form-control" value="+505 8888-8888">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-muted">Número INSS</label>
+                                        <input type="text" class="form-control" value="1234567-8" readonly>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small text-muted">Dirección Domiciliar</label>
+                                        <textarea class="form-control" rows="2">Barrio El Muelle, Bilwi, Puerto Cabezas.</textarea>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-end">
+                                    <button type="submit" class="btn btn-primary" style="background-color: var(--uraccan-blue); border:none;">Guardar Cambios</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane fade" id="academic" role="tabpanel">
+                            <h5 class="fw-bold mb-4 text-dark">Grados Académicos</h5>
+
+                            <div class="d-flex align-items-center p-3 border rounded mb-3 bg-light">
+                                <div class="bg-white p-3 rounded shadow-sm me-3 text-warning">
+                                    <i class="fas fa-university fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold mb-1">Ingeniería en Sistemas</h6>
+                                    <p class="mb-0 small text-muted">URACCAN - Recinto Bilwi (2015)</p>
+                                </div>
+                                <span class="badge bg-primary">Licenciatura</span>
+                            </div>
+
+                            <div class="d-flex align-items-center p-3 border rounded mb-3 bg-light">
+                                <div class="bg-white p-3 rounded shadow-sm me-3 text-success">
+                                    <i class="fas fa-certificate fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold mb-1">Maestría en Docencia Universitaria</h6>
+                                    <p class="mb-0 small text-muted">UNAN León (2019)</p>
+                                </div>
+                                <span class="badge bg-success">Postgrado</span>
+                            </div>
+
+                            <button class="btn btn-outline-secondary btn-sm border-dashed w-100 mt-2">
+                                <i class="fas fa-plus me-1"></i> Agregar Nuevo Título
+                            </button>
+                        </div>
+
+                        <div class="tab-pane fade" id="security" role="tabpanel">
+                            <h5 class="fw-bold mb-4 text-danger">Cambiar Contraseña</h5>
+                            <form>
+                                <div class="mb-3">
+                                    <label class="form-label">Contraseña Actual</label>
+                                    <input type="password" class="form-control">
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nueva Contraseña</label>
+                                        <input type="password" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Confirmar Nueva Contraseña</label>
+                                        <input type="password" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="alert alert-warning small">
+                                    <i class="fas fa-info-circle me-1"></i> La contraseña debe tener al menos 8 caracteres, una mayúscula y un símbolo.
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-danger">Actualizar Contraseña</button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

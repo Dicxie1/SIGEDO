@@ -1,0 +1,262 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Asistencia.Models.ViewModels.LoginViewModel;
+@{
+    Layout = null;
+    ViewData["Title"] = "Inicio de Session";
+    ViewData["ReturnUrl"] = Url.Action("Index", "Home");
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SGA - URACCAN</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" />
+
+    <style>
+        :root {
+            /* COLORES INSTITUCIONALES URACCAN */
+            --uraccan-blue: #003876; /* Azul Institucional */
+            --uraccan-orange: #F7931E; /* Naranja Institucional */
+            --uraccan-light: #f4f6f9;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--uraccan-light);
+        }
+
+        /* COLUMNA IZQUIERDA: Identidad Visual */
+        .bg-image-uraccan {
+            /* Puedes cambiar esta URL por una foto real del recinto (Bilwi, Bluefields, etc) */
+            background-image: url('@Url.Content("~/img/postada.webp")');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .uraccan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Degradado Azul URACCAN con transparencia */
+            background: linear-gradient(135deg, rgba(0, 56, 118, 0.92) 0%, rgba(0, 56, 118, 0.7) 100%);
+        }
+
+        /* COLUMNA DERECHA: Formulario */
+        .login-sidebar {
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 10;
+        }
+
+        .login-content {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+        }
+
+        /* Elementos del Formulario */
+        .uraccan-logo {
+            max-width: 120px;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-floating > .form-control:focus ~ label {
+            color: var(--uraccan-blue);
+        }
+
+        .form-floating > .form-control:focus {
+            border-color: var(--uraccan-blue);
+            box-shadow: 0 0 0 0.25rem rgba(0, 56, 118, 0.25);
+        }
+
+        .btn-uraccan {
+            background-color: var(--uraccan-blue);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+            .btn-uraccan:hover {
+                background-color: #002a5c; /* Un tono más oscuro */
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 56, 118, 0.3);
+            }
+
+        .link-uraccan {
+            color: var(--uraccan-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .link-uraccan:hover {
+                color: var(--uraccan-orange);
+                text-decoration: underline;
+            }
+
+        /* Decoración Naranja (Línea superior) */
+        .top-bar-accent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--uraccan-orange);
+        }
+
+        .divider-text span {
+            background-color: #fff;
+            color: #888;
+            padding: 0 10px;
+            font-size: 0.8rem;
+        }
+
+        .divider-text {
+            position: relative;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+            .divider-text::before {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 0;
+                width: 100%;
+                height: 1px;
+                background: #eee;
+                z-index: -1;
+            }
+
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid min-vh-100 d-flex p-0">
+
+        <div class="col-lg-8 d-none d-lg-block bg-image-uraccan p-0">
+            <div class="uraccan-overlay"></div>
+
+            <div class="position-absolute top-50 start-50 translate-middle text-white text-center w-75">
+                <img src="/img/logo.png"
+                     alt="URACCAN Logo Blanco"
+                     style="height: 100px; opacity: 0.9;" class="mb-4">
+
+                <h1 class="fw-bold display-5 mb-3">Sistema de Gestión Académica</h1>
+                <p class="lead mb-4 fs-4" style="font-weight: 300;">
+                    "La Universidad Comunitaria Intercultural"
+                </p>
+                <div class="d-inline-block border-top border-warning pt-3 mt-2" style="border-width: 3px !important; width: 60px;"></div>
+
+                <p class="mt-4 opacity-75 small">
+                    Administración de Docencia • Control de Asistencia • Evaluación Estudiantil
+                </p>
+            </div>
+
+            <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white-50 small d-flex justify-content-between">
+                <span>&copy; @DateTime.Now.Year URACCAN. Todos los derechos reservados.</span>
+                <span>Hija de la Autonomía de la Costa Caribe</span>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-12 login-sidebar">
+            <div class="top-bar-accent"></div> <div class="login-content">
+                <div class="text-center mb-5">
+                    <img src="/img/logo.png"
+                         alt="Logo URACCAN"
+                         class="uraccan-logo">
+
+                    <h4 class="fw-bold text-dark mb-1">Bienvenid Docente</h4>
+                    <p class="text-muted small">Ingresa tus credenciales institucionales</p>
+                </div>
+
+                @if (ViewData["Error"] != null)
+                {
+                    <div class="alert alert-danger d-flex align-items-center small" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <div>@ViewData["Error"]</div>
+                    </div>
+                }
+
+                <form asp-controller="Account" 
+                      asp-action="Login" 
+                      asp-route-returnUrl="@ViewData["ReturnUrl"]"
+                      method="post" id="loginForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Email" type="text" class="form-control" id="username" placeholder="Email" required>
+                        <label asp-for="Email" for="username">Usuario Institucional</label>
+                    </div>
+
+                    <div class="form-floating mb-3 position-relative">
+                        <input asp-for="Password" type="password" class="form-control" id="Password" placeholder="Contraseña" required>
+                        <label asp-for="Password" for="password">Contraseña</label>
+                        <i class="far fa-eye position-absolute top-50 end-0 translate-middle-y me-3 text-muted"
+                           style="cursor: pointer;" onclick="togglePassword(this)"></i>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input asp-for="RememberMe" class="form-check-input" type="checkbox" id="rememberMe">
+                            <label asp-for="RememberMe" class="form-check-label small text-muted" for="rememberMe">Recuérdame</label>
+                        </div>
+                        <a href="#" class="small link-uraccan">¿Olvidaste tu contraseña?</a>
+                    </div>
+
+                    <input type="submit" class="btn btn-uraccan w-100 btn-lg fs-6 shadow-sm mb-3" id="btnSubmit" title="Ingresar" />
+                       
+                </form>
+
+                <div class="divider-text">
+                    <span>Soporte Técnico</span>
+                </div>
+
+                <div class="text-center">
+                    <a href="mailto:soporte@uraccan.edu.ni" class="text-muted text-decoration-none small">
+                        <i class="fas fa-envelope me-1 text-warning"></i> soporte@uraccan.edu.ni
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(icon) {
+            const input = document.getElementById('Password');
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+        document.getElementById('loginForm').addEventListener('submit', function() {
+        // Solo cambiamos el texto si el formulario es válido (HTML5 check)
+        if(this.checkValidity()){
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Validando...';
+        }
+    });
+        
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>
