@@ -1,5 +1,4 @@
 using Asistencia.Data;
-using Asistencia.Models;
 using Asistencia.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -212,5 +211,7 @@ public class AttendanceController: Controller
                 ( d.Status == "P"  || d.Status == "T"))
             .SumAsync(a => a.HoursAttended);
     }
+
     
+
 }

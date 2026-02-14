@@ -1,5 +1,7 @@
 @model Asistencia.Models.ViewModels.CourseDetailsViewModel
-
+@{
+    ViewData["Title"] = "Detalle de Curso";
+}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center border-bottom">
                     <h2 class="h3"><a class="btn" asp-action="Admin"><i class="fa-solid fa-arrow-left fa-2x"></i> </a> Detalle de Curso - <span class="text-mutted">#@Model.CourseId</span></h2>
                     <div class="btn-toolbar mb-2 mb-md-0">
