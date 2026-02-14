@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Infrastructure;
-using System;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -47,6 +46,7 @@ builder.Services.ConfigureApplicationCookie(option =>
 });
 
 builder.Services.AddScoped<Asistencia.Services.ReportTermService>();
+builder.Services.AddScoped<Asistencia.Services.AttendanceService>();
 builder.Services.AddScoped<Asistencia.Services.SyllabusService>();
 builder.Services.AddScoped<Asistencia.Services.ClassroomService>();
 builder.Services.AddScoped<Asistencia.Services.CourseService>();

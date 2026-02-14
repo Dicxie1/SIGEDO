@@ -11,6 +11,13 @@
                     <option>Últimas 10 Sesiones</option>
                     <option>Todo el Semestre</option>
                 </select>
+                <a asp-controller="Reports"
+                   asp-action="PreviewAttendancePdf"
+                   asp-route-courseId="@Model.CourseId"
+                   target="_blank"
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-eye me-2"></i> Vista Previa
+                </a>
             </div>
             <div class="card-body">
                 <canvas id="attendanceTrendChart" style="max-height: 300px;"></canvas>
