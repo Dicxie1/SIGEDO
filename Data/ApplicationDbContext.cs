@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Asistencia.Models;
 using Asistencia.Data.Configurations;
+using Asistencia.Models.Gamification;
 namespace Asistencia.Data;
 
 public class ApplicationDbContext: IdentityDbContext<ApplicationUser>
@@ -26,6 +27,11 @@ public class ApplicationDbContext: IdentityDbContext<ApplicationUser>
     public DbSet<AttentionParticipant> AttentionParticipants => Set<AttentionParticipant>();
     public DbSet<SyllabusItem> SyllabusItems => Set<SyllabusItem>();
     public DbSet<AcademicPeriod> AcademicPeriods => Set<AcademicPeriod>();
+    public DbSet<Quiz> Quizzes => Set<Quiz>();
+    public DbSet<Question> Questions => Set<Question>();
+    public DbSet<AnwserOption> AnwserOptions => Set<AnwserOption>();
+    public DbSet<GamePlayer> GamePlayers => Set<GamePlayer>();
+    public DbSet<GameSession> GameSessions => Set<GameSession>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

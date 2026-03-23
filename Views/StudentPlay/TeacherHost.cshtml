@@ -1,0 +1,417 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Asistencia.Models.Gamification.GameSession
+@{
+    ViewData["Title"] = "Quizz";
+    Layout = "_LayoutFullscreen";
+}
+<style>
+    body {
+        background-color: #f3f3f3;
+    }
+
+    .pin-display {
+        font-size: 6rem;
+        font-weight: 900;
+        letter-spacing: 5px;
+        color: #333;
+    }
+
+    .player-badge {
+        font-size: 1.2rem;
+        font-weight: bold;
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        display: inline-block;
+        animation: popIn 0.3s ease-out;
+    }
+
+    @@keyframes popIn {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+</style>
+
+<div class="container-fluid vh-100 d-flex flex-column">
+
+    <div id="lobbyScreen" class="container text-center flex-grow-1 d-flex flex-column justify-content-center">
+        <h2 class="text-muted text-uppercase fw-bold">Únete en <br /> <span class="text-primary">@ViewBag.url</span></h2>
+        <div class="d-flex justify-content-center">
+            <img src="@ViewBag.QrCode" alt="Código QR" width="200" height="200" />
+        </div>
+        <p class="fs-4 mb-0">con el PIN del juego:</p>
+
+        <div class="bg-white rounded-4 shadow-sm mx-auto px-5 py-3 mb-4 border border-2">
+            <div class="pin-display">@Model.PIN</div>
+        </div>
+
+        <div class="d-flex justify-content-center align-items-center mb-4 gap-4">
+            <div class="fs-3 fw-bold bg-dark text-white rounded px-4 py-2">
+                <i class="fas fa-users me-2"></i> <span id="playerCount">0</span> Jugadores
+            </div>
+
+            <button id="btnStartGame" class="btn btn-success btn-lg fs-3 fw-bold px-5 py-2 shadow" onclick="iniciarJuego()">
+                Iniciar Partida <i class="fas fa-play ms-2"></i>
+            </button>
+        </div>
+
+        <div id="playersList" class="mt-4 p-4 d-flex flex-wrap justify-content-center gap-2">
+        </div>
+    </div>
+
+    <div id="gameScreen" class="d-none flex-grow-1 d-flex flex-column">
+
+        <div class="d-flex justify-content-between p-4 bg-white shadow-sm mb-4">
+            <h3 class="fw-bold text-primary m-0">Pregunta <span id="currentQuestionNum">1</span> de <span id="totalQuestionsNum">?</span></h3>
+            <div class="fs-4 fw-bold text-danger"><i class="fas fa-clock"></i> <span id="timerDisplay">20</span>s</div>
+        </div>
+
+        <div class="text-center flex-grow-1">
+            <h1 class="display-3 fw-bold px-5" id="questionText">¿Cargando pregunta...?</h1>
+
+            <div class="mt-5 fs-2 fw-bold text-muted">
+                Respuestas recibidas: <span id="answersCount" class="text-dark fs-1">0</span> / <span id="totalPlayersGame">0</span>
+            </div>
+        </div>
+        <div id="optionsContainer" class="row g-3 mt-4">
+        </div>
+        <div class="p-4 bg-light text-end border-top">
+            <button id="btnNextQuestion" class="btn btn-primary btn-lg fw-bold px-5" onclick="iniciarJuego()">
+                Siguiente <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+    <div id="podiumScreen" class="container text-center py-5 d-none flex-column justify-content-center flex-grow-1">
+        <h1 class="display-2 fw-bold text-warning mb-5" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+            <i class="fas fa-trophy"></i> ¡Podio Final!
+        </h1>
+
+        <div class="row justify-content-center align-items-end mx-auto w-100" id="podiumContainer" style="min-height: 400px; max-width: 800px;">
+        </div>
+
+        <div class="mt-5 pt-4">
+            <button class="btn btn-primary btn-lg fw-bold px-5 py-3 shadow me-3 rounded-pill" onclick="mostrarLeaderboard()">
+                <i class="fas fa-list-ol me-2"></i> Ver Todos los Resultados
+            </button>
+        </div>
+    </div>
+   <div id="leaderboardScreen" class="container text-center py-5 d-none flex-column justify-content-center flex-grow-1">
+        <h1 class="display-4 fw-bold text-primary mb-4">
+            <i class="fas fa-clipboard-list"></i> Resultados - Tabla de puntajes
+        </h1>
+        <div class="row justify-content-center flex-grow-1 w-100">
+            <div class="col-md-8">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-body p-0" style="max-height: 50vh; overflow-y: auto;">
+                        <table class="table table-hover table-striped mb-0 fs-4 text-center">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    <th class="py-3 bg-black">Lugar</th>
+                                    <th class="py-3">Estudiante</th>
+                                    <th class="py-3">Puntos</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 pt-4">
+            <a asp-action="Index" asp-controller="Quiz" class="btn btn-outline-dark btn-lg fw-bold px-5 py-3 shadow">
+                Finalizar y Volver al Menú
+            </a>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
+
+    <script>
+        // Obtenemos el PIN desde el modelo de C#
+        const pinSala = "@Model.PIN";
+        let totalJugadores = 0;
+        let timerInterval;
+        let tiempoRestante = 0;
+
+        // 2. CREAR LA CONEXIÓN AL HUB
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/quizHub") // La ruta que registraste en Program.cs
+            .withAutomaticReconnect()
+            .build();
+
+        // -------------------------------------------------------------------
+        // 3. ESCUCHAR EVENTOS DESDE EL SERVIDOR
+        // -------------------------------------------------------------------
+
+        // Este nombre "PlayerJoined" debe ser EXACTAMENTE el mismo que pusiste en QuizHub.cs
+        connection.on("PlayerJoined", function (nickname) {
+            // A. Aumentamos el contador en memoria
+            totalJugadores++;
+
+            // B. Actualizamos el número en la pantalla gigante
+            document.getElementById("playerCount").innerText = totalJugadores;
+
+            // C. Creamos la "etiqueta" con el nombre del estudiante
+            const playerBadge = document.createElement("div");
+            playerBadge.className = "player-badge fs-4 fw-bold bg-primary text-white rounded-pill px-4 py-2 shadow-sm"; // La clase CSS que diseñamos antes
+            playerBadge.style.animation = "popIn 0.3s ease-out";
+            playerBadge.innerText = nickname;
+
+            // D. La agregamos a la lista visual de jugadores
+            document.getElementById("playersList").appendChild(playerBadge);
+
+            // (Opcional) Aquí podrías reproducir un sonido de "pop" para hacerlo más interactivo
+            console.log("¡Se unió " + nickname + "!");
+            const popSound = new Audio("/sound/pop.mp3");
+            popSound.play().catch(function(err){
+                console.log("El navegador bloqueó el sonido automático hasta que el profe haga clic en la pantalla.", err);
+            });
+        });
+
+
+        // -------------------------------------------------------------------
+        // 4. INICIAR LA CONEXIÓN Y REGISTRARSE COMO PROFESOR
+        // -------------------------------------------------------------------
+        connection.start().then(function () {
+            console.log("Profesor conectado exitosamente al servidor. Sala: " + pinSala);
+
+            // Le decimos al Hub en C# que nos meta al grupo especial de esta sala
+            connection.invoke("JoinAsTeacher", pinSala)
+                .catch(function (err) {
+                    return console.error("Error al registrar como Host: ", err.toString());
+                });
+
+        }).catch(function (err) {
+            console.error("Error de conexión SignalR: ", err.toString());
+            alert("Hubo un problema al conectar con el servidor en tiempo real.");
+        });
+
+
+        // -------------------------------------------------------------------
+        // 5. BOTÓN: INICIAR PARTIDA
+        // -------------------------------------------------------------------
+               function iniciarJuego() {
+            // Evitamos que inicie si el salón está vacío
+            if (totalJugadores === 0) {
+                alert("Espera a que al menos un estudiante se conecte para empezar.");
+                return;
+            }
+
+            // Le decimos al Hub de C#: "Busca la pregunta 1 y mándala a todos"
+            // (Llama al método SendNextQuestion que programamos en QuizHub.cs)
+            connection.invoke("SendNextQuestion", pinSala)
+                .catch(function (err) {
+                    console.error("Error al pedir la pregunta: ", err);
+                });
+        }
+        connection.on("LoadQuestionUI", function (questionData) {
+
+            // A. Transición de pantallas: Ocultamos Lobby, Mostramos Juego
+            document.getElementById("lobbyScreen").classList.replace("d-flex", "d-none");
+            document.getElementById("gameScreen").classList.replace("d-none", "d-flex");
+
+            const btnNext = document.getElementById("btnNextQuestion");
+            btnNext.classList.replace("d-inline-block", "d-none");
+            if (!btnNext.classList.contains("d-none")) btnNext.classList.add("d-none");
+
+            // B. Llenamos la interfaz con los datos que mandó C#
+            document.getElementById("questionText").innerText = questionData.text;
+            document.getElementById("currentQuestionNum").innerText = questionData.questionNumber;
+            document.getElementById("totalQuestionsNum").innerText = questionData.totalQuestions;
+            document.getElementById("answersCount").innerText = "0"; // Reiniciamos contador de respuestas
+            document.getElementById("totalPlayersGame").innerText = totalJugadores;
+            // Dibuja las 4 opciones en el proyecto
+            const optionsContainer =document.getElementById("optionsContainer");
+            optionsContainer.innerHTML = ""
+            const iconClasses = ["fa-play fa-rotate-270", "fa-square fa-rotate-45", "fa-circle", "fa-square"];
+                questionData.options.forEach((opt, index) => {
+            // Creamos la tarjeta para cada opción
+            const optionHtml = `
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 option-card" id="option-${index}" data-correct="${opt.isCorrect}" style="background-color: ${opt.colorCode}; color: white; min-height: 100px; display: flex; align-items: center; justify-content: start; padding: 20px; font-size: 1.5rem; border-radius: 12px; transition: opacity 0.5s;">
+                        <i class="fas ${iconClasses[index]} me-4 fs-2"></i>
+                        <span class="fw-bold">${opt.text}</span>
+                        <i class="fas fa-check-circle ms-auto fs-1 d-none correct-icon"></i>
+                    </div>
+                </div>
+            `;
+            optionsContainer.insertAdjacentHTML('beforeend', optionHtml);
+        });
+
+            // C. LA MAGIA DEL CRONÓMETRO
+            tiempoRestante = questionData.timeLimit;
+            document.getElementById("timerDisplay").innerText = tiempoRestante;
+
+
+            // Si había un reloj viejo corriendo (de una pregunta anterior), lo matamos
+            if (timerInterval) clearInterval(timerInterval);
+
+            // Creamos un ciclo que se repite cada 1000 ms (1 segundo)
+            timerInterval = setInterval(() => {
+                tiempoRestante--;
+                document.getElementById("timerDisplay").innerText = tiempoRestante;
+
+                // Cuando el reloj llega a cero
+                if (tiempoRestante <= 0) {
+                    clearInterval(timerInterval);
+
+                    // Aquí el tiempo se acabó.
+                    // Más adelante haremos que este evento revele la respuesta correcta y muestre el botón "Siguiente"
+                    console.log("¡Se acabó el tiempo!");
+                    document.getElementById("timerDisplay").innerText = "¡Tiempo!";
+                    revelarRespuestaCorrecta();
+                }
+            }, 1000);
+        });
+
+        // -------------------------------------------------------------------
+        // 3. ESCUCHAR CUANDO UN ESTUDIANTE RESPONDE (Sube el contador)
+        // -------------------------------------------------------------------
+        connection.on("AnswerReceived", function () {
+            // Obtenemos el número actual y le sumamos 1
+            const counterElement = document.getElementById("answersCount");
+            let currentCounter = parseInt(counterElement.innerText);
+            currentCounter ++;
+            counterElement.innerText = currentCounter;
+            counterElement.classList.add("text-warning");
+            counterElement.style.transform = "scale(1.5)";
+            counterElement.style.transition = "all 0.2s";
+            setTimeout(()=>{
+                counterElement.classList.remove("text-warning");
+                counterElement.style.transform = "scale(1)";
+            },300);
+            if(currentCounter >= totalJugadores){
+                console.log("Todos los juagares han respondido! Detenido el reloj...");
+                if(timerInterval) clearInterval(timerInterval);
+                tiempoRestante = 0;
+                document.getElementById("timerDisplay").innerText = 0;
+                revelarRespuestaCorrecta();
+            }
+
+        });
+        function revelarRespuestaCorrecta() {
+            const opciones = document.querySelectorAll('.option-card');
+
+            opciones.forEach(card => {
+                const isCorrect = card.getAttribute('data-correct') === "true";
+
+                if (isCorrect) {
+                    // Si es la correcta, mostramos el ícono del check y la hacemos brillar
+                    card.querySelector('.correct-icon').classList.remove('d-none');
+                    card.style.transform = "scale(1.02)";
+                    card.style.boxShadow = "0 0 20px rgba(255, 255, 255, 0.5)";
+                } else {
+                    // Si es incorrecta, la opacamos (efecto visual genial)
+                    card.style.opacity = "0.4";
+                }
+            });
+
+            // Mostrar el botón de "Siguiente Pregunta"
+            document.getElementById("btnNextQuestion").classList.replace("d-none", "d-inline-block");
+            connection.invoke("RevealStudentResults", pinSala)
+                .catch(err => console.error("Error al liberar resultados: ", err));
+        }
+        connection.on("ShowPodium", function (allPlayers) {
+            
+            mostrarResultados(allPlayers);
+        });
+
+        function mostrarResultados(allPlayers) {
+            // 1. Ocultar la pantalla de juego y mostrar la pantalla del podio
+            document.getElementById("gameScreen").classList.remove("d-flex");
+            document.getElementById("gameScreen").classList.add("d-none");
+
+            // B. Encendemos el podio (quitamos d-none, agregamos d-flex)
+            document.getElementById("podiumScreen").classList.remove("d-none");
+            document.getElementById("podiumScreen").classList.add("d-flex");
+
+            const podiumContainer = document.getElementById("podiumContainer");
+            podiumContainer.innerHTML = ""; // Limpiamos por si acaso
+
+            // Si no hay jugadores (juego vacío), mostramos un mensaje triste
+            if (!allPlayers || allPlayers.length === 0) {
+                podiumContainer.innerHTML = "<h3 class='text-muted'>Nadie sumó puntos.</h3>";
+                return;
+            }
+            let topPlayers = allPlayers.slice(0, 3);
+            // 2. Configuración Visual del Podio (Oro, Plata, Bronce)
+            const colores = ["#FFD700", "#C0C0C0", "#CD7F32"]; // Hexadecimales
+            const alturas = ["280px", "200px", "140px"];      // Altura de las columnas
+
+            // 3. Reordenar para el efecto visual: [Plata, Oro, Bronce]
+            let jugadoresVisuales = [];
+            if (topPlayers.length > 1) jugadoresVisuales[0] = topPlayers[1]; // Izquierda (2do)
+            if (topPlayers.length > 0) jugadoresVisuales[1] = topPlayers[0]; // Centro (1ro)
+            if (topPlayers.length > 2) jugadoresVisuales[2] = topPlayers[2]; // Derecha (3ro)
+
+            // 4. Dibujar las columnas HTML
+            jugadoresVisuales.forEach((jugador) => {
+                if (!jugador) return; // Por si solo jugaron 2 personas
+
+                // Buscamos cuál era su posición real original (0 = 1ro, 1 = 2do, 2 = 3ro)
+                let posicionReal = topPlayers.indexOf(jugador);
+
+                // Creamos la columna
+                let columnaHtml = `
+                    <div class="col-4 px-2 d-flex flex-column align-items-center justify-content-end" style="animation: fadeInUp 1s ease-out;">
+
+                        <h2 class="fw-bold text-dark text-truncate w-100 mb-1" title="${jugador.nickname}">${jugador.nickname}</h2>
+                        <h4 class="text-muted mb-3">${jugador.score} pts</h4>
+
+                        <div class="shadow-lg" style="
+                            background-color: ${colores[posicionReal]};
+                            width: 100%;
+                            height: ${alturas[posicionReal]};
+                            border-radius: 15px 15px 0 0;
+                            display: flex;
+                            justify-content: center;
+                            padding-top: 15px;
+                        ">
+                            <span class="display-3 fw-bold text-dark opacity-75">${posicionReal + 1}</span>
+                        </div>
+                    </div>
+                `;
+
+                podiumContainer.insertAdjacentHTML('beforeend', columnaHtml);
+            });
+            const tbody = document.getElementById("leaderboardTableBody");
+            tbody.innerHTML = "";
+            allPlayers.forEach((player, index)=>{
+                let medalla = (index + 1) + "°";
+                if(index == 0) medalla = "🥇 1º";
+                if(index== 1) medalla = "🥈 2º";
+                if(index == 2 ) medalla = "🥉 3º";
+                let fila = `<tr>
+                        <td class="fw-bold text-muted py-3">${medalla}</td>
+                        <td class="fw-bold py-3">${player.nickname}</td>
+                        <td class="text-primary fw-bold py-3">${player.score}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML("beforeend", fila);
+            });
+        }
+        // Función para cambiar de la Pantalla 3 (Podio) a la Pantalla 4 (Leaderboard)
+        function mostrarLeaderboard() {
+            document.getElementById("podiumScreen").classList.remove("d-flex");
+            document.getElementById("podiumScreen").classList.add("d-none");
+
+            document.getElementById("leaderboardScreen").classList.remove("d-none");
+            document.getElementById("leaderboardScreen").classList.add("d-flex");
+        }
+    </script>
+}

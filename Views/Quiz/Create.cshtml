@@ -1,0 +1,225 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Asistencia.Models.Gamification.Quiz
+
+@{
+    ViewData["Title"] = "Crear Nuevo Cuestionario";
+}
+<style>
+    /* Colores estilo gamificación para las respuestas */
+    .ans-red {
+        border-left: 5px solid #E21B3C;
+    }
+    .ans-blue {
+        border-left: 5px solid #1368CE;
+    }
+    .ans-yellow {
+        border-left: 5px solid #D89E00;
+    }
+    .ans-green {
+        border-left: 5px solid #26890C;
+    }
+    .question-card {
+        transition: all 0.3s ease;
+    }
+</style>
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="fas fa-pen text-primary me-2"></i> Diseñar Cuestionario</h2>
+        <button type="button" class="btn btn-outline-primary" onclick="addQuestion()">
+            <i class="fas fa-plus me-1"></i> Pregunta
+        </button>
+    </div>
+
+    <form asp-action="Create" method="post" id="quizForm">
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label fw-bold text-muted text-uppercase small">Título del Juego</label>
+                    <input asp-for="Title" class="form-control form-control-sm fw-bold" placeholder="Ej: Repaso de Fundamentos de Programación" required />
+                </div>
+            </div>
+        </div>
+
+        <div id="questionsContainer">
+        </div>
+
+        <div class="text-end mt-4 mb-5">
+            <a asp-action="Index" class="btn btn-light btn-lg me-2 border">Cancelar</a>
+            <button type="submit" class="btn btn-success btn-lg px-5 shadow fw-bold">
+                <i class="fas fa-save me-2"></i> Guardar
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<template id="questionTemplate">
+    <div class="card border-0 shadow-sm mb-4 question-card" id="question_{Q_INDEX}">
+        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold text-primary text-xs mb-0"><i class="fas fa-question-circle me-1"></i> Pregunta <span class="q-number">{Q_NUM}</span></h5>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeQuestion({Q_INDEX})">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="card-body p-4">
+
+            <div class="mb-2">
+                <input type="text" name="Questions[{Q_INDEX}].Text" class="form-control form-control-sm border-2" placeholder="Escribe tu pregunta aquí..." required />
+            </div>
+
+            <div class="row g-3 mb-4 text-muted small">
+                <div class="col-md-6 d-flex align-items-center">
+                    <i class="fas fa-stopwatch me-2 fs-5"></i>
+                    <select name="Questions[{Q_INDEX}].TimeLimitSeconds" class="form-select form-select-sm w-auto border-0 bg-light fw-bold">
+                        <option value="10">10 Segundos</option>
+                        <option value="20" selected>20 Segundos</option>
+                        <option value="30">30 Segundos</option>
+                        <option value="60">1 Minuto</option>
+                    </select>
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-end">
+                    <i class="fas fa-star me-2 fs-5 text-warning"></i>
+                    <input type="number" name="Questions[{Q_INDEX}].Points" class="form-control form-control-sm w-auto border-0 bg-light fw-bold" value="1000" /> pts
+                </div>
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <div class="input-group input-group-lg ans-red shadow-sm rounded">
+                        <div class="input-group-text bg-white border-0">
+                            <input class="form-check-input  mt-0" type="radio" name="Questions[{Q_INDEX}].CorrectAnswerIndex" value="0" required title="Marcar como correcta">
+                            <input type="hidden" name="Questions[{Q_INDEX}].Options[0].IsCorrect" value="false" class="hidden-correct-0" />
+                            <input type="hidden" name="Questions[{Q_INDEX}].Options[0].ColorCode" value="#E21B3C" />
+                        </div>
+                        <input type="text" name="Questions[{Q_INDEX}].Options[0].Text" class="form-control form-control-sm border-0 bg-light" placeholder="Opción 1" required />
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="input-group input-group-lg ans-blue shadow-sm rounded">
+                        <div class="input-group-text bg-white border-0">
+                            <input class="form-check-input from-control-sm mt-0" type="radio" name="Questions[{Q_INDEX}].CorrectAnswerIndex" value="1" required title="Marcar como correcta">
+                            <input type="hidden" name="Questions[{Q_INDEX}].Options[1].IsCorrect" value="false" class="hidden-correct-1" />
+                            <input type="hidden" name="Questions[{Q_INDEX}].Options[1].ColorCode" value="#1368CE" />
+                        </div>
+                        <input type="text" name="Questions[{Q_INDEX}].Options[1].Text" class="form-control form-control-sm border-0 bg-light" placeholder="Opción 2" required />
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="input-group input-group-lg ans-yellow shadow-sm rounded">
+                        <div class="input-group-text bg-white border-0">
+                            <input class="form-check-input mt-0" type="radio" name="Questions[{Q_INDEX}].CorrectAnswerIndex" value="2" required title="Marcar como correcta">
+                            <input type="hidden" name="Questions[{Q_INDEX}].Options[2].IsCorrect" value="false" class="hidden-correct-2" />
+                            <input type="hidden" name="Questions[{Q_INDEX}].Options[2].ColorCode" value="#D89E00" />
+                        </div>
+                        <input type="text" name="Questions[{Q_INDEX}].Options[2].Text" class="form-control border-0 bg-light" placeholder="Opción 3 (Opcional)" />
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="input-group input-group-lg ans-green shadow-sm rounded">
+                        <div class="input-group-text bg-white border-0">
+                            <input class="form-check-input mt-0" type="radio" name="Questions[{Q_INDEX}].CorrectAnswerIndex" value="3" required title="Marcar como correcta">
+                            <input type="hidden" name="Questions[{Q_INDEX}].Options[3].IsCorrect" value="false" class="hidden-correct-3" />
+                            <input type="hidden" name="Questions[{Q_INDEX}].Options[3].ColorCode" value="#26890C" />
+                        </div>
+                        <input type="text" name="Questions[{Q_INDEX}].Options[3].Text" class="form-control border-0 bg-light" placeholder="Opción 4 (Opcional)" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</template>
+
+@section Scripts {
+    <script>
+        let questionCount = 0;
+
+        // Inyectar la primera pregunta al cargar la página
+        document.addEventListener("DOMContentLoaded", function() {
+            addQuestion();
+        });
+
+        function addQuestion() {
+            // Obtenemos el HTML del template oculto
+            const template = document.getElementById('questionTemplate').innerHTML;
+
+            // Reemplazamos los comodines {Q_INDEX} por el índice real (0, 1, 2...)
+            // y {Q_NUM} por el número visual (1, 2, 3...)
+            const finalHtml = template
+                .replace(/{Q_INDEX}/g, questionCount)
+                .replace(/{Q_NUM}/g, questionCount + 1);
+
+            // Lo agregamos al contenedor visual
+            const container = document.getElementById('questionsContainer');
+            container.insertAdjacentHTML('beforeend', finalHtml);
+
+            questionCount++;
+        }
+
+        function removeQuestion(index) {
+            // No permitir borrar si solo queda 1 pregunta
+            if (document.querySelectorAll('.question-card').length <= 1) {
+                alert("El cuestionario debe tener al menos una pregunta.");
+                return;
+            }
+
+            const element = document.getElementById('question_' + index);
+            if (element) {
+                element.remove();
+                reindexQuestions();
+            }
+        }
+
+        // Esta función es vital. Si el usuario borra la Pregunta 2 de 5,
+        // los índices de HTML se rompen para C# (quedaría 0, 2, 3, 4).
+        // C# necesita que sean consecutivos (0, 1, 2, 3).
+        function reindexQuestions() {
+            const questions = document.querySelectorAll('.question-card');
+            questionCount = questions.length;
+
+            questions.forEach((card, newIndex) => {
+                // Actualizar el número visual
+                card.querySelector('.q-number').innerText = newIndex + 1;
+
+                // Actualizar el ID de la tarjeta y el botón de eliminar
+                card.id = 'question_' + newIndex;
+                card.querySelector('.btn-outline-danger').setAttribute('onclick', `removeQuestion(${newIndex})`);
+
+                // Buscar todos los inputs dentro de esta tarjeta y arreglar su atributo 'name'
+                const inputs = card.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    if(input.name) {
+                        // Cambia Questions[X] por Questions[NuevoIndice]
+                        input.name = input.name.replace(/Questions\[\d+\]/, `Questions[${newIndex}]`);
+                    }
+                });
+            });
+        }
+
+        // Antes de enviar el formulario, configuramos los hidden inputs de "IsCorrect"
+        // leyendo cuál radio button seleccionó el profesor.
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            const questions = document.querySelectorAll('.question-card');
+
+            questions.forEach((card, qIndex) => {
+                // Buscar cuál radio button está seleccionado en esta pregunta
+                const selectedRadio = card.querySelector(`input[name="Questions[${qIndex}].CorrectAnswerIndex"]:checked`);
+
+                if (selectedRadio) {
+                    const correctOptionIndex = selectedRadio.value;
+                    // Cambiar el input oculto correspondiente a "true"
+                    card.querySelector(`.hidden-correct-${correctOptionIndex}`).value = "true";
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,81 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Asistencia.Models.Gamification.GameSession
+@{
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SGA URACCAN</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        /* CSS CRÍTICO PARA MODO KIOSKO / PANTALLA COMPLETA */
+        html, body {
+            height: 100vh; /* Ocupa exactamente el 100% del alto de la ventana */
+            width: 100vw; /* Ocupa exactamente el 100% del ancho */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Evita que aparezcan barras de scroll accidentalmente al proyectar */
+            background-color: #f3f4f6; /* Fondo gris muy claro para contraste */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Contenedor principal que alojará las vistas */
+        .fullscreen-container {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Un pequeño logo institucional flotante y discreto (Opcional) */
+        .brand-watermark {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            opacity: 0.5;
+            z-index: 1000;
+            pointer-events: none; /* Para que no interfiera con los clics */
+        }
+    </style>
+</head>
+<body>
+
+    <main role="main" class="fullscreen-container">
+        @RenderBody()
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Este pequeño script permite que con presionar la tecla "F" se ponga
+        // en pantalla completa real (ocultando la barra de pestañas de Chrome)
+        document.addEventListener('keydown', function(e) {
+            if (e.key.toLowerCase() === 'f') {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log(`Error al intentar activar pantalla completa: ${err.message}`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutEmpty";
+}
+<style>
+    /* Colores vibrantes tipo Kahoot */
+    .btn-quiz-red { background-color: #E21B3C; color: white; border-bottom: 5px solid #b0152e; }
+    .btn-quiz-blue { background-color: #1368CE; color: white; border-bottom: 5px solid #0e52a5; }
+    .btn-quiz-yellow { background-color: #D89E00; color: white; border-bottom: 5px solid #a87b00; }
+    .btn-quiz-green { background-color: #26890C; color: white; border-bottom: 5px solid #1c6609; }
+
+    .quiz-option {
+        height: 15vh;
+        font-size: 1.5rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+    .quiz-option:active { transform: translateY(5px); border-bottom-width: 0px; }
+</style>
+
+<div class="container-fluid vh-100 d-flex flex-column bg-light p-3" id="gameScreen">
+
+    <div class="text-center mb-4 mt-3">
+        <div class="fs-1 fw-bold text-dark" id="timer">20</div>
+        <h3 class="fw-bold mt-2" id="questionText">¿Qué significa las siglas SGA?</h3>
+    </div>
+
+    <div class="row g-3 flex-grow-1">
+        <div class="col-6">
+            <div class="quiz-option btn-quiz-red shadow" onclick="sendAnswer(1)">
+                <i class="fa-solid fa-play"></i> Sistema General
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="quiz-option btn-quiz-blue shadow" onclick="sendAnswer(2)">
+                <i class="fas fa-diamond me-2"></i> Sistema de Gestión Académica
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="quiz-option btn-quiz-yellow shadow" onclick="sendAnswer(3)">
+                <i class="fas fa-circle me-2"></i> Sociedad de Gestión
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="quiz-option btn-quiz-green shadow" onclick="sendAnswer(4)">
+                <i class="fas fa-square me-2"></i> Ninguna de las anteriores
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
+<script>
+    function sendAnswer(id){
+        console.log(`el valor precionado ${id}`)
+    }
+        // Conexión a SignalR
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/StudentPlay/")
+        .build();
+
+    // 1. Escuchar cuando llega una pregunta nueva
+    connection.on("ReceiveQuestion", function (question) {
+        document.getElementById("questionText").innerText = question.text;
+        // (Actualizar los botones con las opciones de la pregunta)
+        startTimer(question.timeLimitSeconds);
+    });
+
+    // 2. Conectarse a la sala con el PIN
+    connection.start().then(function () {
+        const pin = "123456"; // Obtenido del input del estudiante
+        const nickname = "Ana";
+        connection.invoke("JoinGame", pin, nickname);
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    // 3. Enviar respuesta cuando toca un color
+    function sendAnswer(optionId) {
+        const pin = "123456";
+        const timeElapsed = 5.2; // Segundos calculados desde que apareció la pregunta
+
+        connection.invoke("SubmitAnswer", pin, optionId, timeElapsed);
+
+        // Mostrar pantalla de "Esperando a los demás..."
+    }
+</script>

@@ -1,0 +1,218 @@
+﻿@{
+    ViewData["Title"] = "Jugando";
+    Layout = "_LayoutFullscreen.cshtml"; 
+}
+
+<style>
+    body {
+        background-color: #f3f4f6;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Colores vibrantes */
+    .btn-ans-0 { background-color: #E21B3C; color: white; } /* Rojo - Triángulo */
+    .btn-ans-1 { background-color: #1368CE; color: white; } /* Azul - Rombo */
+    .btn-ans-2 { background-color: #D89E00; color: white; } /* Amarillo - Círculo */
+    .btn-ans-3 { background-color: #26890C; color: white; } /* Verde - Cuadrado */
+
+    .answer-btn {
+        width: 100%;
+        height: 100%;
+        min-height: 15vh;
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 8px 0px rgba(0,0,0,0.2);
+        font-size: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.1s, box-shadow 0.1s;
+        cursor: pointer;
+    }
+
+    .answer-btn:active {
+        transform: translateY(8px);
+        box-shadow: 0 0px 0px rgba(0,0,0,0.2);
+    }
+
+    /* Contenedores de estado */
+    .state-container {
+        display: none; /* Ocultos por defecto */
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        width: 100vw;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .active-state {
+        display: flex !important; /* Muestra el estado activo */
+    }
+</style>
+
+<div id="state-waiting" class="state-container active-state bg-dark text-white">
+    <div class="spinner-grow text-success mb-4" style="width: 4rem; height: 4rem;" role="status"></div>
+    <h2 class="fw-bold tracking-widest mb-3">¡Ya estás dentro!</h2>
+    <h4 class="text-white-50">Tu nombre es: <span class="text-white">@ViewBag.Nickname</span></h4>
+    <p class="mt-4 fs-5">Busca tu nombre en la pantalla del profesor y espera a que inicie la partida.</p>
+</div>
+
+<div id="state-playing" class="state-container bg-light" style="padding: 10px;">
+    <div class="w-100 d-flex justify-content-between align-items-center mb-3 px-3">
+        <span class="badge bg-dark fs-6 py-2 px-3 rounded-pill">@ViewBag.Nickname</span>
+        <span class="fw-bold text-muted" id="questionCounter">Pregunta ?</span>
+    </div>
+
+    <div class="row g-2 w-100 flex-grow-1 pb-3">
+        <div class="col-6 d-flex flex-column gap-2">
+            <button class="answer-btn btn-ans-0 flex-grow-1" onclick="submitAnswer(0)">
+                <i class="fas fa-play" style="transform: rotate(-90deg);"></i>
+            </button>
+            <button class="answer-btn btn-ans-2 flex-grow-1" onclick="submitAnswer(2)">
+                <i class="fas fa-circle"></i>
+            </button>
+        </div>
+        <div class="col-6 d-flex flex-column gap-2">
+            <button class="answer-btn btn-ans-1 flex-grow-1" onclick="submitAnswer(1)">
+                <i class="fas fa-square" style="transform: rotate(45deg);"></i>
+            </button>
+            <button class="answer-btn btn-ans-3 flex-grow-1" onclick="submitAnswer(3)">
+                <i class="fas fa-square"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="state-submitted" class="state-container bg-primary text-white">
+    <i class="fas fa-hourglass-half fa-4x mb-4 animate-bounce"></i>
+    <h2 class="fw-bold">Respuesta enviada</h2>
+    <p class="fs-5 mt-2">Mira la pantalla principal para ver el resultado.</p>
+</div>
+<div id="state-result" class="state-container text-white">
+    <i id="resultIcon" class="fas fa-check-circle fa-5x mb-4"></i>
+    <h1 id="resultTitle" class="fw-bold display-4">¡Correcto!</h1>
+    <h3 class="mt-3">Puntos: <span id="pointsEarned">+0</span></h3>
+</div>
+
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
+
+    <script>
+        // Obtenemos los datos inyectados desde el Controlador (C#)
+        const pin = "@ViewBag.Pin";
+        const nickname = "@ViewBag.Nickname";
+        let isRespond = false;
+        
+        let answerStartTime = null;
+
+        // 1. CREAR LA CONEXIÓN A SIGNALR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/quizHub") // Esta es la ruta que configuraremos en Program.cs
+            .withAutomaticReconnect()
+            .build();
+
+        // -------------------------------------------------------------
+        // 2. ESCUCHAR LOS EVENTOS QUE MANDA EL PROFESOR (SERVIDOR)
+        // -------------------------------------------------------------
+
+        // Cuando el profesor da clic en "Iniciar Partida" o "Siguiente Pregunta"
+        let pendingResult = null;
+        connection.on("ReceiveQuestion", function (questionNumber) {
+            document.getElementById("questionCounter").innerText = "Pregunta " + questionNumber;
+            
+            // Iniciar el cronómetro local para calcular qué tan rápido responde
+            answerStartTime = new Date(); 
+            isRespond = false;
+            pendingResult = null;
+            showState("state-playing");
+        });
+
+        // Cuando el tiempo se acaba o todos responden
+        connection.on("AnswerProcessed", function (isCorrect, points) {
+           pendingResult = {isCorrect : isCorrect, points: points};
+        });
+        connection.on("ShowResultScreen", function(){
+            console.log("mostrar resultScreen")
+            const resultState = document.getElementById("state-result");
+            const icon = document.getElementById("resultIcon");
+            const title = document.getElementById("resultTitle");
+            if (pendingResult) {
+                if (pendingResult.isCorrect) {
+                    resultState.className = "state-container active-state bg-success text-white";
+                    icon.className = "fas fa-check-circle fa-5x mb-4";
+                    title.innerText = "¡Correcto!";
+                } else {
+                    resultState.className = "state-container active-state bg-danger text-white";
+                    icon.className = "fas fa-times-circle fa-5x mb-4";
+                    title.innerText = "Incorrecto";
+                }
+                document.getElementById("pointsEarned").innerText = "+" + pendingResult.points;
+            }else{
+                resultState.className = "state-container active-state bg-secondary text-white";
+                icon.className = "fas fa-clock fa-5x mb-4";
+                title.innerText = "¡Tiempo Agotado!";
+                document.getElementById("pointsEarned").innerText = "+0";
+            }
+            showState("state-result");
+        } );
+         connection.on("GameOver", function () {
+            // Cambiamos a una pantalla de finalización o mostramos un mensaje
+            const resultState = document.getElementById("state-result");
+            const icon = document.getElementById("resultIcon");
+            const title = document.getElementById("resultTitle");
+
+            resultState.className = "state-container active-state bg-dark text-white";
+            icon.className = "fas fa-trophy fa-5x mb-4 text-warning";
+            title.innerText = "¡Partida Terminada!";
+
+            document.getElementById("pointsEarned").innerText = "¡Mira la pantalla principal para ver el podio!";
+
+            showState("state-result");
+        });
+
+        // -------------------------------------------------------------
+        // 3. INICIAR CONEXIÓN Y UNIRSE AL GRUPO
+        // -------------------------------------------------------------
+        connection.start().then(function () {
+            console.log("Conectado al Hub. Uniendo a la sala...");
+            
+            // Le decimos al servidor: "Hola, soy estudiante, méteme al grupo de este PIN"
+            connection.invoke("JoinAsStudent", pin, nickname)
+                .catch(err => console.error("Error al unirse: ", err));
+
+        }).catch(function (err) {
+            alert("Error de conexión. Revisa tu internet.");
+            console.error(err.toString());
+        });
+
+        // -------------------------------------------------------------
+        // 4. FUNCIONES DEL ESTUDIANTE (BOTONES)
+        // -------------------------------------------------------------
+        function submitAnswer(optionIndex) {
+            // Calcular cuánto tardó en responder (en segundos)
+            if(isRespond) return;
+            isRespond = true;
+            const timeElapsed = (new Date() - answerStartTime) / 1000;
+            showState("state-submitted");
+            // Enviar respuesta al servidor (Hub)
+            connection.invoke("SubmitAnswer", pin, nickname,optionIndex, timeElapsed)
+                .then(() => {
+                    console.log("Enviado al servidor correctamente");;
+                })
+                .catch(err => {console.error("Error al enviar respuesta: ", err); isRespond = false;});
+        }
+
+        // Función auxiliar para cambiar de pantalla
+        function showState(stateId) {
+            // Ocultar todos
+            document.querySelectorAll('.state-container').forEach(el => {
+                el.classList.remove('active-state');
+            });
+            // Mostrar el solicitado
+            document.getElementById(stateId).classList.add('active-state');
+        }
+    </script>
+}

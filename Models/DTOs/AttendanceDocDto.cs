@@ -1,10 +1,7 @@
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using QuestPDF.Drawing;
-using System.Collections.Generic;
 using Asistencia.Extensions;
-using System.Drawing;
 namespace Asistencia.Models.DTOs
 {
     public class StudentInfo

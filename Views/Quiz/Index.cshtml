@@ -1,0 +1,111 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model IEnumerable<Asistencia.Models.Gamification.Quiz>
+@{
+    ViewData["Title"] = "Mis Cuestionarios";
+}
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-3">
+        <div>
+            <h2 class="fw-bold text-dark mb-0"><i class="fas fa-layer-group text-primary me-2"></i> Mis Cuestionarios</h2>
+            <p class="text-muted mb-0">Administra tus juegos interactivos para el aula.</p>
+        </div>
+        <div>
+            <a asp-action="Create" class="btn btn-primary btn-xs shadow-sm fw-bold rounded-pill px-4">
+                <i class="fas fa-plus me-2"></i> Cuestionario
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-ghost fa-5x text-muted opacity-50"></i>
+            </div>
+            <h4 class="fw-bold text-secondary">Aún no tienes cuestionarios</h4>
+            <p class="text-muted">Anímate a crear tu primer juego interactivo para tus estudiantes.</p>
+            <a asp-action="Create" class="btn btn-xs btn-outline-primary mt-2 rounded-pill px-4">Empezar a Crear</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var quiz in Model)
+            {
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden quiz-card">
+
+                        <div class="quiz-card-header">
+                            <div class="p-3">
+                                <span class="badge bg-white text-primary fw-bold mb-2">Asignatura</span>
+                            </div>
+                            <div class="quiz-icon">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                        </div>
+
+                        <div class="card-body pt-4">
+                            <h5 class="card-title fw-bold text-truncate" title="@quiz.Title">@quiz.Title</h5>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3 text-muted small">
+                                <span><i class="fas fa-question-circle me-1"></i> @(quiz.Questions?.Count ?? 0) Preguntas</span>
+                                <span><i class="fas fa-calendar-alt me-1"></i> Reciente</span>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-3 d-flex justify-content-between gap-2">
+
+                            <a asp-action="Details" asp-route-id="@quiz.QuizId" class="btn btn-success btn-sm flex-grow-1 fw-bold">
+                                <i class="fas fa-play me-1"></i> Jugar
+                            </a>
+
+                            <a asp-action="Edit" asp-route-id="@quiz.QuizId" class="btn btn-light border btn-sm text-secondary" title="Editar">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+
+                            <a asp-action="Delete" asp-route-id="@quiz.QuizId" class="btn btn-light border btn-sm text-danger" title="Eliminar">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+<style>
+    /* Efecto hover para que las tarjetas se sientan interactivas */
+    .quiz-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+        }
+
+    .quiz-card-header {
+        height: 120px;
+        background: linear-gradient(135deg, #003876 0%, #1368CE 100%);
+        position: relative;
+    }
+
+    .quiz-icon {
+        position: absolute;
+        bottom: -20px;
+        right: 20px;
+        background: white;
+        color: #F7931E;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        font-size: 1.5rem;
+    }
+</style>
