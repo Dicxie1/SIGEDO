@@ -45,7 +45,9 @@
 </style>
 
 <div class="container-fluid vh-100 d-flex flex-column">
-
+    <button id="btnEndGameEarly" class="btn btn-danger shadow position-fixed bottom-0 start-0  m-4 rounded-pill px-4 fw-bold" style="z-index: 1050;" onclick="confirmarFinPartida()">
+        <i class="fas fa-stop-circle me-2"></i> Finalizar Partida
+    </button>
     <div id="lobbyScreen" class="container text-center flex-grow-1 d-flex flex-column justify-content-center">
         <h2 class="text-muted text-uppercase fw-bold">Únete en <br /> <span class="text-primary">@ViewBag.url</span></h2>
         <div class="d-flex justify-content-center">
@@ -87,8 +89,47 @@
         </div>
         <div id="optionsContainer" class="row g-3 mt-4">
         </div>
-        <div class="p-4 bg-light text-end border-top">
-            <button id="btnNextQuestion" class="btn btn-primary btn-lg fw-bold px-5" onclick="iniciarJuego()">
+        <div class="d-none p-4 bg-light text-end border-top">
+            <button id="" class="btn btn-primary btn-lg fw-bold px-5" onclick="">
+                Siguiente <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+    <div id="interimScreen" class=" d-none flex-grow-1 d-flex flex-column bg-light">
+
+        <div class="d-flex justify-content-center p-4 bg-white shadow-sm mb-4 border-bottom border-success border-5">
+            <h3 class="fw-bold text-success m-0"><i class="fas fa-check-circle me-2"></i> ¡Tiempo Agotado!</h3>
+        </div>
+
+        <div class="text-center flex-grow-1 d-flex flex-column justify-content-center align-items-center px-4">
+            
+            <h3 class="text-muted fw-bold mb-4" id="interimQuestionText">¿Cargando pregunta...?</h3>
+
+            <div class="card border-0 shadow-lg rounded-4 mb-5" style="max-width: 700px; width: 100%; background-color: #26890C; color: white;">
+                <div class="card-body p-5">
+                    <p class="text-uppercase fw-bold mb-2 opacity-75 small"><i class="fas fa-star text-warning"></i> Respuesta Correcta <i class="fas fa-star text-warning"></i></p>
+                    <h1 class="display-4 fw-bold" id="interimCorrectAnswerText">Cargando respuesta...</h1>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-center gap-4 mb-4">
+                <div class="bg-white px-5 py-3 rounded-4 shadow-sm border border-2 border-success text-center" style="min-width: 200px;">
+                    <i class="fas fa-user-check text-success display-6 mb-2"></i>
+                    <h2 class="fw-bold text-dark mb-0" id="correctAnswersCount">0</h2>
+                    <span class="text-muted fw-bold text-uppercase small">Acertaron</span>
+                </div>
+                
+                <div class="bg-white px-5 py-3 rounded-4 shadow-sm border border-2 border-danger text-center" style="min-width: 200px;">
+                    <i class="fas fa-user-times text-danger display-6 mb-2"></i>
+                    <h2 class="fw-bold text-dark mb-0" id="incorrectAnswersCount">0</h2>
+                    <span class="text-muted fw-bold text-uppercase small">Fallaron</span>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="p-4 bg-white text-end border-top shadow-sm">
+            <button id="btnNextQuestion" class="btn btn-primary btn-lg fw-bold px-5 rounded-pill shadow" onclick="iniciarJuego()">
                 Siguiente <i class="fas fa-arrow-right ms-2"></i>
             </button>
         </div>
@@ -147,6 +188,19 @@
         let totalJugadores = 0;
         let timerInterval;
         let tiempoRestante = 0;
+        let countCorrect = 0;
+        let countInvalid = 0;
+        const btnEndGame = document.getElementById("btnEndGameEarly");
+        const lobbyStageSound = new Audio("/sound/lobby_stage.mp3");
+        const popSound = new Audio("/sound/pop.mp3");
+        const tictacSound = new Audio("/sound/tictacSound.mp3");
+        const gameoverSound = new Audio("/sound/gameover.mp4");
+        lobbyStageSound.loop = true;
+        document.addEventListener('DOMContentLoaded', ()=>{
+            lobbyStageSound.play().catch(function(err){
+        console.log("El navegador bloqueó el sonido automático hasta que el profe haga clic en la pantalla", err);
+            });
+        });
 
         // 2. CREAR LA CONEXIÓN AL HUB
         const connection = new signalR.HubConnectionBuilder()
@@ -177,7 +231,6 @@
 
             // (Opcional) Aquí podrías reproducir un sonido de "pop" para hacerlo más interactivo
             console.log("¡Se unió " + nickname + "!");
-            const popSound = new Audio("/sound/pop.mp3");
             popSound.play().catch(function(err){
                 console.log("El navegador bloqueó el sonido automático hasta que el profe haga clic en la pantalla.", err);
             });
@@ -206,18 +259,28 @@
         // 5. BOTÓN: INICIAR PARTIDA
         // -------------------------------------------------------------------
                function iniciarJuego() {
+                   countCorrect = 0;
+                   countInvalid  =0 ;
+                   document.getElementById('correctAnswersCount').innerText = "0";
+                   document.getElementById('incorrectAnswersCount').innerText = "0";
             // Evitamos que inicie si el salón está vacío
             if (totalJugadores === 0) {
                 alert("Espera a que al menos un estudiante se conecte para empezar.");
                 return;
             }
-
+            lobbyStageSound.pause();
+            lobbyStageSound.currentTime = 0;
+            tictacSound.play().catch( function(err){
+                console.log("El navegador bloqueó el sonido automático hasta que el profe haga clic en la pantalla.", err);
+            })
             // Le decimos al Hub de C#: "Busca la pregunta 1 y mándala a todos"
             // (Llama al método SendNextQuestion que programamos en QuizHub.cs)
             connection.invoke("SendNextQuestion", pinSala)
                 .catch(function (err) {
                     console.error("Error al pedir la pregunta: ", err);
                 });
+            document.getElementById('interimScreen').classList.remove('d-flex');
+            document.getElementById('interimScreen').classList.add('d-none');
         }
         connection.on("LoadQuestionUI", function (questionData) {
 
@@ -235,6 +298,8 @@
             document.getElementById("totalQuestionsNum").innerText = questionData.totalQuestions;
             document.getElementById("answersCount").innerText = "0"; // Reiniciamos contador de respuestas
             document.getElementById("totalPlayersGame").innerText = totalJugadores;
+            document.getElementById("interimQuestionText").innerText = questionData.text;
+            document.getElementById("interimCorrectAnswerText").innerText =  questionData.answer;
             // Dibuja las 4 opciones en el proyecto
             const optionsContainer =document.getElementById("optionsContainer");
             optionsContainer.innerHTML = ""
@@ -282,7 +347,7 @@
         // -------------------------------------------------------------------
         // 3. ESCUCHAR CUANDO UN ESTUDIANTE RESPONDE (Sube el contador)
         // -------------------------------------------------------------------
-        connection.on("AnswerReceived", function () {
+        connection.on("AnswerReceived", function (isCorrect) {
             // Obtenemos el número actual y le sumamos 1
             const counterElement = document.getElementById("answersCount");
             let currentCounter = parseInt(counterElement.innerText);
@@ -291,6 +356,14 @@
             counterElement.classList.add("text-warning");
             counterElement.style.transform = "scale(1.5)";
             counterElement.style.transition = "all 0.2s";
+            if(isCorrect){
+                countCorrect++;
+                document.getElementById('correctAnswersCount').innerText = countCorrect;
+
+            }else{
+                countInvalid++;
+                document.getElementById('incorrectAnswersCount').innerText = countInvalid;
+            }
             setTimeout(()=>{
                 counterElement.classList.remove("text-warning");
                 counterElement.style.transform = "scale(1)";
@@ -325,6 +398,12 @@
             document.getElementById("btnNextQuestion").classList.replace("d-none", "d-inline-block");
             connection.invoke("RevealStudentResults", pinSala)
                 .catch(err => console.error("Error al liberar resultados: ", err));
+            tictacSound.pause();
+            tictacSound.currentTime = 0;
+            document.getElementById('interimScreen').classList.remove('d-none');
+            document.getElementById('interimScreen').classList.add('d-flex')
+            document.getElementById('gameScreen').classList.add('d-none');
+            document.getElementById('gameScreen').classList.remove('d-flex');
         }
         connection.on("ShowPodium", function (allPlayers) {
             
@@ -335,7 +414,8 @@
             // 1. Ocultar la pantalla de juego y mostrar la pantalla del podio
             document.getElementById("gameScreen").classList.remove("d-flex");
             document.getElementById("gameScreen").classList.add("d-none");
-
+            tictacSound.pause();
+            
             // B. Encendemos el podio (quitamos d-none, agregamos d-flex)
             document.getElementById("podiumScreen").classList.remove("d-none");
             document.getElementById("podiumScreen").classList.add("d-flex");
@@ -388,6 +468,11 @@
                 `;
 
                 podiumContainer.insertAdjacentHTML('beforeend', columnaHtml);
+                gameoverSound.loop = true;
+                gameoverSound.play().catch(function(err){
+                    console.log("el navagador de tubo la reproduccion", err);
+                });
+                
             });
             const tbody = document.getElementById("leaderboardTableBody");
             tbody.innerHTML = "";
@@ -404,6 +489,9 @@
                 `;
                 tbody.insertAdjacentHTML("beforeend", fila);
             });
+        gameoverSound.play().catch(function(err){
+        console.log("No se Pudo reproducir", err);
+        });
         }
         // Función para cambiar de la Pantalla 3 (Podio) a la Pantalla 4 (Leaderboard)
         function mostrarLeaderboard() {
@@ -412,6 +500,95 @@
 
             document.getElementById("leaderboardScreen").classList.remove("d-none");
             document.getElementById("leaderboardScreen").classList.add("d-flex");
+        }
+        function confirmarFinPartida() {
+        Swal.fire({
+        title: '¿Terminar la partida ahora?',
+        text: "Esto cerrará la sesión inmediatamente para todos los estudiantes conectados. Los puntajes hasta el momento se guardarán.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#E21B3C', // Rojo para acción destructiva
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-power-off me-1"></i> Sí, finalizar',
+        cancelButtonText: 'Cancelar'
+        }).then((result) => {
+        if (result.isConfirmed) {
+            
+        // 1. (Opcional pero brutal) Avisar a los teléfonos de los estudiantes por SignalR
+        // connection.invoke("EndGameEarly", pinSala).catch(err => console.error(err));
+
+        // 2. Crear el formulario dinámico para enviarlo al Controlador
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '@Url.Action("EndGameSession", "Quiz")';
+
+        // 3. Capturar el token de seguridad de ASP.NET Core
+        const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+        if(tokenElement) {
+        const tokenInput = document.createElement('input');
+        tokenInput.type = 'hidden';
+        tokenInput.name = '__RequestVerificationToken';
+        tokenInput.value = tokenElement.value;
+        form.appendChild(tokenInput);
+        }
+
+        // 4. Agregar el PIN
+        const pinInput = document.createElement('input');
+        pinInput.type = 'hidden';
+        pinInput.name = 'pin';
+        pinInput.value = pinSala;
+        form.appendChild(pinInput);
+
+        // 5. Enviar y redirigir
+        document.body.appendChild(form);
+        form.submit();
+        }
+        });
+        }
+
+        function confirmarFinPartida() {
+        Swal.fire({
+        title: '¿Terminar la partida ahora?',
+        text: "Esto cerrará la sesión inmediatamente para todos los estudiantes conectados. Los puntajes hasta el momento se guardarán.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#E21B3C', // Rojo para acción destructiva
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-power-off me-1"></i> Sí, finalizar',
+        cancelButtonText: 'Cancelar'
+        }).then((result) => {
+        if (result.isConfirmed) {
+            
+        // 1. (Opcional pero brutal) Avisar a los teléfonos de los estudiantes por SignalR
+        // connection.invoke("EndGameEarly", pinSala).catch(err => console.error(err));
+
+        // 2. Crear el formulario dinámico para enviarlo al Controlador
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '@Url.Action("EndGameSession")';
+
+        // 3. Capturar el token de seguridad de ASP.NET Core
+        const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+        if(tokenElement) {
+        const tokenInput = document.createElement('input');
+        tokenInput.type = 'hidden';
+        tokenInput.name = '__RequestVerificationToken';
+        tokenInput.value = tokenElement.value;
+        form.appendChild(tokenInput);
+        }
+
+        // 4. Agregar el PIN
+        const pinInput = document.createElement('input');
+        pinInput.type = 'hidden';
+        pinInput.name = 'pin';
+        pinInput.value = pinSala;
+        form.appendChild(pinInput);
+
+        // 5. Enviar y redirigir
+        document.body.appendChild(form);
+        form.submit();
+        }
+        });
         }
     </script>
 }

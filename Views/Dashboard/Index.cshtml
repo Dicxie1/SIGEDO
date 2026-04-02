@@ -14,7 +14,7 @@
                             <div class="card-body">
                                 <i class="fas fa-book fa-2x text-primary"></i>
                                 <h5 class="card-title">Cursos Activos</h5>
-                                <p class="card-text h4">@Model.courseAvtive</p>
+                                <p class="card-text h4">@Model.CountCourseActive</p>
                             </div>
                         </div>
                     </div>
@@ -60,24 +60,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Matemáticas Avanzadas</td>
-                                <td>45</td>
-                                <td><div class="progress"><div class="progress-bar" style="width: 75%"></div></div></td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i> Editar</button>
-                                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Archivar</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Física Básica</td>
-                                <td>30</td>
-                                <td><div class="progress"><div class="progress-bar" style="width: 60%"></div></div></td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i> Editar</button>
-                                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Archivar</button>
-                                </td>
-                            </tr>
+                            @foreach(Course course in Model.Courses )
+                            {
+                                <tr>
+                                    <td>@course.Subject?.SubjetName </td>
+                                    <td>@course.Enrollments.Count </td>
+                                    <td>
+                                        <div class="progress bg-secondary">
+                                            <div class="progress-bar  progress-bar-striped" style="width: 75%"></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i> Editar</button>
+                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Archivar</button>
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>

@@ -15,7 +15,6 @@ namespace Asistencia.Controllers
         public async Task<IActionResult> Index()
         {
             List<Quiz> quizzes = await _service.GetQuizAsync();
-            
             return View(quizzes);
         }
         [HttpGet]
@@ -173,5 +172,24 @@ namespace Asistencia.Controllers
             var detalle = await _service.GetQuizAsync(id);
             return View(detalle);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetQuizzesPaginated(string search = "", int page = 1, int pageSize = 20)
+        {
+            try
+            {
+                // El Controlador delega todo el trabajo pesado al Servicio
+                var result = await _service.GetQuizzesPaginatedAsync(search, page, pageSize);
+
+                // Retorna exactamente el formato JSON que espera el frontend
+                return Json(new { quizzes = result.Quizzes, hasMore = result.HasMore });
+            }
+            catch (Exception ex)
+            {
+                // Aquí podrías agregar un _logger.LogError(ex, "Error al obtener cuestionarios");
+                return StatusCode(500, new { message = "Error interno al cargar los cuestionarios." });
+            }
+        }
+
     }
 }

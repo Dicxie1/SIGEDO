@@ -157,6 +157,7 @@ public class CourseController : Controller
         var allDetail = attendances.SelectMany(s => s.AttendanceDetails).ToList();
 
         statAttendance.TotalPresents = allDetail.Count(a => a.Status == "P");
+        statAttendance.TotalPresentsMens = allDetail.Count(a => a.Status == "P" && a.Enrollment?.Student?.Sexo == Sex.Femenino);
         statAttendance.TotalAbsents = allDetail.Count(a => a.Status == "A");
         statAttendance.TotalJustified = allDetail.Count(a => a.Status == "J");
         statAttendance.TotalLates = allDetail.Count(a => a.Status == "T");
@@ -211,6 +212,7 @@ public class CourseController : Controller
             CreditCourse = subject!.Credits!,
             AcademicYear = subject.AcademiYear,
             TeacherName = "Dicxie Danuard Madrigal",
+            IsActive = course.isActive,
             ClassroomName = course.Classroom!.ClassroomName,
             TotalEnrolledStudents = enrolledStudents.Count(),
             MaxCapacity = course.Capacity,
@@ -657,5 +659,26 @@ public class CourseController : Controller
         CourseService courseService = new CourseService(_context);
         await courseService.ActivePeriodAsync(id);
         return RedirectToAction("AcademicPeriod");
+    }
+    public async Task<IActionResult> ToggleCourseStatus(int idcourse)
+    {
+        // 1. Validar ID
+        if (idcourse <= 0)
+        {
+            TempData["Error"] = "ID de curso no válido.";
+            return RedirectToAction(nameof(Admin)); 
+        }
+        var course = await _context.Courses.FindAsync(idcourse);
+
+        if (course == null)
+        {
+            TempData["Error"] = "El curso no fue encontrado.";
+            return RedirectToAction(nameof(Admin));
+        }
+        course.isActive = !course.isActive;
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = course.isActive ? "Curso activado correctamente." : "Curso desactivado correctamente.";
+        return RedirectToAction(nameof(Admin));
     }
 }

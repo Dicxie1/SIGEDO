@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4 bg-white">
+    <div class="card border shadow-sm mb-4 ">
         <div class="card-body p-4">
             <div class="row g-4 align-items-center">
                 <div class="col-md-3 border-end">
@@ -67,61 +67,128 @@
 
     <div class="row g-3 mb-4 row-cols-2 row-cols-md-3 row-cols-xl-5 justify-content-center">
         <div class="col">
-            <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
-                <div class="rounded-circle bg-success bg-opacity-10 text-success p-3 me-2">
-                    <i class="fas fa-check fa-lg"></i>
+            <div class="d-flex align-items-center p-3 bg-white border rounded shadow-sm h-100">
+                <div class="rounded-circle bg-success bg-opacity-10 text-success me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="fas fa-user-check fa-lg"></i>
                 </div>
-                <div>
-                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Presentes</small>
-                    <h4 class="mb-0 fw-bold text-success">@Model.Summary.PresentCount</h4>
+                <div class="flex-grow-1">
+                    <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                        Presentes
+                    </small>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h4 class="mb-0 fw-bold text-success ">@Model.Summary.PresentCount</h4>
+            
+                        <div class="d-flex align-items-center gap-2 small fw-medium text-muted">
+                            <span title="Mujeres">
+                                <i class="fas fa-venus text-danger opacity-75 me-1"></i>@Model.Summary.PresentWomen
+                            </span>
+                            <span title="Hombres">
+                                <i class="fas fa-mars text-primary opacity-75 me-1"></i>@Model.Summary.PresentWomen
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
         <div class="col">
             <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
-                <div class="rounded-circle bg-warning bg-opacity-10 text-warning p-3 me-2">
+                <div class="rounded-circle bg-warning bg-opacity-10 text-warning me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
                     <i class="fas fa-clock fa-lg"></i>
                 </div>
-                <div>
-                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Tardanzas</small>
-                    <h4 class="mb-0 fw-bold text-warning">@Model.Summary.LateCount</h4>
-                </div>
+                <div class="flex-grow-1">
+                    <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Tardanza</small>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h4 class="mb-0 fw-bold text-warning">@Model.Summary.LateCount</h4>
+                        <div class="d-flex aling-items-center gap-2 small fw-medium text-muted ">
+                            <span title="Mujeres">
+                                <i class="fas fa-venus text-danger opacity-75 me-1"></i>
+                                @Model.Summary.LateWomen
+                            </span>
+                        </div>
+                        <div class="d-flex aling-items-center gap-2 small fw-medium text-muted ">
+                            <span title="Hombres">
+                                <i class="fas fa-mars text-primary opacity-75 me-1"></i>
+                                @Model.Summary.LateMen
+                            </span>
+                        </div>
+                    </div>
+                </div> 
             </div>
         </div>
 
         <div class="col">
             <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
-                <div class="rounded-circle bg-danger bg-opacity-10 text-danger p-3 me-2">
+                <div class="rounded-circle bg-danger bg-opacity-10 text-danger me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; ">
                     <i class="fas fa-times fa-lg"></i>
                 </div>
-                <div>
-                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Ausentes</small>
-                    <h4 class="mb-0 fw-bold text-danger">@Model.Summary.AbsentCount</h4>
+                <div class="flex-grow-1">
+                    <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Ausentes</small>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h4 class="mb-0 fw-bold text-danger">@Model.Summary.AbsentCount</h4>
+                        <div class="d-flex aling-items-center gap-2 small fw-medium text-muted ">
+                            <span title="Mujeres">
+                                <i class="fas fa-venus text-danger opacity-75 me-1"></i>
+                                @Model.Summary.AbsentCountWomen
+                            </span>
+                        </div>
+                        <div class="d-flex aling-items-center gap-2 small fw-medium text-muted ">
+                            <span title="Hombres">
+                                <i class="fas fa-mars text-primary opacity-75 me-1"></i>
+                                @Model.Summary.AbsentCountMen
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
         <div class="col">
             <div class="d-flex align-items-center p-2 bg-white border rounded shadow-sm h-100">
-                <div class="rounded-circle bg-info bg-opacity-10 text-info p-3 me-2">
+                <div class="rounded-circle bg-info bg-opacity-10 text-info  me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
                     <i class="fas fa-file-medical fa-lg"></i>
                 </div>
-                <div>
-                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Justificadas</small>
-                    <h4 class="mb-0 fw-bold text-info">@Model.Summary.JustifiedCount</h4>
+                <div class="flex-grow-1">
+                    <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.65rem;">Justificadas</small>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h4 class="mb-0 fw-bold text-info">@Model.Summary.JustifiedCount</h4>
+                        <div class="d-flex aling-items-center gap-2 small fw-medium text-muted ">
+                            <span title="Mujeres">
+                                <i class="fas fa-venus text-danger opacity-75 me-1"></i>
+                                @Model.Summary.JustifiedCountWomen
+                            </span>
+                        </div>
+                        <div class="d-flex aling-items-center gap-2 small fw-medium text-muted ">
+                            <span title="Hombres">
+                                <i class="fas fa-mars text-primary opacity-75 me-1"></i>
+                                @Model.Summary.JustifiedCountMen
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
         <div class="col">
              <div class="d-flex align-items-center p-2 bg-light border rounded shadow-sm h-100">
-                <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary p-3 me-2">
+                <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
                     <i class="fas fa-users fa-lg"></i>
                 </div>
-                <div>
+                <div class="flex-grow-1">
                     <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Total</small>
-                    <h4 class="mb-0 fw-bold text-dark">@Model.Summary.TotalStudents</h4>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h4 class="mb-0 fw-bold text-dark">@Model.Summary.TotalStudents</h4>
+                        <div class="d-flex aling-items-center gap-2 small fw-medium text-muted ">
+                            <span title="Mujeres">
+                                <i class="fas fa-venus text-danger opacity-75 me-1"></i>
+                                @Model.Summary.TotalStudentsWomen
+                            </span>
+                        </div>
+                        <div class="d-flex aling-items-center gap-2 small fw-medium text-muted ">
+                            <span title="Hombres">
+                                <i class="fas fa-mars text-primary opacity-75 me-1"></i>
+                                @Model.Summary.TotalStudentMen
+                            </span>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
         </div>

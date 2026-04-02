@@ -49,6 +49,7 @@
 
     .active-state {
         display: flex !important; /* Muestra el estado activo */
+        z-index : 1050;
     }
 </style>
 
@@ -96,6 +97,15 @@
     <h3 class="mt-3">Puntos: <span id="pointsEarned">+0</span></h3>
 </div>
 
+<div id="state-host-ended" class="state-container bg-danger text-white">
+    <i class="fas fa-sign-out-alt fa-5x mb-4"></i>
+    <h1 class="fw-bold display-4">Sala Cerrada</h1>
+    <p class="fs-4 mt-3">El profesor ha finalizado la sesión.</p>
+    
+    <a asp-action="StudentJoin" asp-controller="StudentPlay" class="btn btn-light btn-lg mt-5 fw-bold rounded-pill px-5 text-danger shadow-sm">
+        Volver al Inicio
+    </a>
+</div>
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
@@ -214,5 +224,15 @@
             // Mostrar el solicitado
             document.getElementById(stateId).classList.add('active-state');
         }
+        // Cuando el profesor le da al botón de "Finalizar Partida" en su pantalla
+        connection.on("GameEndedByHost", function () {
+        // 1. Mostramos la pantalla roja de que se cerró la sala
+        showState("state-host-ended");
+    
+        // 2. Opcional pero recomendado: Desconectamos SignalR para no consumir recursos de su batería/datos
+        connection.stop().then(function() {
+        console.log("Conexión de SignalR cerrada porque el juego terminó.");
+        });
+        });
     </script>
 }

@@ -10,6 +10,7 @@ namespace Asistencia.Models.Gamification
         public bool IsActive { get; set; }
         public int CurrentQuestionIndex { get; set; } = 0;
         public DateTime CreatedAt { get; set; }
+        public DateTime CurrentQuestionStartTime { get; set; }
         public bool RandomizeQuestions { get; set; }   
         public List<GamePlayer> Players { get; set; } = new List<GamePlayer>();
         public Quiz Quiz { get; set; } 

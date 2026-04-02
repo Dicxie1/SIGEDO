@@ -30,8 +30,10 @@ public class AcademicTermController : Controller
         if (!ModelState.IsValid) return Json(new { success = false, message = "datos incompletos" });
         try
         {
-            _academicTermService.SaveAcademicTerm(model);
-            return Json(new { success = true, message = "Se ha guardado correctamente el corte/parcial" });
+            string message = "";
+            var result =  await _academicTermService.SaveAcademicTerm(model);
+            message = result ? "Se ha guardado correctamente el corte/parcial" : "error al guardar el parcial";
+            return Json(new { success = true, message });
         } catch (DbUpdateException ex)
         {
             return Json(new { success = false, message = $"{ex.ToJson()}" });

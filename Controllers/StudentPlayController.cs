@@ -1,7 +1,9 @@
-﻿using Asistencia.Models.Gamification;
+﻿using Asistencia.Hubs;
+using Asistencia.Models.Gamification;
 using Asistencia.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Net;
 using System.Net.Sockets;
 
@@ -11,15 +13,17 @@ namespace Asistencia.Controllers
     public class StudentPlayController : Controller
     {
         private readonly StudentPlayService _service;
-        public StudentPlayController(StudentPlayService service)
+        private readonly IHubContext<QuizHub> _hubContext;
+        public StudentPlayController(StudentPlayService service, IHubContext<QuizHub> hubContext)
         {
             _service = service;
+            _hubContext = hubContext;
         }
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index", "Quiz");
         }
         public async Task<IActionResult> TeacherHost(string pin)
         {
@@ -28,7 +32,7 @@ namespace Asistencia.Controllers
             var ipaddress = address .Where(i => i.AddressFamily == AddressFamily.InterNetwork)
             .FirstOrDefault()!.ToString();
             var port = HttpContext.Request.Host.Port;
-            string path = Url.Action("StudentPlay", new { pin}) ?? string.Empty;
+            string path = Url.Action("StudentJoin", new { pin}) ?? string.Empty;
             
             string url = $"http://{ipaddress}:{5078}{path}";
             byte[] img = new Extensions.Utils().GenerarCodigoQR(url);
@@ -59,9 +63,13 @@ namespace Asistencia.Controllers
                 TempData["Error"] = "No reconocemos ese PIN. Verifica la pantalla.";
                 return RedirectToAction("StudentJoin");
             }
-
+            var questions = session.Quiz?.Questions?.Count; 
+            if(session.CurrentQuestionIndex >= questions -1)
+            {
+                TempData["Error"] = "La partida está en su fase final o ya terminó. ¡Llegaste un poco tarde!";
+                return RedirectToAction("StudentJoin");
+            }
             // 3. Todo está correcto. Redirigir a la vista donde se juega (StudentPlay)
-            // Pasamos el PIN y el Nickname por la URL o usando TempData
             return RedirectToAction("StudentPlay", new { pin = pin, nickname = nickname });
         }
 
@@ -97,10 +105,31 @@ namespace Asistencia.Controllers
             return View();
         }
         [AllowAnonymous]
-        public IActionResult StudentJoin()
+        public IActionResult StudentJoin(string pin)
         {
+            ViewBag.Pin = string.IsNullOrEmpty(pin) ? "" : pin;
             return View();
         }
+        public async Task<IActionResult> EndGameSession(string pin)
+        {
+            // 1. Delegamos el trabajo pesado al servicio
+            bool result = await _service.EndGameSessionAsync(pin);
+
+            // 2. Preparamos el mensaje de retroalimentación
+            if (result)
+            {
+                await _hubContext.Clients.Group(pin).SendAsync("GameEndedByHost");
+                TempData["Success"] = "¡La partida ha finalizado y la sesión se cerró correctamente!";
+            }
+            else
+            {
+                TempData["Error"] = "No se pudo cerrar la sesión o el PIN ya estaba inactivo.";
+            }
+
+            // 3. Redirigimos al menú principal
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 
 }

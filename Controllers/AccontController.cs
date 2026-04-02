@@ -66,7 +66,7 @@ namespace Asistencia.Controllers
                 // Redirigir de forma segura (evita Open Redirect Vulnerability)
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 {
-                    return Json( new {suceess = false,  returnUrl });
+                    return Json( new {success = true, mensaje ="acceder" ,url = returnUrl });
                 }
                 else
                 {

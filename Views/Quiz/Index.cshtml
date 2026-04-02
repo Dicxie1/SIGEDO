@@ -18,64 +18,65 @@
             </a>
         </div>
     </div>
-
-    @if (!Model.Any())
-    {
-        <div class="text-center py-5">
-            <div class="mb-4">
-                <i class="fas fa-ghost fa-5x text-muted opacity-50"></i>
-            </div>
-            <h4 class="fw-bold text-secondary">Aún no tienes cuestionarios</h4>
-            <p class="text-muted">Anímate a crear tu primer juego interactivo para tus estudiantes.</p>
-            <a asp-action="Create" class="btn btn-xs btn-outline-primary mt-2 rounded-pill px-4">Empezar a Crear</a>
+    <div class="row mb-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="search-box d-flex align-items-center shadow-sm">
+            <i class="fas fa-search text-muted me-2 fs-5 "></i>
+            <input id="searchInput" type="text" name="name" value="" class=" form-control from-control-lg px-2 w-100 " placeholder="Buscar por titulo..." autocomplete="off" />
         </div>
-    }
-    else
-    {
-        <div class="row g-4">
-            @foreach (var quiz in Model)
-            {
-                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden quiz-card">
-
-                        <div class="quiz-card-header">
-                            <div class="p-3">
-                                <span class="badge bg-white text-primary fw-bold mb-2">Asignatura</span>
-                            </div>
-                            <div class="quiz-icon">
-                                <i class="fas fa-gamepad"></i>
-                            </div>
-                        </div>
-
-                        <div class="card-body pt-4">
-                            <h5 class="card-title fw-bold text-truncate" title="@quiz.Title">@quiz.Title</h5>
-
-                            <div class="d-flex justify-content-between align-items-center mt-3 text-muted small">
-                                <span><i class="fas fa-question-circle me-1"></i> @(quiz.Questions?.Count ?? 0) Preguntas</span>
-                                <span><i class="fas fa-calendar-alt me-1"></i> Reciente</span>
-                            </div>
-                        </div>
-
-                        <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-3 d-flex justify-content-between gap-2">
-
-                            <a asp-action="Details" asp-route-id="@quiz.QuizId" class="btn btn-success btn-sm flex-grow-1 fw-bold">
-                                <i class="fas fa-play me-1"></i> Jugar
-                            </a>
-
-                            <a asp-action="Edit" asp-route-id="@quiz.QuizId" class="btn btn-light border btn-sm text-secondary" title="Editar">
-                                <i class="fas fa-pencil-alt"></i>
-                            </a>
-
-                            <a asp-action="Delete" asp-route-id="@quiz.QuizId" class="btn btn-light border btn-sm text-danger" title="Eliminar">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    }
+    </div>
 </div>
+<div id="quizzesContainer" class="row g-4">
+</div>
+<div id="emptyState" class="text-center py-5 d-none">
+    <div class="mb-4 ">
+        <i class="fas fa-ghost fa-5x text-muted opacity-50 "></i>
+    </div>
+    <h4 class="fw-bold text-secondary">No se encontro cuestionario </h4>
+    <p class="text-muted">Intente con otrás Búsqueda o crea un nuevo.</p>
+</div>
+<div id="loadMoreTrigger" class="text-center py-4 mt-3 d-none">
+    <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem"></div>
+    <p id="endOfResultMsg" class="text-muted fw-bold d-none mt-2 ">
+        No hay más cuestionarios por cargar.
+    </p>
+</div>
+</div>
+
+<template id="quizCardTemplate">
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden quiz-card">
+            <div class="quiz-card-header">
+                <div class="p-3">
+                    <span class="badge bg-white text-primary fw-bold mb-2">Asignatura</span>
+                </div>
+                <div class="quiz-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+            </div>
+            <div class="card-body pt-4">
+                <h5 class="card-title fw-bold text-truncate" title="{TITLE}">{TITLE}</h5>
+                <div class="d-flex justify-content-between align-items-center mt-3 text-muted small">
+                    <span><i class="fas fa-question-circle me-1"></i> {QUESTIONS_COUNT} Preguntas</span>
+                    <span><i class="fas fa-calendar-alt me-1"></i> Reciente</span>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0 pt-0 pb-3 px-3 d-flex justify-content-between gap-2">
+                <a href="/Quiz/Details/{ID}" class="btn btn-success btn-sm flex-grow-1 fw-bold">
+                    <i class="fas fa-play me-1"></i> Jugar
+                </a>
+                <a href="/Quiz/Edit/{ID}" class="btn btn-light border btn-sm text-secondary" title="Editar">
+                    <i class="fas fa-pencil-alt"></i>
+                </a>
+                <a href="/Quiz/Delete/{ID}" class="btn btn-light border btn-sm text-danger" title="Eliminar">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</template>
+
+
 <style>
     /* Efecto hover para que las tarjetas se sientan interactivas */
     .quiz-card {
@@ -108,4 +109,115 @@
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         font-size: 1.5rem;
     }
+    .search-box{
+        border: 2px solid #e9ecef;
+        border-radius: 50rem;
+        padding: 0.5rem 1.5rem;
+        background-color: white;
+        transition: all 0.3s;
+    }
+    .search-box:focus{
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+    .search-box input:focus{
+        outline: none;
+    }
+    .search-box input{
+        border: none;
+    }
 </style>
+@section Scripts{
+    <script>
+        // variable de estado
+        let currentPage = 1;
+        let currentSearch = "";
+        let isFetching = false;
+        let hasMoreData = true;
+
+        const container = document.getElementById("quizzesContainer");
+        const searchInput = document.getElementById("searchInput");
+        const emptyState = document.getElementById("emptyState");
+        const loadingSpinner = document.getElementById("loadingSpinner");
+        const endOfResultMsg = document.getElementById("endOfResultMsg");
+        const template = document.getElementById("quizCardTemplate");
+
+        async function fetchQuizzes(page, search, append = true) {
+        if (isFetching || !hasMoreData) return;
+        
+        isFetching = true;
+        loadingSpinner.classList.remove("d-none");
+        
+        try {
+            // 1. Usamos await en lugar de .then() para esperar la respuesta correctamente
+            const response = await fetch(`@Url.Action("GetQuizzesPaginated", "Quiz")?search=${encodeURIComponent(search)}&page=${page}&pageSize=8`);
+            const data = await response.json();
+            
+            console.log(data);
+            
+            if (!append) container.innerHTML = "";
+            
+            if (data.quizzes.length === 0 && page === 1) {
+                emptyState.classList.remove("d-none");
+            } else {
+                emptyState.classList.add("d-none");
+                
+                data.quizzes.forEach(quiz => {
+                    // 2. LA SOLUCIÓN: Usamos template.innerHTML en lugar de solo template
+                    let cardHtml = template.innerHTML
+                        .replace(/{ID}/g, quiz.quizId)
+                        .replace(/{TITLE}/g, quiz.title)
+                        .replace(/{QUESTIONS_COUNT}/g, quiz.questionCount);
+                        
+                    container.insertAdjacentHTML('beforeend', cardHtml);
+                });
+            }
+            
+            hasMoreData = data.hasMore;
+            
+            if (!hasMoreData && data.quizzes.length > 0) {
+                endOfResultMsg.classList.remove("d-none");
+            } else {
+                endOfResultMsg.classList.add("d-none");
+            }
+
+            currentPage = page;
+            
+        } catch (error) {
+            console.error(`Error al cargar cuestionarios: ${error}`);
+        } finally {
+            // 3. Ahora esto sí se ejecutará DESPUÉS de que lleguen los datos
+            isFetching = false;
+            loadingSpinner.classList.add('d-none');
+        }
+    }
+        //fetchQuizzes(1, null, true );
+        let typingTimer;
+        if(searchInput) { 
+        searchInput.addEventListener("input", function () {
+            clearTimeout(typingTimer);
+            currentSearch = this.value;
+                
+            typingTimer = setTimeout(() => {
+                hasMoreData = true;
+                endOfResultMsg.classList.add("d-none");
+                fetchQuizzes(1, currentSearch, false); 
+            }, 500); 
+        });
+    }
+
+        // 2. El Observador de Lazy Load (Infinito)
+        // Detecta cuando el scroll llega al div de abajo (loadMoreTrigger)
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && hasMoreData && !isFetching) {
+                fetchQuizzes(currentPage + 1, currentSearch, true);
+            }
+        }, { rootMargin: "100px" }); // Se dispara 100px antes de llegar al fondo real
+
+        observer.observe(document.getElementById("loadMoreTrigger"));
+
+        // Carga inicial al entrar a la página
+         fetchQuizzes(1, "", true);
+    </script>
+}

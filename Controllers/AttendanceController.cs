@@ -26,7 +26,7 @@ public class AttendanceController: Controller
                 .ThenInclude(s => s!.Subject)
             .Include(a => a.AttendanceDetails)
                 .ThenInclude(d => d.Enrollment)
-                    .ThenInclude(c => c!.Student)
+                    .ThenInclude(d => d.Student)
             .AsNoTracking()
             .FirstOrDefaultAsync(a => a.IdCourse == courseid && a.AttendanceId == attendance );
         if(attendancesRecord == null) 
@@ -65,10 +65,20 @@ public class AttendanceController: Controller
         }
         
         int totalStudent = attendancesRecord.AttendanceDetails.Count;
+        int totalStudentWomen = attendancesRecord.AttendanceDetails.Count(a => a.Enrollment?.Student?.Sexo == Models.Sex.Femenino);
+        int totalStudnetMen = attendancesRecord.AttendanceDetails.Count(a => a.Enrollment?.Student?.Sexo == Models.Sex.Masculino);
         int presentCount = attendancesRecord.AttendanceDetails.Count( a => a.Status == "P");
+        int presentWoman = attendancesRecord.AttendanceDetails.Count(a => a.Status == "P" && a.Enrollment?.Student?.Sexo == Models.Sex.Femenino);
+        int presentMen = attendancesRecord.AttendanceDetails.Count(a => a.Status == "P" && a.Enrollment?.Student?.Sexo == Models.Sex.Masculino);
         int absentCount = attendancesRecord.AttendanceDetails.Count( a => a.Status == "A");
+        int absentWomen = attendancesRecord.AttendanceDetails.Count(a => a.Status == "A" && a.Enrollment?.Student?.Sexo == Models.Sex.Femenino);
+        int absentMen = attendancesRecord.AttendanceDetails.Count(a => a.Status == "A" && a.Enrollment?.Student?.Sexo == Models.Sex.Masculino);
         int latesCount = attendancesRecord.AttendanceDetails.Count( a => a.Status == "T");
+        int lateWomen = attendancesRecord.AttendanceDetails.Count(a => a.Status == "T" && a.Enrollment?.Student?.Sexo == Models.Sex.Femenino);
+        int lateMen = attendancesRecord.AttendanceDetails.Count(a => a.Status == "T" && a.Enrollment?.Student?.Sexo == Models.Sex.Masculino);
         int justifiedCount = attendancesRecord.AttendanceDetails.Count( a => a.Status == "J");
+        int justifiedWomen = attendancesRecord.AttendanceDetails.Count(a => a.Status == "J" && a.Enrollment?.Student?.Sexo == Models.Sex.Femenino);
+        int justifiedMen = attendancesRecord.AttendanceDetails.Count(a => a.Status == "J" && a.Enrollment?.Student?.Sexo == Models.Sex.Masculino);
         int percetage = totalStudent == 0 ? 0 : 
             (int)Math.Round(((double)(presentCount + latesCount) / totalStudent) * 100);
         var viewModel = new AttendanceViewDto
@@ -83,10 +93,20 @@ public class AttendanceController: Controller
             Summary = new AttendanceSummaryDto
             {
                 TotalStudents = totalStudent,
+                TotalStudentsWomen = totalStudentWomen,
+                TotalStudentMen = totalStudnetMen,
                 PresentCount = presentCount,
+                PresentWomen = presentWoman,
+                PresentMen = presentMen,
                 AbsentCount = absentCount,
+                AbsentCountWomen = absentWomen,
+                AbsentCountMen = absentMen,
                 JustifiedCount = justifiedCount,
-                LateCount = latesCount
+                JustifiedCountWomen = justifiedWomen,
+                JustifiedCountMen = justifiedMen,
+                LateCount = latesCount,
+                LateMen = lateMen,
+                LateWomen = lateWomen
             },
             AttendanceDetail = attendancesRecord.AttendanceDetails
                 .Select(s => new AttendanceViewDetailDto

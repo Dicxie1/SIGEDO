@@ -16,6 +16,7 @@ public class CourseDetailsViewModel
     public string TeacherName {get; set;} = string.Empty;
     public int MaleCount {get; set;}
     public int FemaleCount{get; set;}
+    public bool IsActive { get; set; }
     // Lista de estudiantes inscritos
     public List<EnrolledStudentDto> EnrolledStudents {get; set;} = [];
     public List<AttendanceHistoryDto> attendanceHistories {get; set;} = [];
@@ -106,6 +107,8 @@ public class AttendaceStatsViewBox
     public List<int> AbsentsPerSession {get; set;} = new List<int>();
 
     public int TotalPresents {get; set;}
+    public int TotalPresentsWoman { get; set; }
+    public int TotalPresentsMens { get; set; }
     public int TotalAbsents {get; set;}
     public int TotalLates{get; set;}
     public int TotalJustified {get; set;}
@@ -125,10 +128,20 @@ public class AttendanceViewDto{
 public class AttendanceSummaryDto
 {
     public int TotalStudents { get; set; }
+    public int TotalStudentsWomen { get; set; }
+    public int TotalStudentMen { get; set; }
     public int PresentCount { get; set; }
+    public int PresentWomen { get; set; }
+    public int PresentMen { get; set; }
     public int LateCount { get; set; }
+    public int LateWomen { get; set; }
+    public int LateMen { get; set; }
     public int AbsentCount { get; set; }
-    public int JustifiedCount { get; set; }
+    public int AbsentCountWomen { get; set; }
+    public int AbsentCountMen { get; set; }
+    public int JustifiedCount { get; set; } 
+    public int JustifiedCountWomen { get; set; }
+    public int JustifiedCountMen { get; set; }
 }
 public class AttendanceViewDetailDto
 {

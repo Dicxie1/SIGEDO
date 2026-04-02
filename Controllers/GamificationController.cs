@@ -34,5 +34,11 @@ namespace Asistencia.Controllers
             if (session == null) return NotFound("La sala no existe o ya ha sido cerrada.");
             return View(session);
         }
+        [HttpPost]
+        public async Task<IActionResult> EndGameSession(string pin)
+        {
+            var session = await _service.EndGameSessionAsync(pin);
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

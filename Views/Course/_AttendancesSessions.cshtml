@@ -13,7 +13,7 @@
                 </select>
                 <a asp-controller="Reports"
                    asp-action="PreviewAttendancePdf"
-                   asp-route-courseId="@Model.CourseId"
+                   asp-route-courseId="@Model?.CourseId"
                    target="_blank"
                    class="btn btn-outline-secondary">
                     <i class="fas fa-eye me-2"></i> Vista Previa
@@ -68,9 +68,10 @@
                         <tbody>
                         @if(isHistory){
                             foreach(var session in Model!.attendanceHistories){
-                                // Lógica simple para color de barra
-                                var percent = session.AttentancePercetage; 
-                                var barColor = percent >= 80 ? "bg-success" : (percent >= 50 ? "bg-warning" : "bg-danger");
+                        // Lógica simple para color de barra
+                        var percent = session.PresentCount * 100 / session.TotalStudents; 
+                        var barColor = percent >= 80 ? "bg-success" : (percent >= 50 ? "bg-warning" : "bg-danger");
+                        var topic = string.IsNullOrEmpty(session.Topic) ? "Sin tema registrado" : session.Topic;
                         <tr>
                             <td class="ps-4">
                                         <div class="d-flex align-items-center">
@@ -85,8 +86,9 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="d-block text-truncate" style="max-width: 200px;" title="fundamentos de programacion">
-                                            @(string.IsNullOrEmpty(session.Topic) ? "Sin tema registrado" : session.Topic)
+                                        
+                                        <span class="d-block text-truncate" style="max-width: 200px;" title="@topic">
+                                            @topic
                                         </span>
                                     </td>
 

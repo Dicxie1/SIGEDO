@@ -31,10 +31,13 @@ namespace Asistencia.Services
             };
             return termViewModel;
         }
-        async public void SaveAcademicTerm( AcademicTerm model)
+        public async Task<bool> SaveAcademicTerm( AcademicTerm model)
         {
+            int result = 0;
             _context.Add(model);
-            await _context.SaveChangesAsync();
+            result = await _context.SaveChangesAsync();
+            if (result >= 1) return true;
+            return false;
         }
         async public Task<AcademicTerm?> GetAcademcTermAsync(int courseId, int termId)
         {
