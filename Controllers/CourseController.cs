@@ -631,7 +631,7 @@ public class CourseController : Controller
                 .Where(a => gradesDict.ContainsKey(a.AssignmentId))
                 .Sum(a => gradesDict[a.AssignmentId]);
             
-            grandTotal = termSum;
+            grandTotal += termSum;
         }
 
         // FÓRMULA: Promedio Simple de Cortes (Sumatoria / Cantidad)
