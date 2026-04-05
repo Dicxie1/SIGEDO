@@ -126,7 +126,7 @@ public async Task<IActionResult> AssessmentDetails(int id) // id = AssignmentId
 
     // 3. Construir ViewModel
     var gradedStudents = enrollments.Where(e => e.Grades.Any(g => g.AssignmentId == id)).ToList();
-    var gradesValues = gradedStudents.Select(e => e.Grades.First(g => g.AssignmentId == id).Score).ToList();
+    var gradesValues = gradedStudents.Select(e => e.Grades.First(g => g.AssignmentId == id).Score ?? 0).ToList();
 
     // Cálculo de estadísticas seguras (evitar división por cero)
     double avg = gradesValues.Any() ? gradesValues.Average() : 0;

@@ -30,8 +30,8 @@ namespace Asistencia.Services
                  .Include(e => e.AttendanceDetails)
                  .Include(e => e.Student) // Traemos al estudiante para obtener el Nombre
                  .Where(e => e.Status == EnrollmentStatus.Active) // Opcional: Solo activos
-                 .OrderBy(e => e.Student.LastName) // Orden Alfabético
-                 .ThenBy(e => e.Student.Name)
+                 .OrderBy(e => e.Student!.LastName) // Orden Alfabético
+                 .ThenBy(e => e.Student!.Name)
                  .ToListAsync();
 
             // 3. Obtener las fechas ÚNICAS de las clases (Columnas del reporte)
@@ -62,8 +62,6 @@ namespace Asistencia.Services
                     AttendanceLog = new Dictionary<DateOnly, string>(),
                     AttendancePercentage = 0
                 };
-
-                decimal presentCount = 0;
                 int totalClasses = distinctDates.Count;
                 decimal studentTotalHoursAttended = 0;
                 // Para cada fecha que hubo clase, buscamos el estado del alumno

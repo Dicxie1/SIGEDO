@@ -51,7 +51,7 @@ public class GradeCalculatorService
             var grade = task.Grades.FirstOrDefault(g => g.EnrollmentId == enrollmenId);
             if (grade != null)
             {
-                pointsEarned += grade.Score;
+                pointsEarned += grade.Score ?? 0;
             }
         }
         if (pointsPossible == 0) return 0;

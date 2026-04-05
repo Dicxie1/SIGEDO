@@ -66,9 +66,10 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseStatusCodePagesWithRedirects("/Home/HandleError/{0}");
     app.UseHsts();
 }
+
+app.UseStatusCodePagesWithReExecute("/Home/HandleError/{0}");
 QuestPDF.Settings.License = LicenseType.Community;
 
 
@@ -85,20 +86,20 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}")
     .WithStaticAssets();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
-        // Llamamos al método estático que acabamos de crear
+        // Llamamos al mï¿½todo estï¿½tico que acabamos de crear
         await Asistencia.Data.DbSeeder.SeedRolesAndAdminAsync(services);
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Ocurrió un error al sembrar la base de datos.");
+        logger.LogError(ex, "Ocurriï¿½ un error al sembrar la base de datos.");
     }
 }
 

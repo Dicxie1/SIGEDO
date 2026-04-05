@@ -36,9 +36,9 @@ public class HomeController : Controller
         switch(statusCode)
         {
             case 404:
-            return View("Error");
+                return View("NotFound");
             default:
-            return View("Error");
+                return View("Error");
         }
     }
 }

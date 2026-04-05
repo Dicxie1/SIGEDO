@@ -1,94 +1,306 @@
 @model Asistencia.Models.DashboardViewModel;
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Panel Principal</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fas fa-plus"></i> <i class="fa-solid fa-book-open-reader"></i>Curso</button>
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-0">¡Hola, @User!.Identity!.Name! 👋</h2>
+                <p class="text-muted mb-0">Resumen general de tu semestre lectivo en URACCAN.</p>
+            </div>
+            <div class="text-end text-muted">
+                <small class="fw-bold">@DateTime.Now.ToString("dd MMMM yyyy")</small>
+                
+            </div>
+        </div>
+    </div>
+                    
+</div>
+<div class="row g-4 mb-5">
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-warning border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted text-uppercase small fw-bold mb-1">Por Calificar</p>
+                        <h2 class="fw-bold text-dark mb-0">@Model.PendingTaskCount </h2>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-3">
+                        <i class="fas fa-file-alt text-warning fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-danger border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted text-uppercase small fw-bold mb-1">Riesgo Ausentismo</p>
+                        <h2 class="fw-bold text-dark mb-0">@Model.StudentAtRiskAttendance</h2>
+                    </div>
+                    <div class="bg-danger bg-opacity-10 p-3 rounded-3">
+                        <i class="fas fa-user-shield text-danger fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-success border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted text-uppercase small fw-bold mb-1">Estudiantes Atendiendo</p>
+                        <h2 class="fw-bold text-dark mb-0">@Model.TotalStudenActive</h2>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded-3">
+                        <i class="fas fa-users text-success fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-primary border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted text-uppercase small fw-bold mb-1">Cursos Activos</p>
+                        <h2 class="fw-bold text-dark mb-0">@Model.CountCourseActive</h2>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-3">
+                        <i class="fas fa-book text-primary fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        @if (Model.CurrentClass != null)
+        {
+            var countStudent = Model.CurrentClass.StudentCount;
+            var studetLabe = countStudent == 1 ? "Estudiante" : "Estudiantes";
+        <div class="card border-0 shadow-sm rounded-4  p-3 mb-4 bg-primary-subtle text-black overflow-hidden position-relative">
+            <div class="position-absolute top-0 end-0 p-1 opacity-10">
+                <i class="fas fa-chalkboard-teacher" style="font-size: 8rem;"></i>
+            </div>
+           
+               
+                
+                <div class="card-body p-4 position-relative z-1">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="badge bg-white text-primary rounded-pill mb-2 px-3 fw-bold shadow-sm">
+                            <span class="spinner-grow spinner-grow-sm me-1 text-danger" role="status" aria-hidden="true" style="width: 0.5rem; height: 0.5rem;"></span>
+                            Clase en Progreso
+                        </span>
+                        <h3 class="fw-bold mb-0 text-uppercase">@Model.CurrentClass.CourseName</h3>
+                        <p class="mb-0 text-black-50 mt-1">
+                            <i class="fas fa-map-marker-alt me-1"></i> @Model.CurrentClass.Location
+                            <span class="mx-2">|</span>
+                            <i class="far fa-clock me-1"></i> @DateTime.Today.Add(Model.CurrentClass.StartTime).ToString("hh:mm tt") - @DateTime.Today.Add(Model.CurrentClass.EndTime).ToString("hh:mm tt")
+                            <span class="mx-2">|</span>
+                            <i class="fas fa-users me-1"></i> @countStudent @studetLabe
+                        </p>
                     </div>
                 </div>
 
-                <!-- Cursos Activos -->
-                <div class="row">
-                    <div class="col-6 col-md-3 mb-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <i class="fas fa-book fa-2x text-primary"></i>
-                                <h5 class="card-title">Cursos Activos</h5>
-                                <p class="card-text h4">@Model.CountCourseActive</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3 mb-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <i class="fas fa-users fa-2x text-success"></i>
-                                <h5 class="card-title">Estudiantes</h5>
-                                <p class="card-text h4">@Model.studentCount</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3 mb-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <i class="fas fa-tasks fa-2x text-warning"></i>
-                                <h5 class="card-title">Tareas Pendientes</h5>
-                                <p class="card-text h4">15</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3 mb-3">
-                        <div class="card text-center">
-                            <div class="card-body">
-                                <i class="fas fa-calendar fa-2x text-info"></i>
-                                <h5 class="card-title">Próximas Clases</h5>
-                                <p class="card-text h4">3</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <hr class="border-light opacity-25">
 
-                <!-- Lista de Cursos -->
-                <h3>Mis Cursos</h3>
+                <div class="d-flex gap-2">
+                    <a asp-controller="Course" asp-action="Details" asp-route-courseId="2" asp-route-activeTab="asistencia-tab" class="btn btn-light fw-bold shadow-sm">
+                        <i class="fas fa-user-check me-2 text-primary"></i> Pasar Asistencia
+                    </a>
+                
+                    <a asp-controller="Course" asp-action="Details" asp-route-courseId="3" asp-route-activeTab="enrolledstudents-tab" class="btn btn-outline-light fw-bold text-black-50 border-0">
+                        <i class="fas fa-address-book me-2"></i>Matrícula
+                    </a>
+
+                    <a asp-controller="Assigment" asp-action="CreateQuick" asp-route-courseId="2" class="btn btn-outline-light fw-bold text-black-50 border-0">
+                        <i class="fas fa-file-pdf me-2 text-danger"></i> Asistencia
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+        }
+        <div class="card border-0 shadow-sm rounded-4 mb-3">
+            <div class="card-body">
+                <div class="d-flex aling-items-center ">
+                    <i class="fas fa-chalkboard-teacher text-primary fs-4 me-3"></i>
+                    <h5 class="fw-bold text-dark mb-0">Carga Académica del Semestre</h5>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Título</th>
+                                <th>Nombre</th>
                                 <th>Estudiantes</th>
                                 <th>Progreso</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(Course course in Model.Courses )
+                            @foreach (var course in Model.CourseActive)
                             {
+                                var percentage = (int)course.ProgressPercentage;
                                 <tr>
-                                    <td>@course.Subject?.SubjetName </td>
-                                    <td>@course.Enrollments.Count </td>
+                                    <td>@course.CourseName </td>
+                                    <td>@course.CountEnrrolle </td>
                                     <td>
-                                        <div class="progress bg-secondary">
-                                            <div class="progress-bar  progress-bar-striped" style="width: 75%"></div>
-                                        </div>
+                                        @if (percentage >= 100)
+                                        {
+                                            <div class="progress bg-secondary">
+                                                <div class="progress-bar  progress-bar-striped bg-success" style="width: @(percentage)%;"> @percentage% </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="progress bg-secondary">
+                                                <div class="progress-bar  progress-bar-striped bg-warning " style="width: @percentage%;"> @percentage% </div>
+                                            </div>
+                                        }
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i> Editar</button>
-                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Archivar</button>
+                                        <button class="btn btn-sm btn-outline-primary" title="Detalle de @course.CourseName"><i class="fas fa-eye"></i></button>
+                                        @if (percentage >= 100)
+                                        {
+                                            <button class="btn btn-sm btn-outline-danger" title="Desactivar Curso"><i class="fas fa-box-archive"></i></button>
+                                        }
+                                        <button class="btn btn-sm btn-outline-secondary "><i class="fas fa-arrow-right-from-bracket"></i></button>
                                     </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+       
+        <div class="card border-0 shadow-sm rounded-4 mb-3">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-clipboard-check text-warning fs-4"></i>
+                    <h5 class="fw-bold text-dark mb-0">Tareas Pediente Calificar</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th>Curso</th>
+                                <th>Tarea</th>
+                                <th>Estudiantes</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var course in Model.PedingAssigmentItems)
+                            {
+                                <tr>
+                                    <td>@course.CourseName</td>
+                                    <td>@course.Title</td>
+                                    <td><span class="badge bg-warning text-dark">@course.Pending</span></td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-danger shadow-sm"
+                                               asp-action="AssessmentDetails"
+                                               asp-controller="Assigment"
+                                               asp-route-id="@course.AssignmentId"
+                                               asp-route-courseid="@course.CourseId">
+                                            <i class="fas fa-edit me-1"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="col-lg-4 d-flex flex-column gap-4">
+            
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-dark mb-4">Agenda de Hoy</h5>
+                @if (Model.TodaySchedule.Any())
+                {
+                    @foreach (var courseSchedule in Model.TodaySchedule)
+                    {
+                        <div class="d-flex border-start @courseSchedule.BorderColorClass border-3 ps-3 mb-3">
+                            <div>
+                                <p class="mb-0 fw-bold text-dark">@courseSchedule.SubjectName</p>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> @courseSchedule.StartTime  - @courseSchedule.Location</small>
+                            </div>
+                        </div>
+                    }
+                    <div class="d-flex border-start border-info border-3 ps-3 mb-3">
+                        <div>
+                            <p class="mb-0 fw-bold text-dark">Desarrollo Móvil (Flutter)</p>
+                            <small class="text-muted"><i class="far fa-clock me-1"></i> 01:00 PM - Aula Virtual</small>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                            <i class="fas fa-mug-hot fa-2x text-muted"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark">Día Libre de Aulas</h6>
+                        <p class="text-muted small mb-0 px-2">
+                            No tienes clases programadas para el día de hoy. ¡Un excelente momento para avanzar con la revisión de tareas o preparar la próxima práctica!
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+        
 
-                <!-- Notificaciones Recientes -->
-                <h3>Notificaciones Recientes</h3>
-                <ul class="list-group">
-                    <li class="list-group-item"><i class="fas fa-user-plus"></i> Nuevo estudiante se matriculó en 'Matemáticas Avanzadas'.</li>
-                    <li class="list-group-item"><i class="fas fa-clock"></i> Tarea pendiente de calificación en 'Física Básica'.</li>
-                    <li class="list-group-item"><i class="fas fa-calendar-check"></i> Clase programada para mañana.</li>
-                </ul>
+        <div class="card border-0 shadow-sm rounded-4 flex-grow-1">
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-dark mb-4">Proximamente esta semana </h5>
+                @if (Model.WeeklyAgenda != null && Model.WeeklyAgenda.Any())
+                {
+                    <div class="timeline-container">
+                        @foreach (var day in Model.WeeklyAgenda)
+                        {
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center mb-2 ">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 ">@day.DayName </span>
+                                    <hr class="flex-grow-1 ms-1 opacity-10 ">
+                                </div>
+                                @foreach (var activity in day.Activities)
+                                {
+                                    <div class="d-flex align-items-center p-2 rounded-3 hover-bg-light transition-all mb-1">
+                                        <div class="bg-light rounded-circle p-2 text-center me-3" style="width: 45px; min-width: 45px;">
+                                            <i class="fas @activity.IconClass text-muted"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0 text-dark small fw-bold">@activity.Title</h6>
+                                            <div class="d-flex justify-content-between">
+                                                <small class="text-muted">@activity.Location</small>
+                                                <small class="fw-bold text-primary">@DateTime.Today.Add(activity.Hour).ToString("hh:mm tt")</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
 <!--ejemplo de IP local-->
-@ViewBag.ipadress <br>
+@ViewBag.ipadress
+<br>
 <br>
 @ViewBag.currentUrl
 

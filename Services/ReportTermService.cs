@@ -101,7 +101,7 @@ public class ReportTermService
                     var grade = enrollment.Grades
                         .FirstOrDefault(g => g.AssignmentId == assignment.AssignmentId);
                     
-                    if (grade != null) termSum += grade.Score;
+                    if (grade != null) termSum += grade.Score ?? 0;
                 }
 
                 // Umbral de Aprobación (60 Puntos)
