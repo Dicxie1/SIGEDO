@@ -33,7 +33,7 @@ namespace Asistencia.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "Homne");
+                return RedirectToAction("Index", "Dashboard");
             }
             ViewData["ReturnUrl"] = returnUrl;
             return View("Login");
@@ -42,7 +42,7 @@ namespace Asistencia.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl )
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null )
         {
             ViewData["ReturnUrl"] = returnUrl;
             if (!ModelState.IsValid)
@@ -64,11 +64,11 @@ namespace Asistencia.Controllers
                 _logger.LogInformation($"Usuario {model.Email } inicio Sessión");
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 {
-                    return RedirectToAction("Index", "Home");
+                    return LocalRedirect(returnUrl);
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Dashboard");
                 }
             }
             if (result.IsLockedOut)

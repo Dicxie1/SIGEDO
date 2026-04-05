@@ -174,9 +174,9 @@ public class CourseController : Controller
             .Where(e => e.IdCourse == course.IdCourse)
             .Include(e => e.Student)
             .Include(e => e.Grades )
-            .OrderBy(e => e.Student.LastName)
+            .OrderBy(e => e.Student!.LastName)
             .Include(e => e.Course)
-                .ThenInclude(s =>s.Subject)
+                .ThenInclude(s =>s!.Subject)
             .ToListAsync();
 
         var studentRows = enrollmentGrade.Select(e => CalculateStudentRow(e, course.AcademicTerms.ToList())).ToList();
@@ -620,7 +620,7 @@ public class CourseController : Controller
     // Lógica Central de Cálculo Matemático
     private  StudentRowDto CalculateStudentRow(Enrollment enrollment, List<AcademicTerm> terms)
     {
-        var gradesDict = enrollment.Grades.ToDictionary(g => g.AssignmentId, g => g.Score);
+        var gradesDict = enrollment.Grades.ToDictionary(g => g.AssignmentId, g => g.Score ?? 0);
         double grandTotal = 0;
         int activeTermsCount = terms.Count; // Divisor para promedio simple
 
@@ -640,7 +640,7 @@ public class CourseController : Controller
         return new  StudentRowDto
         {
             EnrollmentId = enrollment.EnrollmentId,
-            StudentFullName = $"{enrollment.Student.LastName}, {enrollment.Student.Name}",
+            StudentFullName = $"{enrollment!.Student!.LastName}, {enrollment.Student.Name}",
             StudentId = enrollment.Student.Id,
             StudentInitials = $"{enrollment.Student.Name[0]}{enrollment.Student.LastName[0]}",
             Grades = gradesDict,

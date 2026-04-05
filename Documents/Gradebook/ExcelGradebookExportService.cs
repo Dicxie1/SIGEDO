@@ -142,7 +142,7 @@ public class ExcelGradeBookDocument : IGradebookExportService
                 {
                     if (gradesDict.ContainsKey(task.AssignmentId))
                     {
-                        double score = gradesDict[task.AssignmentId];
+                        double score = gradesDict[task.AssignmentId] ?? 0;
                         ws.Cell(row, col).Value = score;
                         ws.Cell(row, col).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         termSum += score;

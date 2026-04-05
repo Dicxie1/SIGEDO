@@ -8,7 +8,7 @@ public class StudentGrade
     public int GradeId { get; set; }
 
     [Range(0, 500)]
-    public double Score { get; set; } // Lo que sacó el alumno (Ej: 8.5)
+    public double? Score { get; set; } // Lo que sacó el alumno (Ej: 8.5)
 
     [StringLength(200)]
     public string? Feedback { get; set; } // Comentario del docente

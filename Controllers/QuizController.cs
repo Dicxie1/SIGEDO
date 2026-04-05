@@ -30,9 +30,9 @@ namespace Asistencia.Controllers
             {
                 return View(model);
             }
-            foreach (var question in model.Questions)
+            foreach (var question in model!.Questions!)
             {
-                question.AnserOptions.RemoveAll(o => string.IsNullOrWhiteSpace(o.Text));
+                question!.AnserOptions!.RemoveAll(o => string.IsNullOrWhiteSpace(o.Text));
 
             }
             _service.SaveQuizAsync(model);
@@ -44,9 +44,9 @@ namespace Asistencia.Controllers
             var quiz = await _service.GetQuizAsync(id);
             if (quiz == null) return NotFound();
             string[] colors = { "#E21B3C", "#1368CE", "#D89E00", "#26890C" };
-            foreach(var question in quiz.Questions)
+            foreach(var question in quiz!.Questions!)
             {
-                while(question.AnserOptions.Count < 4)
+                while(question!.AnserOptions!.Count < 4)
                 {
                     question.AnserOptions.Add(new AnwserOption { ColorCode = colors[question.AnserOptions.Count] });
                 }
@@ -73,13 +73,13 @@ namespace Asistencia.Controllers
             var existingQuiz = await _service.GetQuizAsync(id);
             if(existingQuiz == null) return NotFound("El cuestionario no fue encontrado en la base de datos.");
             existingQuiz.Title = model.Title;
-            var incomingQuestionIds = model.Questions.Where(q => q.QuestionId != 0).Select(q => q.QuestionId).ToList();
-            var questionsToRemove = existingQuiz.Questions.Where(q => !incomingQuestionIds.Contains(q.QuestionId)).ToList();
+            var incomingQuestionIds = model!.Questions!.Where(q => q.QuestionId != 0).Select(q => q.QuestionId).ToList();
+            var questionsToRemove = existingQuiz!.Questions!.Where(q => !incomingQuestionIds.Contains(q.QuestionId)).ToList();
             foreach (var qToRemove in questionsToRemove)
             {
                 // Al removerla de la lista del padre, EF Core la eliminará de la base de datos
                 // (Asumiendo que tienes Delete Behavior en Cascade)
-                existingQuiz.Questions.Remove(qToRemove);
+                existingQuiz!.Questions!.Remove(qToRemove);
                 _service.RemoveQuestion(qToRemove); // Forma explícita y más segura
             }
             if (model.Questions != null)
@@ -96,12 +96,12 @@ namespace Asistencia.Controllers
                         }
 
                         // La agregamos a la lista del cuestionario existente
-                        existingQuiz.Questions.Add(incomingQuestion);
+                        existingQuiz!.Questions!.Add(incomingQuestion);
                     }
                     else
                     {
                         // B. ES UNA PREGUNTA EXISTENTE (UPDATE)
-                        var existingQuestion = existingQuiz.Questions.FirstOrDefault(q => q.QuestionId == incomingQuestion.QuestionId);
+                        var existingQuestion = existingQuiz!.Questions!.FirstOrDefault(q => q.QuestionId == incomingQuestion.QuestionId);
 
                         if (existingQuestion != null)
                         {
@@ -125,7 +125,7 @@ namespace Asistencia.Controllers
                                     // CASO A: Es una opción que ya existía en la base de datos (Tiene ID)
                                     if (incomingOption.AnwerOptionId != 0)
                                     {
-                                        var existingOption = existingQuestion.AnserOptions
+                                        var existingOption = existingQuestion!.AnserOptions!
                                             .FirstOrDefault(o => o.AnwerOptionId == incomingOption.AnwerOptionId);
 
                                         if (existingOption != null)
@@ -143,7 +143,7 @@ namespace Asistencia.Controllers
                                             incomingOption.IsCorrect = isThisOptionCorrect;
 
                                             // Como es una lista conectada a Entity Framework, usar .Add() la insertará en la BD automáticamente
-                                            existingQuestion.AnserOptions.Add(incomingOption);
+                                            existingQuestion!.AnserOptions!.Add(incomingOption);
                                         }
                                     }
                                 }
@@ -160,7 +160,7 @@ namespace Asistencia.Controllers
             catch (DbUpdateException ex)
             {
                 // En caso de que algo falle a nivel de base de datos
-                ModelState.AddModelError("", "No se pudieron guardar los cambios. Intente de nuevo.");
+                ModelState.AddModelError("", $"No se pudieron guardar los cambios. Intente de nuevo.{ex.ToString()}");
                 return View(model);
             }
 
@@ -187,7 +187,7 @@ namespace Asistencia.Controllers
             catch (Exception ex)
             {
                 // Aquí podrías agregar un _logger.LogError(ex, "Error al obtener cuestionarios");
-                return StatusCode(500, new { message = "Error interno al cargar los cuestionarios." });
+                return StatusCode(500, new { message = $"Error interno al cargar los cuestionarios.{ex.ToString()}" });
             }
         }
 
