@@ -120,7 +120,7 @@
                         <i class="fas fa-address-book me-2"></i>Matrícula
                     </a>
 
-                    <a asp-controller="Assigment" asp-action="CreateQuick" asp-route-courseId="2" class="btn btn-outline-light fw-bold text-black-50 border-0">
+                    <a asp-controller="Course" asp-action="Imprint" asp-route-courseId="@Model.CurrentClass.CourseId" class="btn btn-outline-light fw-bold text-black-50 border-0">
                         <i class="fas fa-file-pdf me-2 text-danger"></i> Asistencia
                     </a>
                 </div>
