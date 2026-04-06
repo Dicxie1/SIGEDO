@@ -54,6 +54,7 @@ builder.Services.AddScoped<Asistencia.Services.AcademicTermService>();
 builder.Services.AddScoped<Asistencia.Services.GamificationService>();
 builder.Services.AddScoped<Asistencia.Services.StudentPlayService>();
 builder.Services.AddScoped<Asistencia.Services.DashboardService>();
+builder.Services.AddScoped<Asistencia.Services.ScheduleService>();
 builder.Services.AddSignalR();
 // En tu Program.cs o Startup.cs
 builder.Services.AddScoped<IGradebookExportService, ExcelGradeBookDocument>();

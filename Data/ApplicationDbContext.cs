@@ -32,6 +32,7 @@ public class ApplicationDbContext: IdentityDbContext<ApplicationUser>
     public DbSet<AnwserOption> AnwserOptions => Set<AnwserOption>();
     public DbSet<GamePlayer> GamePlayers => Set<GamePlayer>();
     public DbSet<GameSession> GameSessions => Set<GameSession>();
+    public DbSet<TeacherEvent> TeacherEvents => Set<TeacherEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

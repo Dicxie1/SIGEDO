@@ -1,0 +1,345 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Mi Agenda y Eventos";
+}
+<div class="row mt-3">
+    <div class="col-lg-3 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body p-4">
+                <button class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm mb-4" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                    <i class="fas fa-plus me-2"></i> Nuevo Evento
+                </button>
+                
+                <h6 class="fw-bold text-dark mb-3">Simbología</h6>
+                <div class="d-flex align-items-center mb-2 small">
+                    <span class="badge bg-primary p-2 rounded-circle me-2"> </span> Clases Regulares
+                </div>
+                <div class="d-flex align-items-center mb-2 small">
+                    <span class="badge bg-success p-2 rounded-circle me-2"> </span> Reuniones
+                </div>
+                <div class="d-flex align-items-center small">
+                    <span class="badge bg-warning p-2 rounded-circle me-2"> </span> Capacitaciones
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+            
+            <div class="modal-header border-bottom px-4 pt-4 pb-3 bg-white">
+                <h5 class="modal-title fw-bold text-dark">
+                    <i class="fas fa-calendar-plus text-primary me-2"></i><span id="modalNewEventTitle">Registrar Actividad</span> 
+                </h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form asp-action="CreateEvent" asp-controller="Agenda" method="post">
+                <div class="modal-body p-4 bg-light">
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold mb-1">Título del Evento</label>
+                        <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                            <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                <i class="fas fa-heading"></i>
+                            </span>
+                            <input type="text" name="Title" class="form-control border-0 py-2 px-1" required placeholder="Ej. Revisión de Proyectos Arduino">
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4 align-items-center">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold mb-1">Categoría</label>
+                            <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                                <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                    <i class="fas fa-tag"></i>
+                                </span>
+                                <select name="ColorTheme" class="form-select border-0 py-2 px-1">
+                                    <option value="#198754">Reunión</option>
+                                    <option value="#ffc107">Capacitación</option>
+                                    <option value="#6c757d">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-md-4 pt-md-1 ms-2">
+                                <input class="form-check-input shadow-sm" type="checkbox" id="allDayCheck" name="IsAllDay" value="true" style="transform: scale(1.2);">
+                                <label class="form-check-label text-dark small fw-bold ms-2 mt-1" for="allDayCheck">Este evento dura todo el día</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold mb-1">Inicio</label>
+                            <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                                <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                    <i class="far fa-clock text-primary"></i>
+                                </span>
+                                <input type="datetime-local" name="StartDateTime" class="form-control border-0 py-2 px-1" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold mb-1">Fin</label>
+                            <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                                <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                    <i class="far fa-clock text-danger"></i>
+                                </span>
+                                <input type="datetime-local" name="EndDateTime" class="form-control border-0 py-2 px-1" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold mb-1">Ubicación / Enlace Virtual</label>
+                        <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                            <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </span>
+                            <input type="text" name="Location" class="form-control border-0 py-2 px-1" placeholder="Ej. Auditorio URACCAN o Meet">
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label text-muted small fw-bold mb-1">Notas o Descripción</label>
+                        <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                            <span class="input-group-text bg-white border-0 text-muted ps-3 align-items-start pt-3">
+                                <i class="fas fa-align-left"></i>
+                            </span>
+                            <textarea name="Description" class="form-control border-0 py-2 px-1" rows="3" placeholder="Agrega detalles, agenda de la reunión o recordatorios..."></textarea>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="modal-footer border-top bg-white px-4 py-3">
+                    <button type="button" class="btn btn-light rounded-pill fw-bold px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill fw-bold px-4 shadow-sm">
+                        <i class="fas fa-save me-2"></i>Guardar Evento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--Modal -->
+<div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold text-primary" id="modalEventTitle">Nombre de la Clase</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-3">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-light rounded-circle p-2 text-center me-3" style="width: 45px; height: 45px;">
+                        <i class="far fa-clock text-muted fs-5 mt-1"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 small fw-bold text-muted">Horario</p>
+                        <p class="mb-0 fw-bold text-dark" id="modalEventTime">08:00 AM - 10:00 AM</p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-light rounded-circle p-2 text-center me-3" style="width: 45px; height: 45px;">
+                        <i class="fas fa-map-marker-alt text-muted fs-5 mt-1"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 small fw-bold text-muted">Aula / Laboratorio</p>
+                        <p class="mb-0 text-dark" id="modalEventClassroom">Lab Mac</p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-light rounded-circle p-2 text-center me-3" style="width: 45px; height: 45px;">
+                        <i class="fas fa-chalkboard-teacher text-muted fs-5 mt-1"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 small fw-bold text-muted">Docente Titular</p>
+                        <p class="mb-0 text-dark" id="modalEventTeacher">Dicxie Madrigal</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <style>
+    .input-group-depth:focus-within {
+        border-color: #86b7fe !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    }
+    .input-group-depth input:focus, .input-group-depth select:focus, .input-group-depth textarea:focus {
+        box-shadow: none !important;
+        border-color: transparent !important;
+    }
+</style>
+    <script>
+        const calendarEl = document.getElementById('calendar');
+        let calendar; 
+        const allDayToggle = document.getElementById('allDayCheck');
+        const startInput = document.querySelector('input[name="StartDateTime"]');
+        const endInput = document.querySelector('input[name="EndDateTime"]');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView : "dayGridMonth",
+                selectable: true,
+                selectMirror: true,
+                height: "650px",
+                headerToolbar: {
+                    left: 'prev,next today', // Botones de navegación
+                    center: 'title',         // El título del mes/semana actual
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' // Las diferentes vistas
+                },
+                events: async function(fetchInfo, successCallback, failureCallback) {
+                    const events = await fetchEvents();
+                    successCallback(events.data);
+                },
+                eventClick: function(info) {
+                    // 1. Prevenir la acción por defecto por si el evento tuviera una URL
+                    info.jsEvent.preventDefault();
+                
+                    // 2. Extraer el objeto del evento presionado
+                    const evento = info.event;
+
+                    // 3. Formatear la hora de inicio y fin
+                    const formatOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+                    const startTime = evento.start ? evento.start.toLocaleTimeString('es-NI', formatOptions) : '';
+                    const endTime = evento.end ? evento.end.toLocaleTimeString('es-NI', formatOptions) : '';
+
+                    // 4. Inyectar los datos en el HTML del modal
+                    document.getElementById('modalEventTitle').textContent = evento.title;
+                    document.getElementById('modalEventTime').textContent = `${startTime} - ${endTime}`;
+                
+                    // Usamos extendedProps para acceder a los datos extra que mandaste desde C#
+                    document.getElementById('modalEventClassroom').textContent = evento.extendedProps.classroom || 'No asignada';
+                    document.getElementById('modalEventTeacher').textContent = evento.extendedProps.teacher || 'Sin asignar';
+
+                    // 5. Instanciar y mostrar el Modal de Bootstrap
+                    const modal = new bootstrap.Modal(document.getElementById('eventDetailModal'));
+                    modal.show();
+                },
+                dateClick: function(dateClickInfo) {
+               // 1. Identificar si el clic fue en un día entero (vista mes) o en una hora específica (vista semana/día)
+    let fechaInicioStr = "";
+    let fechaFinStr = "";
+    const isAllDay = !dateClickInfo.dateStr.includes('T');
+
+    if (isAllDay) {
+        // Clic en la vista de mes (ej. "2026-04-06")
+        // Asignamos una hora por defecto para que el input datetime-local no falle, ej: 08:00 AM
+        fechaInicioStr = `${dateClickInfo.dateStr}T08:00`;
+        fechaFinStr = `${dateClickInfo.dateStr}T10:00`; 
+        
+        // Marcamos el checkbox de "Todo el día" automáticamente
+        document.getElementById('allDayCheck').checked = true;
+    } else {
+        // Clic en la vista de agenda con hora (ej. "2026-04-06T10:30:00-06:00")
+        // Cortamos los primeros 16 caracteres para obtener el formato exacto "YYYY-MM-DDTHH:mm"
+        fechaInicioStr = dateClickInfo.dateStr.substring(0, 16);
+
+        // Para la fecha de fin, le sumamos 1 hora por defecto a la fecha de inicio
+        let endDate = new Date(dateClickInfo.date);
+        endDate.setHours(endDate.getHours() + 1);
+        
+        // Ajuste de zona horaria para formatear correctamente la nueva fecha a ISO local
+        let tzOffset = endDate.getTimezoneOffset() * 60000;
+        fechaFinStr = (new Date(endDate - tzOffset)).toISOString().slice(0, 16);
+        
+        // Desmarcamos "Todo el día"
+        document.getElementById('allDayCheck').checked = false;
+    }
+
+    // 2. Seleccionar el modal para acotar las búsquedas de elementos
+    const modalElement = document.getElementById('addEventModal');
+
+    // 3. Limpiar el formulario (por si el usuario lo abrió antes y lo cerró sin guardar)
+    modalElement.querySelector('input[name="Title"]').value = '';
+    modalElement.querySelector('input[name="Location"]').value = '';
+    modalElement.querySelector('textarea[name="Description"]').value = '';
+    modalElement.querySelector('select[name="ColorTheme"]').value = '#198754'; // Reset a la primera opción
+
+    // 4. Inyectar las fechas calculadas en los inputs
+    modalElement.querySelector('input[name="StartDateTime"]').value = fechaInicioStr;
+    modalElement.querySelector('input[name="EndDateTime"]').value = fechaFinStr;
+
+    // 5. Instanciar y mostrar el Modal de Bootstrap
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+                }
+            });
+            calendar.setOption('locale', 'es');
+            calendar.render();
+            // 2. Escuchamos el evento 'change' del interruptor
+            allDayToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    // Si está marcado, cambiamos el tipo de input a solo 'date' (fecha sin hora)
+                    startInput.type = 'date';
+                    endInput.type = 'date';
+                
+                    // Opcional: Limpiamos los valores si el usuario ya había escrito una hora,
+                    // para evitar conflictos de formato nativo del navegador
+                    startInput.value = '';
+                    endInput.value = '';
+                } else {
+                    // Si se desmarca, regresamos los inputs a 'datetime-local' (fecha y hora)
+                    startInput.type = 'datetime-local';
+                    endInput.type = 'datetime-local';
+                
+                    startInput.value = '';
+                    endInput.value = '';
+                }
+            });
+        });
+        const fetchEvents = async () => {
+        try {
+        const response = await fetch('@Url.Action("GetClassroom", "Schedule")',
+            {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        if (!response.ok) throw new Error(`HTTP error! status ${response.status}`)
+        const listEvents = await response.json();
+        console.log(listEvents);
+        return listEvents;
+    } catch (ex) {
+                console.error('Error cargando eventos:', error);
+                return [];
+    }
+        }
+        const addEventModalElement = document.getElementById('addEventModal');
+
+// Escuchamos el evento nativo de Bootstrap que indica que el modal se cerró por completo
+addEventModalElement.addEventListener('hidden.bs.modal', function () {
+    // Buscamos el formulario dentro del modal
+    const form = addEventModalElement.querySelector('form');
+    
+    if (form) {
+        // El método .reset() devuelve todos los campos a su valor original por defecto,
+        // vaciando los textos y regresando los selects a su primera opción.
+        form.reset();
+    }
+});
+    </script>
+}

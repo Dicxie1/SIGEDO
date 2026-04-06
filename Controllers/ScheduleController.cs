@@ -1,56 +1,64 @@
 using Microsoft.AspNetCore.Mvc;
-using Asistencia.Data;
-using Microsoft.EntityFrameworkCore;
-using Asistencia.Models.ViewModels;
+using Asistencia.Services;
 namespace Asistencia.Controllers;
 
 public class ScheduleController : Controller
 {
-    private readonly ApplicationDbContext _context;
-    public ScheduleController(ApplicationDbContext context)
+    private ScheduleService _service;
+    public ScheduleController(ScheduleService service)
     {
-        _context = context;
+        _service = service;
+    }
+    public IActionResult Index()
+    {
+        return View();
     }
     public async Task<IActionResult> Details(string classroomId)
     {
-        var classroom = await _context.Classrooms.FindAsync(classroomId);
-        if (classroom == null) return NotFound();
-        var schedules = await _context.Schedules
-            .Include(s => s.Course)
-            .ThenInclude(sc => sc!.Subject)
-            .Where(s => s.ClassroomId == classroomId).ToListAsync();
-        var model = new ClassroomScheduleDto
-        {
-            ClassroomId = classroom.ClassroomId,
-            ClassroomName = classroom.ClassroomName,
-            Sessions  =  schedules.Select(s => new ClassSession
-            {
-                DayOfWeek = s.DayOfWeek,
-                StartTime = s.StartTime,
-                EndTime = s.EndTime,
-                CourseName = s?.Course?.Subject?.SubjetName,
-                ColorHex = GetColorForCourse( s!.ClassroomId!)
-            }).ToList(),
-        };
+        var model = await _service.GetClassroomSchedule(classroomId);
         return PartialView("", model);
-    }
-    private string GetColorForCourse(string courseId)
-    {
-        string [] colors = {"primary", "success", "danger", "info", "dark"};
-        return colors[ int.Parse(courseId) % colors.Length];
     }
 
     private async Task<bool> IsClassroomAvailable(string classroomId, int day, TimeSpan start, TimeSpan end)
     {
-        bool existOverlap = await _context.Schedules.AnyAsync( s=> 
-            s.ClassroomId == classroomId &&
-            s.DayOfWeek == day &&
-            (
-                (start >= s.StartTime && start < s.EndTime) ||
-                (end > s.StartTime && end <= s.EndTime) ||
-                (start <= s.StartTime && end >= s.EndTime)
-            )
-        );
+        bool existOverlap = await _service.IsClassroomAvailable(classroomId, day, start, end);
         return !existOverlap;
     }
+    [HttpGet]
+    public async Task<IActionResult> GetEvents(DateTime? start, DateTime? end)
+    {
+        // Si no se pasan fechas, usamos el mes actual por defecto
+        var startDate = start ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        var endDate = end ?? startDate.AddMonths(1).AddDays(-1);
+
+        try
+        {
+            var events = await _service.GetCalendarEvents(startDate, endDate);
+
+            // Si no hay eventos reales aún, podemos dejar los mock como ejemplo comentados
+            // o simplemente retornar la lista vacía o real
+            if (events.Count == 0 && !start.HasValue)
+            {
+                var hoy = DateTime.Today;
+                var mockEvents = new List<object>
+                 {
+                    new { id = "m1", title = "Pensamiento Lógico", start = hoy.AddDays(1).ToString("yyyy-MM-ddT08:00:00"), end = hoy.AddDays(1).ToString("yyyy-MM-ddT10:00:00"), color = "#0d6efd", description = "Laboratorio 1" },
+                    new { id = "m2", title = "Desarrollo Móvil (Flutter)", start = hoy.AddDays(2).ToString("yyyy-MM-ddT13:00:00"), end = hoy.AddDays(2).ToString("yyyy-MM-ddT15:00:00"), color = "#0d6efd", description = "Laboratorio Mac" }
+                 };
+                return Json(mockEvents);
+            }
+
+            return Json(events);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al obtener eventos", details = ex.Message });
+        }
+    }
+    public async Task<IActionResult> GetClassroom()
+    {
+        return Json(new { data = await _service.GetClassroomAsync() });
+    }
 }
+
+    
