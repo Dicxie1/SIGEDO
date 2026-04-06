@@ -29,7 +29,7 @@
                 <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
                     <i class="fas fa-tachometer-alt"></i>
                 </button>
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index"> <i class="fas fa-chalkboard-teacher"></i>Gestión de Docencia</a>
+                <a class="navbar-brand" asp-controller="Dashboard" asp-action="Index"> <i class="fas fa-chalkboard-teacher"></i>Gestión de Docencia</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -86,7 +86,7 @@
                             <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reportes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="fas fa-calendar"></i> Calendario</a>
+                            <a class="nav-link" asp-controller="Schedule" asp-action="Index" ><i class="fas fa-calendar"></i> Calendario</a>
                         </li>
                         <li>
                             <a class="nav-link" asp-controller="Quiz" asp-action="Index"> <i class="fas fa-dice"></i> Quizz</a>
