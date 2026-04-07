@@ -4,14 +4,46 @@
 @{
     ViewData["Title"] = "Mi Agenda y Eventos";
 }
-<div class="row mt-3">
-    <div class="col-lg-3 mb-4">
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center px-4 py-3 border-bottom bg-white shadow-sm">
+    
+    <div class="d-flex align-items-center gap-3">
+        <a asp-action="Admin" class="btn btn-light border-0 rounded-circle text-muted" aria-label="Volver a Administración" title="Volver">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h2 class="h4 mb-0 fw-bold text-dark">Gestión de Eventos</h2>
+    </div>
+
+    <div class="btn-toolbar">
+        <button class="btn btn-sm btn-primary fw-bold shadow-sm px-3 " data-bs-toggle="modal" data-bs-target="#addEventModal">
+            <i class="fas fa-plus me-2"></i>Nuevo Evento
+        </button>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-12 col-md-6 col-lg-5">
+        <div class="bg-white p-2 shadow-sm border d-flex align-items-center">
+            
+            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2 text-primary" style="width: 40px; height: 40px; min-width: 40px;">
+                <i class="fas fa-search"></i>
+            </div>
+            
+            <div class="flex-grow-1 pe-2">
+                <select class="form-select border-0 shadow-none fw-bold text-dark cursor-pointer" id="teacherSearchFilter" name="teacherId">
+                    <option value="all" selected>Ver todos los docentes</option>
+                    <option value="1">Msc. Dicxie Madrigal</option>
+                    <option value="2">Ing. Ana Martínez</option>
+                    <option value="3">Lic. Carlos Silva</option>
+                </select>
+            </div>
+            
+        </div>
+    </div>
+</div>       
+<div class="row mt-2">
+    <div class="col-lg-3 mb-4 d-none d-lg-block">
         <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body p-4">
-                <button class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm mb-4" data-bs-toggle="modal" data-bs-target="#addEventModal">
-                    <i class="fas fa-plus me-2"></i> Nuevo Evento
-                </button>
-                
                 <h6 class="fw-bold text-dark mb-3">Simbología</h6>
                 <div class="d-flex align-items-center mb-2 small">
                     <span class="badge bg-primary p-2 rounded-circle me-2"> </span> Clases Regulares
@@ -206,6 +238,33 @@
         box-shadow: none !important;
         border-color: transparent !important;
     }
+    /* Ajustes para fusionar Select2 con nuestro diseño "rounded-pill" de Bootstrap */
+.select2-container--default .select2-selection--single {
+    border: none !important; /* Quitamos el borde por defecto de Select2 */
+    background-color: transparent; /* Heredamos el fondo blanco del contenedor */
+    height: auto;
+    outline: none !important;
+}
+
+/* Ajustamos el texto para que coincida con el fw-bold text-dark */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    font-weight: 700; 
+    color: #212529; 
+    padding-left: 0;
+    line-height: 1.5;
+}
+
+/* Centramos la flechita desplegable */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100%;
+    top: 0;
+}
+
+/* Evitamos que aparezca un recuadro negro o azul al hacer foco */
+.select2-container--default.select2-container--focus .select2-selection--single {
+    border: none !important;
+    box-shadow: none !important;
+}
 </style>
     <script>
         const calendarEl = document.getElementById('calendar');
@@ -413,5 +472,68 @@ addEventModalElement.addEventListener('hidden.bs.modal', function () {
     }
 });
 
+    </script>
+    <script>
+        $(document).ready(function() {
+            function formatTeacherOption(teacher) {
+        // 1. Si no hay ID (es el placeholder) o es la opción "Ver todos", lo devolvemos normal
+        if (!teacher.id) { return teacher.text; }
+        if (teacher.id === 'all') { 
+            // Retornamos un objeto jQuery para que Select2 renderice el HTML
+            return $('<span><i class="fas fa-users text-muted me-2"></i>' + teacher.text + '</span>'); 
+        }
+
+        // 2. Limpiar el nombre de títulos académicos comunes para las iniciales
+        // Esta Regex busca "Msc.", "Ing.", "Lic.", etc. al inicio del texto y lo elimina
+        let cleanName = teacher.text.replace(/^(Msc\.|Ing\.|Lic\.|Dr\.|Arq\.)\s+/i, '').trim();
+        
+        // 3. Extraer las iniciales (primera y segunda palabra del nombre limpio)
+        let words = cleanName.split(' ');
+        let initials = '';
+        if (words.length > 0) initials += words[0].charAt(0).toUpperCase();
+        if (words.length > 1) initials += words[1].charAt(0).toUpperCase();
+
+        // 4. Construir el HTML usando clases de Bootstrap para el "avatar"
+        // NOTA DE SEGURIDAD: Select2 requiere que devolvamos un objeto jQuery $(...) 
+        // para renderizar HTML. Si devolvemos un string normal, lo escapará (protección XSS).
+        const $optionLayout = $(
+            '<div class="d-flex align-items-center">' +
+                '<div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-2 fw-bold shadow-sm" style="width: 32px; height: 32px; font-size: 0.85rem;">' + 
+                    initials + 
+                '</div>' +
+                '<span class="text-dark fw-semibold">' + teacher.text + '</span>' +
+            '</div>'
+        );
+
+        return $optionLayout;
+    }
+    // 1. Inicializar Select2 en nuestro select
+    $('#teacherSearchFilter').select2({
+        placeholder: "Buscar docente...",
+        width: '100%', // Crucial para que respete el ancho del contenedor de Bootstrap
+        language: {
+            noResults: function() {
+                return "No se encontró el docente"; // Mensaje en español
+            }
+        },
+        templateResult: formatTeacherOption,     // Aplica al desplegable
+        templateSelection: formatTeacherOption   // Aplica al elemento seleccionado
+    });
+
+    // 2. Escuchar el evento de cambio
+    // Nota: Select2 usa su propio evento 'select2:select' en lugar del 'change' nativo
+    $('#teacherSearchFilter').on('select2:select', function (e) {
+        // Obtenemos el ID del docente seleccionado de la data del evento
+        const selectedTeacherId = e.params.data.id;
+        
+        console.log("Se seleccionó el docente con ID:", selectedTeacherId);
+        
+        // Aquí puedes inyectar tu lógica de FullCalendar
+        // Ejemplo:
+        // let urlEventos = '/Schedule/GetEventsByTeacher?teacherId=' + selectedTeacherId;
+        // calendar.removeAllEventSources();
+        // calendar.addEventSource(urlEventos);
+    });
+});
     </script>
 }
