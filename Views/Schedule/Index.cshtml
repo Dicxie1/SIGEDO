@@ -46,10 +46,12 @@
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <form asp-action="CreateEvent" asp-controller="Agenda" method="post">
+            <form asp-action="RegisterEvent" asp-controller="Schedule" method="post">
                 <div class="modal-body p-4 bg-light">
                     
-                    <div class="mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                           <div class="mb-4">
                         <label class="form-label text-muted small fw-bold mb-1">Título del Evento</label>
                         <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
                             <span class="input-group-text bg-white border-0 text-muted ps-3">
@@ -57,6 +59,19 @@
                             </span>
                             <input type="text" name="Title" class="form-control border-0 py-2 px-1" required placeholder="Ej. Revisión de Proyectos Arduino">
                         </div>
+                    </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold mb-1">Profesor</label>
+                        <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                            <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" name="TeacherID" class="form-control border-0 py-2 px-1" required placeholder="Profesor a cargo">
+                        </div>
+                    </div>
+                        </div>    
                     </div>
 
                     <div class="row g-4 mb-4 align-items-center">
@@ -198,6 +213,7 @@
         const allDayToggle = document.getElementById('allDayCheck');
         const startInput = document.querySelector('input[name="StartDateTime"]');
         const endInput = document.querySelector('input[name="EndDateTime"]');
+        const formElement = document.querySelector('#addEventModal form');
 
         document.addEventListener('DOMContentLoaded', function() {
             calendar = new FullCalendar.Calendar(calendarEl, {
@@ -309,6 +325,61 @@
                     endInput.value = '';
                 }
             });
+            formElement.addEventListener('submit', async function(event) {
+        // 1. PREVENIR LA RECARGA DE LA PÁGINA
+        event.preventDefault();
+
+        // 2. Preparar el botón de guardado (Feedback visual)
+        const submitBtn = formElement.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
+        submitBtn.disabled = true;
+
+        // 3. Empaquetar los datos del formulario
+        // FormData captura automáticamente todos los inputs con atributo 'name'
+        // ¡Incluyendo el token de seguridad oculta (__RequestVerificationToken)!
+        const formData = new FormData(formElement);
+
+        try {
+            // 4. Enviar la petición al backend usando Fetch API
+            const response = await fetch(formElement.action, {
+                method: formElement.method, // POST
+                body: formData // ASP.NET Core entiende esto nativamente
+            });
+
+            // 5. Evaluar la respuesta del servidor
+            if (response.ok) {
+                // El backend devolvió un código 200 (Éxito)
+                
+                // A) Cerrar el modal
+                const modalInstance = bootstrap.Modal.getInstance(document.getElementById('addEventModal'));
+                modalInstance.hide();
+
+                // B) Mostrar mensaje de éxito (Aquí podrías usar SweetAlert2)
+                Swal.fire('¡Actividad registrada con éxito!');
+
+                // C) Recargar los eventos en FullCalendar SIN recargar la página
+                // Asumiendo que tu variable global de FullCalendar se llama 'calendar'
+                if (typeof calendar !== 'undefined') {
+                    calendar.refetchEvents(); 
+                }
+            } else {
+                // El backend devolvió un código 400 (Bad Request) o 500 (Error de servidor)
+                // Aquí el modal SIGUE ABIERTO para que el usuario corrija los datos
+                const errorData = await response.json();
+                console.error("Errores de validación:", errorData);
+                Swal.fire('Ocurrió un error al guardar. Revisa los datos.');
+            }
+        } catch (error) {
+            // Error de red (ej. se cayó el internet)
+            console.error('Error de red:', error);
+            Swal.fire('No se pudo conectar con el servidor.');
+        } finally {
+            // 6. Restaurar el botón siempre, haya fallado o no
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    });
         });
         const fetchEvents = async () => {
         try {
@@ -341,5 +412,6 @@ addEventModalElement.addEventListener('hidden.bs.modal', function () {
         form.reset();
     }
 });
+
     </script>
 }

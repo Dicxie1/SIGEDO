@@ -9,5 +9,6 @@
         public Sex Sex { get; set; }
 
         public List<Schedule> Schedules { get; set; } = new List<Schedule>();
+        public List<TeacherEvent> TeacherEvents { get; set; } = new List<TeacherEvent>();
     }   
 }

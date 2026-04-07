@@ -1,5 +1,6 @@
 ﻿using Asistencia.Data;
 using Asistencia.Models;
+using Asistencia.Models.DTOs;
 using Asistencia.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -127,9 +128,9 @@ namespace Asistencia.Services
                 .ThenInclude(s => s.Subject)
                 .Where(s => s.Course.isActive).ToListAsync();
             var groupedSchedules = schedules
-        .GroupBy(s => new { s.IdCourse, s.DayOfWeek }) // Agrupamos por Curso y Día
-        .Select(g => new
-        {
+            .GroupBy(s => new { s.IdCourse, s.DayOfWeek }) // Agrupamos por Curso y Día
+            .Select(g => new
+            {
             Course = g.First().Course,
             Classroom = g.First().Classroom, // Asumimos que no cambian de aula tras el receso
             Teacher = g.First().Teacher,
@@ -142,7 +143,7 @@ namespace Asistencia.Services
 
             // Guardamos un ID de referencia para el calendario
             BaseScheduleId = g.First().ScheduleId
-        }).ToList();
+            }).ToList();
 
 
             foreach (var block in groupedSchedules)
@@ -186,6 +187,34 @@ namespace Asistencia.Services
                 }
             }
             return list;
+        }
+        public async Task<bool> RegisterEventAsync(CreateEventDto dto  )
+        {
+            if(dto.StartDateTime >= dto.EndDateTime)
+            {
+                throw new ArgumentException("La fecha de fin debe ser posterior a la fecha de inicio.");
+            }
+            var newEvent = new TeacherEvent
+            {
+                TeacherId = dto.TeacherID,
+                Title = dto.Title,
+                ColorTheme = dto.ColorTheme,
+                IsAllDay = dto.IsAllDay,
+                StartDateTime = dto.StartDateTime,
+                EndDateTime = dto.EndDateTime,
+                Description = dto.Description
+            };
+            try
+            {
+                await _context.TeacherEvents.AddAsync(newEvent);
+                var result = await _context.SaveChangesAsync();
+                return result > 0;
+            }catch(Exception ex)
+            {
+                // Aquí podrías loguear el error o manejarlo según tus necesidades
+                Console.WriteLine($"Error al registrar evento: {ex.Message}");
+                return false;
+            }
         }
     }
 }

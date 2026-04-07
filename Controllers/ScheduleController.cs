@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Asistencia.Services;
+using Asistencia.Models.DTOs;
 namespace Asistencia.Controllers;
 
 public class ScheduleController : Controller
@@ -58,6 +59,31 @@ public class ScheduleController : Controller
     public async Task<IActionResult> GetClassroom()
     {
         return Json(new { data = await _service.GetClassroomAsync() });
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RegisterEvent(CreateEventDto eventDto)
+    {
+        if (!ModelState.IsValid)
+        {
+           return BadRequest(ModelState);
+        }
+        bool success = await _service.RegisterEventAsync(eventDto);
+        if (success)        {
+            return Ok(new 
+                { 
+                    success = true, 
+                    message = "¡La actividad se agendó correctamente!" 
+                });
+        }
+        else
+        {
+            return BadRequest(new 
+                { 
+                    success = false, 
+                    message = "No se pudo registrar la actividad. Verifica las fechas o intenta más tarde." 
+                });
+        }
     }
 }
 
