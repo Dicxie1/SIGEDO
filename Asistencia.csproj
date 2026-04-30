@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <Folder Include="Views\Home\Error\" />
+    <Folder Include="wwwroot\lib\signalr\" />
   </ItemGroup>
 
 </Project>

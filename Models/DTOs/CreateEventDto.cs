@@ -25,4 +25,7 @@ public class CreateEventDto
 
     [StringLength(1000, ErrorMessage = "La descripción no puede exceder los 1000 caracteres.")]
     public string? Description { get; set; }
+    public bool IsRecurring { get; set; }
+    public List<DayOfWeek> RecurringDays { get; set; } = new List<DayOfWeek>();
+    public DateTime? RecurrenceEndDate { get; set; }
 }

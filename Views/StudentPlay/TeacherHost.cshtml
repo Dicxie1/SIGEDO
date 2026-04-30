@@ -41,10 +41,15 @@
             opacity: 1;
         }
     }
+
+    #gameScreen, interimScreen {
+        width: 100%;
+        height: auto;
+    }
     
 </style>
 
-<div class="container-fluid vh-100 d-flex flex-column">
+<div class="container-fluid vh-100 d-flex flex-column overflow-y-auto overflow-x-hidden">
     <button id="btnEndGameEarly" class="btn btn-danger shadow position-fixed bottom-0 start-0  m-4 rounded-pill px-4 fw-bold" style="z-index: 1050;" onclick="confirmarFinPartida()">
         <i class="fas fa-stop-circle me-2"></i> Finalizar Partida
     </button>
@@ -75,19 +80,19 @@
 
     <div id="gameScreen" class="d-none flex-grow-1 d-flex flex-column">
 
-        <div class="d-flex justify-content-between p-4 bg-white shadow-sm mb-4">
-            <h3 class="fw-bold text-primary m-0">Pregunta <span id="currentQuestionNum">1</span> de <span id="totalQuestionsNum">?</span></h3>
+        <div class="d-flex justify-content-between p-4 bg-white shadow-sm mb-4 flex-shrink-0">
+            <h4 class="fw-bold text-primary m-0">Pregunta <span id="currentQuestionNum">1</span> de <span id="totalQuestionsNum">?</span></h4>
             <div class="fs-4 fw-bold text-danger"><i class="fas fa-clock"></i> <span id="timerDisplay">20</span>s</div>
         </div>
 
-        <div class="text-center flex-grow-1">
-            <h1 class="display-3 fw-bold px-5" id="questionText">¿Cargando pregunta...?</h1>
+        <div class="text-center mb-3 flex-shrink-0">
+            <h1 class="display-5 fw-bold px-5 text-break" style="line-height: 1.3;" id="questionText">¿Cargando pregunta...?</h1>
 
-            <div class="mt-5 fs-2 fw-bold text-muted">
+            <div class="mt-4 fs-2 fw-bold text-muted">
                 Respuestas recibidas: <span id="answersCount" class="text-dark fs-1">0</span> / <span id="totalPlayersGame">0</span>
             </div>
         </div>
-        <div id="optionsContainer" class="row g-3 mt-4">
+        <div id="optionsContainer" class="row g-3 px-4 pb-4 mb-auto">
         </div>
         <div class="d-none p-4 bg-light text-end border-top">
             <button id="" class="btn btn-primary btn-lg fw-bold px-5" onclick="">
@@ -105,10 +110,10 @@
             
             <h3 class="text-muted fw-bold mb-4" id="interimQuestionText">¿Cargando pregunta...?</h3>
 
-            <div class="card border-0 shadow-lg rounded-4 mb-5" style="max-width: 700px; width: 100%; background-color: #26890C; color: white;">
+            <div class="card border-0 shadow-lg rounded-4 mb-2" style="max-width: 700px; width: 100%; background-color: #26890C; color: white;">
                 <div class="card-body p-5">
                     <p class="text-uppercase fw-bold mb-2 opacity-75 small"><i class="fas fa-star text-warning"></i> Respuesta Correcta <i class="fas fa-star text-warning"></i></p>
-                    <h1 class="display-4 fw-bold" id="interimCorrectAnswerText">Cargando respuesta...</h1>
+                    <h6 id="interimCorrectAnswerText">Cargando respuesta...</h6>
                 </div>
             </div>
 
@@ -180,7 +185,6 @@
     </div>
 </div>
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
 
     <script>
         // Obtenemos el PIN desde el modelo de C#
@@ -201,7 +205,17 @@
         console.log("El navegador bloqueó el sonido automático hasta que el profe haga clic en la pantalla", err);
             });
         });
+        let prevenirSalida = false;
 
+        window.addEventListener('beforeunload', function (e) {
+            // Si el juego está activo, lanzamos la advertencia del navegador
+            if (prevenirSalida) {
+                // Cancelar el evento por defecto
+                e.preventDefault();
+                // Chrome requiere que se establezca el returnValue
+                e.returnValue = '';
+            }
+        });
         // 2. CREAR LA CONEXIÓN AL HUB
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/quizHub") // La ruta que registraste en Program.cs
@@ -283,6 +297,8 @@
             document.getElementById('interimScreen').classList.add('d-none');
         }
         connection.on("LoadQuestionUI", function (questionData) {
+            console.log("Datos de la pregunta recibidos:", questionData);
+            console.log("Cantidad de opciones:", questionData.options ? questionData.options.length : "Opciones es NULO");
 
             // A. Transición de pantallas: Ocultamos Lobby, Mostramos Juego
             document.getElementById("lobbyScreen").classList.replace("d-flex", "d-none");
@@ -306,15 +322,18 @@
             const iconClasses = ["fa-play fa-rotate-270", "fa-square fa-rotate-45", "fa-circle", "fa-square"];
                 questionData.options.forEach((opt, index) => {
             // Creamos la tarjeta para cada opción
-            const optionHtml = `
-                <div class="col-md-6">
-                    <div class="card shadow-sm border-0 option-card" id="option-${index}" data-correct="${opt.isCorrect}" style="background-color: ${opt.colorCode}; color: white; min-height: 100px; display: flex; align-items: center; justify-content: start; padding: 20px; font-size: 1.5rem; border-radius: 12px; transition: opacity 0.5s;">
-                        <i class="fas ${iconClasses[index]} me-4 fs-2"></i>
-                        <span class="fw-bold">${opt.text}</span>
-                        <i class="fas fa-check-circle ms-auto fs-1 d-none correct-icon"></i>
-                    </div>
-                </div>
-            `;
+        const optionHtml = `
+        <div class="col-md-6 d-flex align-items-stretch">
+        <div class="card shadow-sm border-0 option-card w-100" id="option-${index}" data-correct="${opt.isCorrect}" style="background-color: ${opt.colorCode}; color: white; min-height: 100px; display: flex; flex-direction: row; align-items: center; justify-content: start; padding: 20px; font-size: 1.5rem; border-radius: 12px; transition: opacity 0.5s;">
+                        
+        <i class="fas ${iconClasses[index]} me-4 fs-2 flex-shrink-0"></i>
+                        
+        <span class="fw-bold flex-grow-1 text-start" style="white-space: normal; word-break: break-word; line-height: 1.3;">${opt.text}</span>
+                        
+        <i class="fas fa-check-circle ms-3 fs-1 d-none correct-icon flex-shrink-0"></i>
+        </div>
+        </div>
+        `;
             optionsContainer.insertAdjacentHTML('beforeend', optionHtml);
         });
 
@@ -501,51 +520,6 @@
             document.getElementById("leaderboardScreen").classList.remove("d-none");
             document.getElementById("leaderboardScreen").classList.add("d-flex");
         }
-        function confirmarFinPartida() {
-        Swal.fire({
-        title: '¿Terminar la partida ahora?',
-        text: "Esto cerrará la sesión inmediatamente para todos los estudiantes conectados. Los puntajes hasta el momento se guardarán.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#E21B3C', // Rojo para acción destructiva
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: '<i class="fas fa-power-off me-1"></i> Sí, finalizar',
-        cancelButtonText: 'Cancelar'
-        }).then((result) => {
-        if (result.isConfirmed) {
-            
-        // 1. (Opcional pero brutal) Avisar a los teléfonos de los estudiantes por SignalR
-        // connection.invoke("EndGameEarly", pinSala).catch(err => console.error(err));
-
-        // 2. Crear el formulario dinámico para enviarlo al Controlador
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '@Url.Action("EndGameSession", "Quiz")';
-
-        // 3. Capturar el token de seguridad de ASP.NET Core
-        const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
-        if(tokenElement) {
-        const tokenInput = document.createElement('input');
-        tokenInput.type = 'hidden';
-        tokenInput.name = '__RequestVerificationToken';
-        tokenInput.value = tokenElement.value;
-        form.appendChild(tokenInput);
-        }
-
-        // 4. Agregar el PIN
-        const pinInput = document.createElement('input');
-        pinInput.type = 'hidden';
-        pinInput.name = 'pin';
-        pinInput.value = pinSala;
-        form.appendChild(pinInput);
-
-        // 5. Enviar y redirigir
-        document.body.appendChild(form);
-        form.submit();
-        }
-        });
-        }
-
         function confirmarFinPartida() {
         Swal.fire({
         title: '¿Terminar la partida ahora?',
