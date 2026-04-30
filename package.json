@@ -1,0 +1,27 @@
+{
+  "name": "sigedo",
+  "version": "1.0.0",
+  "description": "Una solución web integral construida con **ASP.NET Core** para la gestión de planificación académica universitaria. Este proyecto se especializa en la creación dinámica de **Syllabus (Planificaciones Didácticas)**, seguimiento de avance programático e integración con documentos externos.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dicxie1/SIGEDO.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Dicxie1/SIGEDO/issues"
+  },
+  "homepage": "https://github.com/Dicxie1/SIGEDO#readme",
+  "dependencies": {
+    "@microsoft/signalr": "^10.0.0"
+  }
+}

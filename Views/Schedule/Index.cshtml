@@ -4,14 +4,46 @@
 @{
     ViewData["Title"] = "Mi Agenda y Eventos";
 }
-<div class="row mt-3">
-    <div class="col-lg-3 mb-4">
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center px-4 py-3 border-bottom bg-white shadow-sm">
+    
+    <div class="d-flex align-items-center gap-3">
+        <a asp-action="Admin" class="btn btn-light border-0 rounded-circle text-muted" aria-label="Volver a Administración" title="Volver">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h2 class="h4 mb-0 fw-bold text-dark">Gestión de Eventos</h2>
+    </div>
+
+    <div class="btn-toolbar">
+        <button class="btn btn-sm btn-primary fw-bold shadow-sm px-3 " data-bs-toggle="modal" data-bs-target="#addEventModal">
+            <i class="fas fa-plus me-2"></i>Nuevo Evento
+        </button>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-12 col-md-6 col-lg-5">
+        <div class="bg-white p-2 shadow-sm border d-flex align-items-center">
+            
+            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2 text-primary" style="width: 40px; height: 40px; min-width: 40px;">
+                <i class="fas fa-search"></i>
+            </div>
+            
+            <div class="flex-grow-1 pe-2">
+                <select class="form-select border-0 shadow-none fw-bold text-dark cursor-pointer" id="teacherSearchFilter" name="teacherId">
+                    <option value="all" selected>Ver todos los docentes</option>
+                    <option value="1">Msc. Dicxie Madrigal</option>
+                    <option value="2">Ing. Ana Martínez</option>
+                    <option value="3">Lic. Carlos Silva</option>
+                </select>
+            </div>
+            
+        </div>
+    </div>
+</div>       
+<div class="row mt-2">
+    <div class="col-lg-3 mb-4 d-none d-lg-block">
         <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body p-4">
-                <button class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm mb-4" data-bs-toggle="modal" data-bs-target="#addEventModal">
-                    <i class="fas fa-plus me-2"></i> Nuevo Evento
-                </button>
-                
                 <h6 class="fw-bold text-dark mb-3">Simbología</h6>
                 <div class="d-flex align-items-center mb-2 small">
                     <span class="badge bg-primary p-2 rounded-circle me-2"> </span> Clases Regulares
@@ -34,11 +66,10 @@
         </div>
     </div>
 </div>
-
+<!--Add Event Modal -->
 <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
-            
             <div class="modal-header border-bottom px-4 pt-4 pb-3 bg-white">
                 <h5 class="modal-title fw-bold text-dark">
                     <i class="fas fa-calendar-plus text-primary me-2"></i><span id="modalNewEventTitle">Registrar Actividad</span> 
@@ -46,19 +77,34 @@
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <form asp-action="CreateEvent" asp-controller="Agenda" method="post">
+            <form asp-action="RegisterEvent" asp-controller="Schedule" method="post">
                 <div class="modal-body p-4 bg-light">
-                    
-                    <div class="mb-4">
-                        <label class="form-label text-muted small fw-bold mb-1">Título del Evento</label>
-                        <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
-                            <span class="input-group-text bg-white border-0 text-muted ps-3">
-                                <i class="fas fa-heading"></i>
-                            </span>
-                            <input type="text" name="Title" class="form-control border-0 py-2 px-1" required placeholder="Ej. Revisión de Proyectos Arduino">
+                    <div class="row">
+                        <div class="col-md-6">
+                           <div class="mb-4">
+                                <label class="form-label text-muted small fw-bold mb-1">Título del Evento</label>
+                                <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                                    <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                        <i class="fas fa-heading"></i>
+                                    </span>
+                                    <input type="text" name="Title" class="form-control border-0 py-2 px-1" required placeholder="Ej. Revisión de Proyectos Arduino">
+                                </div>
+                            </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label text-muted small fw-bold mb-1">Profesor</label>
+                                <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden p-2">
+                                    <span class="input-group-text bg-white border-0 text-muted ps-3" >
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <select name="TeacherID" id="teacherSelect" class="form-select border-0 py-2 px-1" required style="width: 85%;">
+                                        <option value="">Buscar Profesor...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>    
                     </div>
-
                     <div class="row g-4 mb-4 align-items-center">
                         <div class="col-md-6">
                             <label class="form-label text-muted small fw-bold mb-1">Categoría</label>
@@ -80,7 +126,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="form-label text-muted small fw-bold mb-1">Inicio</label>
@@ -101,7 +146,29 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mb-4 border rounded-3 p-3 bg-white shadow-sm">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="isRecurringCheck" name="IsRecurring" value="true" onchange="toggleRecurrenceUI()">
+                            <label class="form-check-label fw-bold text-dark" for="isRecurringCheck">
+                                <i class="fas fa-redo text-primary me-1"></i> Este evento se repite semanalmente
+                            </label>
+                        </div>
 
+                        <div id="recurrenceOptions" class="d-none mt-3 border-top pt-3">
+                            <label class="form-label text-muted small fw-bold mb-2">Días que se repite</label>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="1" id="day1"><label class="form-check-label small" for="day1">Lun</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="2" id="day2"><label class="form-check-label small" for="day2">Mar</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="3" id="day3"><label class="form-check-label small" for="day3">Mié</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="4" id="day4"><label class="form-check-label small" for="day4">Jue</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="5" id="day5"><label class="form-check-label small" for="day5">Vie</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="6" id="day6"><label class="form-check-label small" for="day6">Sáb</label></div>
+                            </div>
+
+                            <label class="form-label text-muted small fw-bold mb-1">Repetir hasta la fecha</label>
+                            <input type="date" name="RecurrenceEndDate" class="form-control border shadow-sm">
+                        </div>
+                    </div>
                     <div class="mb-4">
                         <label class="form-label text-muted small fw-bold mb-1">Ubicación / Enlace Virtual</label>
                         <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
@@ -135,7 +202,7 @@
     </div>
 </div>
 
-<!--Modal -->
+<!--View Details Event Modal -->
 <div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
@@ -146,7 +213,7 @@
             <div class="modal-body pt-3">
                 <div class="d-flex align-items-center mb-3">
                     <div class="bg-light rounded-circle p-2 text-center me-3" style="width: 45px; height: 45px;">
-                        <i class="far fa-clock text-muted fs-5 mt-1"></i>
+                        <i class="far fa-clock text-primary fs-5 mt-1"></i>
                     </div>
                     <div>
                         <p class="mb-0 small fw-bold text-muted">Horario</p>
@@ -156,7 +223,7 @@
 
                 <div class="d-flex align-items-center mb-3">
                     <div class="bg-light rounded-circle p-2 text-center me-3" style="width: 45px; height: 45px;">
-                        <i class="fas fa-map-marker-alt text-muted fs-5 mt-1"></i>
+                        <i class="fas fa-map-marker-alt  text-primary fs-5 mt-1"></i>
                     </div>
                     <div>
                         <p class="mb-0 small fw-bold text-muted">Aula / Laboratorio</p>
@@ -166,21 +233,173 @@
 
                 <div class="d-flex align-items-center mb-2">
                     <div class="bg-light rounded-circle p-2 text-center me-3" style="width: 45px; height: 45px;">
-                        <i class="fas fa-chalkboard-teacher text-muted fs-5 mt-1"></i>
+                        <i class="fas fa-chalkboard-teacher text-primary fs-5 mt-1"></i>
                     </div>
                     <div>
                         <p class="mb-0 small fw-bold text-muted">Docente Titular</p>
                         <p class="mb-0 text-dark" id="modalEventTeacher">Dicxie Madrigal</p>
                     </div>
                 </div>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-light rounded-circle p-2 text-center me-3" style="width: 45px; height: 45px;">
+                        <i class="fas fa-circle-info  text-primary fs-5 mt-1"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 small fw-bold text-muted">Descripción</p>
+                        <p class="mb-0 text-dark" id="modalEventDescription">No hay descricipción</p>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-outline-danger rounded-pill" id="btnDeleteEvent">
+                    <i class="fas fa-trash-alt me-1"></i> Eliminar
+                </button>
+                <button type="button" class="btn btn-info rounded-pill px-4" id="btnEditEvent"> <i class="fas fa-pen"></i> Modificar</button>
                 <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
+<!--Edit Event Modal -->
+<div class="modal fade" id="editEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+            
+            <div class="modal-header border-bottom px-4 pt-4 pb-3 bg-white">
+                <h5 class="modal-title fw-bold text-dark">
+                    <i class="fas fa-pen text-warning me-2"></i>Editar Actividad
+                </h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+            </div>
 
+            <form id="editEventForm">
+                <input type="hidden" id="edit_EventId" name="TeacherEventId">
+                <div class="modal-body p-4 bg-light">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label text-muted small fw-bold mb-1">Título del Evento</label>
+                                <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                                    <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                        <i class="fas fa-heading"></i>
+                                    </span>
+                                    <input type="text" name="Title" id="edit_Title" class="form-control border-0 py-2 px-1" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label text-muted small fw-bold mb-1">Profesor</label>
+                                <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden p-2">
+                                    <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <select name="TeacherID" id="edit_teacherSelect" class="form-select border-0 py-2 px-1" required style="width: 85%;">
+                                        <option value="">Buscar Profesor...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label text-muted small fw-bold mb-1">Categoría</label>
+                                <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                                    <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                        <i class="fas fa-tag"></i>
+                                    </span>
+                                    <select name="ColorTheme" id="edit_ColorTheme" class="form-select border-0 py-2 px-1">
+                                        <option value="#198754">Reunión</option>
+                                        <option value="#ffc107">Capacitación</option>
+                                        <option value="#6c757d">Otro</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-md-4 pt-md-1 ms-2">
+                                <input class="form-check-input shadow-sm" type="checkbox" id="edit_allDayCheck" name="IsAllDay" value="true" style="transform: scale(1.2);">
+                                <label class="form-check-label text-dark small fw-bold ms-2 mt-1" for="allDayCheck">Este evento dura todo el día</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold mb-1">Inicio</label>
+                            <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                                <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                    <i class="far fa-clock text-primary"></i>
+                                </span>
+                                <input type="datetime-local" name="StartDateTime" id="edit_Start" class="form-control border-0 py-2 px-1" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold mb-1">Fin</label>
+                            <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                                <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                    <i class="far fa-clock text-danger"></i>
+                                </span>
+                                <input type="datetime-local" name="EndDateTime" id="edit_End" class="form-control border-0 py-2 px-1" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4 border rounded-3 p-3 bg-white shadow-sm">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="edit_isRecurringCheck" name="IsRecurring" value="true" onchange="toggleEditRecurrenceUI()">
+                            <label class="form-check-label fw-bold text-dark" for="edit_isRecurringCheck">
+                                <i class="fas fa-redo text-primary me-1"></i> Convertir en evento recurrente
+                            </label>
+                        </div>
+
+                        <div id="edit_recurrenceOptions" class="d-none mt-3 border-top pt-3">
+                            <label class="form-label text-muted small fw-bold mb-2">Días que se repite</label>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="1" id="edit_day1"><label class="form-check-label small" for="edit_day1">Lun</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="2" id="edit_day2"><label class="form-check-label small" for="edit_day2">Mar</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="3" id="edit_day3"><label class="form-check-label small" for="edit_day3">Mié</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="4" id="edit_day4"><label class="form-check-label small" for="edit_day4">Jue</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="5" id="edit_day5"><label class="form-check-label small" for="edit_day5">Vie</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="RecurringDays" value="6" id="edit_day6"><label class="form-check-label small" for="edit_day6">Sáb</label></div>
+                            </div>
+
+                            <label class="form-label text-muted small fw-bold mb-1">Repetir hasta la fecha</label>
+                            <input type="date" name="RecurrenceEndDate" id="edit_RecurrenceEndDate" class="form-control border shadow-sm">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold mb-1">Ubicación / Enlace Virtual</label>
+                        <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                            <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </span>
+                            <input type="text" name="Location" id="edit_Location" class="form-control border-0 py-2 px-1">
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label text-muted small fw-bold mb-1">Notas o Descripción</label>
+                        <div class="input-group input-group-depth border rounded-3 bg-white shadow-sm overflow-hidden">
+                            <span class="input-group-text bg-white border-0 text-muted ps-3 align-items-start pt-3">
+                                <i class="fas fa-align-left"></i>
+                            </span>
+                            <textarea name="Description" id="edit_Description" class="form-control border-0 py-2 px-1" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="modal-footer border-top bg-white px-4 py-3">
+                    <button type="button" class="btn btn-light rounded-pill fw-bold px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm text-dark">
+                        <i class="fas fa-save me-2"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @section Scripts{
     <style>
     .input-group-depth:focus-within {
@@ -191,19 +410,56 @@
         box-shadow: none !important;
         border-color: transparent !important;
     }
+    /* Ajustes para fusionar Select2 con nuestro diseño "rounded-pill" de Bootstrap */
+.select2-container--default .select2-selection--single {
+    border: none !important; /* Quitamos el borde por defecto de Select2 */
+    background-color: transparent; /* Heredamos el fondo blanco del contenedor */
+    height: auto;
+    outline: none !important;
+}
+
+/* Ajustamos el texto para que coincida con el fw-bold text-dark */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    font-weight: 700; 
+    color: #212529; 
+    padding-left: 0;
+    line-height: 1.5;
+}
+
+/* Centramos la flechita desplegable */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100%;
+    top: 0;
+}
+
+/* Evitamos que aparezca un recuadro negro o azul al hacer foco */
+.select2-container--default.select2-container--focus .select2-selection--single {
+    border: none !important;
+    box-shadow: none !important;
+}
 </style>
     <script>
+        let currentSelectedEvent = null;
         const calendarEl = document.getElementById('calendar');
         let calendar; 
         const allDayToggle = document.getElementById('allDayCheck');
         const startInput = document.querySelector('input[name="StartDateTime"]');
         const endInput = document.querySelector('input[name="EndDateTime"]');
-
+        const formElement = document.querySelector('#addEventModal form');
+        const btnEditEventModal = document.getElementById('btnEditEvent');
         document.addEventListener('DOMContentLoaded', function() {
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView : "dayGridMonth",
                 selectable: true,
                 selectMirror: true,
+                nowIndicator: true,
+                slotDuration: '00:45:00',
+                slotLabelInterval: '01:00:00',
+                slotLabelFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true // Cambia a true para formato AM/PM
+                },
                 height: "650px",
                 headerToolbar: {
                     left: 'prev,next today', // Botones de navegación
@@ -212,12 +468,12 @@
                 },
                 events: async function(fetchInfo, successCallback, failureCallback) {
                     const events = await fetchEvents();
-                    successCallback(events.data);
+                    successCallback(events.data || events);
                 },
                 eventClick: function(info) {
                     // 1. Prevenir la acción por defecto por si el evento tuviera una URL
                     info.jsEvent.preventDefault();
-                
+                    currentSelectedEvent = info.event;
                     // 2. Extraer el objeto del evento presionado
                     const evento = info.event;
 
@@ -233,58 +489,69 @@
                     // Usamos extendedProps para acceder a los datos extra que mandaste desde C#
                     document.getElementById('modalEventClassroom').textContent = evento.extendedProps.classroom || 'No asignada';
                     document.getElementById('modalEventTeacher').textContent = evento.extendedProps.teacher || 'Sin asignar';
+                    document.getElementById('modalEventDescription').textContent = evento.extendedProps.description || 'Sin Descripcion';
+                    const btnEdit = document.getElementById('btnEditEvent');
+                    const btnDelete = document.getElementById('btnDeleteEvent');
+    
+                    if(currentSelectedEvent.id.startsWith('sch-')) {
+                        btnEdit.classList.add('d-none');
+                        btnDelete.classList.add('d-none');
+                    } else {
+                        btnEdit.classList.remove('d-none');
+                        btnDelete.classList.remove('d-none');
+                    }
 
                     // 5. Instanciar y mostrar el Modal de Bootstrap
                     const modal = new bootstrap.Modal(document.getElementById('eventDetailModal'));
                     modal.show();
                 },
                 dateClick: function(dateClickInfo) {
-               // 1. Identificar si el clic fue en un día entero (vista mes) o en una hora específica (vista semana/día)
-    let fechaInicioStr = "";
-    let fechaFinStr = "";
-    const isAllDay = !dateClickInfo.dateStr.includes('T');
+                    // 1. Identificar si el clic fue en un día entero (vista mes) o en una hora específica (vista semana/día)
+                    let fechaInicioStr = "";
+                    let fechaFinStr = "";
+                    const isAllDay = !dateClickInfo.dateStr.includes('T');
 
-    if (isAllDay) {
-        // Clic en la vista de mes (ej. "2026-04-06")
-        // Asignamos una hora por defecto para que el input datetime-local no falle, ej: 08:00 AM
-        fechaInicioStr = `${dateClickInfo.dateStr}T08:00`;
-        fechaFinStr = `${dateClickInfo.dateStr}T10:00`; 
+                    if (isAllDay) {
+                        // Clic en la vista de mes (ej. "2026-04-06")
+                        // Asignamos una hora por defecto para que el input datetime-local no falle, ej: 08:00 AM
+                        fechaInicioStr = `${dateClickInfo.dateStr}T08:00`;
+                        fechaFinStr = `${dateClickInfo.dateStr}T10:00`; 
         
-        // Marcamos el checkbox de "Todo el día" automáticamente
-        document.getElementById('allDayCheck').checked = true;
-    } else {
-        // Clic en la vista de agenda con hora (ej. "2026-04-06T10:30:00-06:00")
-        // Cortamos los primeros 16 caracteres para obtener el formato exacto "YYYY-MM-DDTHH:mm"
-        fechaInicioStr = dateClickInfo.dateStr.substring(0, 16);
+                        // Marcamos el checkbox de "Todo el día" automáticamente
+                        document.getElementById('allDayCheck').checked = true;
+                    } else {
+                        // Clic en la vista de agenda con hora (ej. "2026-04-06T10:30:00-06:00")
+                        // Cortamos los primeros 16 caracteres para obtener el formato exacto "YYYY-MM-DDTHH:mm"
+                        fechaInicioStr = dateClickInfo.dateStr.substring(0, 16);
 
-        // Para la fecha de fin, le sumamos 1 hora por defecto a la fecha de inicio
-        let endDate = new Date(dateClickInfo.date);
-        endDate.setHours(endDate.getHours() + 1);
+                        // Para la fecha de fin, le sumamos 1 hora por defecto a la fecha de inicio
+                        let endDate = new Date(dateClickInfo.date);
+                        endDate.setHours(endDate.getHours() + 1);
         
-        // Ajuste de zona horaria para formatear correctamente la nueva fecha a ISO local
-        let tzOffset = endDate.getTimezoneOffset() * 60000;
-        fechaFinStr = (new Date(endDate - tzOffset)).toISOString().slice(0, 16);
+                        // Ajuste de zona horaria para formatear correctamente la nueva fecha a ISO local
+                        let tzOffset = endDate.getTimezoneOffset() * 60000;
+                        fechaFinStr = (new Date(endDate - tzOffset)).toISOString().slice(0, 16);
         
-        // Desmarcamos "Todo el día"
-        document.getElementById('allDayCheck').checked = false;
-    }
+                        // Desmarcamos "Todo el día"
+                        document.getElementById('allDayCheck').checked = false;
+                    }
 
-    // 2. Seleccionar el modal para acotar las búsquedas de elementos
-    const modalElement = document.getElementById('addEventModal');
+                    // 2. Seleccionar el modal para acotar las búsquedas de elementos
+                    const modalElement = document.getElementById('addEventModal');
 
-    // 3. Limpiar el formulario (por si el usuario lo abrió antes y lo cerró sin guardar)
-    modalElement.querySelector('input[name="Title"]').value = '';
-    modalElement.querySelector('input[name="Location"]').value = '';
-    modalElement.querySelector('textarea[name="Description"]').value = '';
-    modalElement.querySelector('select[name="ColorTheme"]').value = '#198754'; // Reset a la primera opción
+                    // 3. Limpiar el formulario (por si el usuario lo abrió antes y lo cerró sin guardar)
+                    modalElement.querySelector('input[name="Title"]').value = '';
+                    modalElement.querySelector('input[name="Location"]').value = '';
+                    modalElement.querySelector('textarea[name="Description"]').value = '';
+                    modalElement.querySelector('select[name="ColorTheme"]').value = '#198754'; // Reset a la primera opción
 
-    // 4. Inyectar las fechas calculadas en los inputs
-    modalElement.querySelector('input[name="StartDateTime"]').value = fechaInicioStr;
-    modalElement.querySelector('input[name="EndDateTime"]').value = fechaFinStr;
+                    // 4. Inyectar las fechas calculadas en los inputs
+                    modalElement.querySelector('input[name="StartDateTime"]').value = fechaInicioStr;
+                    modalElement.querySelector('input[name="EndDateTime"]').value = fechaFinStr;
 
-    // 5. Instanciar y mostrar el Modal de Bootstrap
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
+                    // 5. Instanciar y mostrar el Modal de Bootstrap
+                    const modal = new bootstrap.Modal(modalElement);
+                    modal.show();
                 }
             });
             calendar.setOption('locale', 'es');
@@ -309,37 +576,337 @@
                     endInput.value = '';
                 }
             });
-        });
-        const fetchEvents = async () => {
-        try {
-        const response = await fetch('@Url.Action("GetClassroom", "Schedule")',
-            {
-                method: "GET",
-                headers: {
-                    'Content-Type': 'application/json'
+            formElement.addEventListener('submit', async function(event) {
+                // 1. PREVENIR LA RECARGA DE LA PÁGINA
+                event.preventDefault();
+                const isRecurring = document.getElementById('isRecurringCheck').checked;
+                if (isRecurring) {
+                    const checkedDays = formElement.querySelectorAll('input[name="RecurringDays"]:checked');
+                    if (checkedDays.length === 0) {
+                        Swal.fire('Atención', 'Debes seleccionar al menos un día de la semana para repetir la actividad.', 'warning');
+                        return;
+                    }
+                }
+                // 2. Preparar el botón de guardado (Feedback visual)
+                const submitBtn = formElement.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
+                submitBtn.disabled = true;
+
+                // 3. Empaquetar los datos del formulario
+                // FormData captura automáticamente todos los inputs con atributo 'name'
+                // ¡Incluyendo el token de seguridad oculta (__RequestVerificationToken)!
+                const formData = new FormData(formElement);
+
+                try {
+                    // 4. Enviar la petición al backend usando Fetch API
+                    const response = await fetch(formElement.action, {
+                        method: formElement.method, // POST
+                        body: formData // ASP.NET Core entiende esto nativamente
+                    });
+
+                    // 5. Evaluar la respuesta del servidor
+                    if (response.ok) {
+                        // El backend devolvió un código 200 (Éxito)
+                
+                        // A) Cerrar el modal
+                        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('addEventModal'));
+                        modalInstance.hide();
+
+                        // B) Mostrar mensaje de éxito (Aquí podrías usar SweetAlert2)
+                        Swal.fire('¡Actividad registrada con éxito!');
+
+                        // C) Recargar los eventos en FullCalendar SIN recargar la página
+                        // Asumiendo que tu variable global de FullCalendar se llama 'calendar'
+                        if (typeof calendar !== 'undefined') {
+                            calendar.refetchEvents(); 
+                        }
+                    } else {
+                        // El backend devolvió un código 400 (Bad Request) o 500 (Error de servidor)
+                        // Aquí el modal SIGUE ABIERTO para que el usuario corrija los datos
+                        const errorData = await response.json();
+                        console.error("Errores de validación:", errorData);
+                        Swal.fire('Ocurrió un error al guardar. Revisa los datos.');
+                    }
+                } catch (error) {
+                    // Error de red (ej. se cayó el internet)
+                    console.error('Error de red:', error);
+                    Swal.fire('Error de conexion','No se pudo conectar con el servidor.', 'error');
+                } finally {
+                    // 6. Restaurar el botón siempre, haya fallado o no
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
                 }
             });
-        if (!response.ok) throw new Error(`HTTP error! status ${response.status}`)
-        const listEvents = await response.json();
-        console.log(listEvents);
-        return listEvents;
-    } catch (ex) {
+        });
+        const fetchEvents = async () => {
+            try {
+                const response = await fetch('@Url.Action("GetClassroom", "Schedule")',
+                    {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                if (!response.ok) throw new Error(`HTTP error! status ${response.status}`)
+                const listEvents = await response.json();
+                console.log(listEvents);
+                return listEvents;
+            } catch (ex) {
                 console.error('Error cargando eventos:', error);
-                return [];
-    }
+                    return [];
+            }
         }
         const addEventModalElement = document.getElementById('addEventModal');
 
-// Escuchamos el evento nativo de Bootstrap que indica que el modal se cerró por completo
-addEventModalElement.addEventListener('hidden.bs.modal', function () {
-    // Buscamos el formulario dentro del modal
-    const form = addEventModalElement.querySelector('form');
+        // Escuchamos el evento nativo de Bootstrap que indica que el modal se cerró por completo
+        addEventModalElement.addEventListener('hidden.bs.modal', function () {
+            // Buscamos el formulario dentro del modal
+            const form = addEventModalElement.querySelector('form');
     
-    if (form) {
-        // El método .reset() devuelve todos los campos a su valor original por defecto,
-        // vaciando los textos y regresando los selects a su primera opción.
-        form.reset();
-    }
-});
+            if (form) {
+                // El método .reset() devuelve todos los campos a su valor original por defecto,
+                // vaciando los textos y regresando los selects a su primera opción.
+                form.reset();
+                // 2. RESTABLECER INTERFAZ DE RECURRENCIA AL CERRAR MODAL
+                document.getElementById('recurrenceOptions').classList.add('d-none');
+                document.querySelector('input[name="RecurrenceEndDate"]').required = false;
+            
+                // Restablecer inputs a datetime-local por defecto
+                startInput.type = 'datetime-local';
+                endInput.type = 'datetime-local';
+                $('#teacherSelect').val(null).trigger('change');
+            }
+        });
+        btnEditEventModal.addEventListener('click', openEditEventModal);
+        function openEditEventModal() {
+            if(!currentSelectedEvent) return;
+
+                // A. Ocultamos el modal de detalles
+                bootstrap.Modal.getInstance(document.getElementById('eventDetailModal')).hide();
+
+                // B. Extraemos el ID numérico (quitando el prefijo "evt-")
+                const realId = currentSelectedEvent.id.replace('evt-', '');
+                document.getElementById('edit_EventId').value = realId;
+
+                // C. Llenamos los datos
+                document.getElementById('edit_Title').value = currentSelectedEvent.title;
+                document.getElementById('edit_ColorTheme').value = currentSelectedEvent.backgroundColor || '#198754';
+                document.getElementById('edit_Description').value = currentSelectedEvent.extendedProps.description || '';
+                document.getElementById('edit_Location').value = currentSelectedEvent.extendedProps.location || '';
+                const teacherId = currentSelectedEvent.extendedProps.teacherId;
+                const teacherName = currentSelectedEvent.extendedProps.teacher;
+                const $editTeacherSelect = $('#edit_teacherSelect');
+                if (teacherId && teacherName) {
+                    // 1. Creamos la opción HTML dinámicamente: new Option("Texto", "Valor", defaultSelected, selected)
+                    const option = new Option(teacherName, teacherId, true, true);
+    
+                    // 2. La inyectamos en el Select2 y disparamos el evento change para que la dibuje
+                    $editTeacherSelect.append(option).trigger('change');
+    
+                    // 3. Forzamos manualmente el trigger de Select2 para que renderice el Avatar correctamente
+                    $editTeacherSelect.trigger({
+                        type: 'select2:select',
+                        params: {
+                            data: { id: teacherId, text: teacherName }
+                        }
+                    });
+                } else {
+                    // Si por alguna razón el evento no tiene profesor, limpiamos el Select2
+                    $editTeacherSelect.val(null).trigger('change');
+                }
+
+                // Formatear fechas para los inputs datetime-local (YYYY-MM-DDTHH:mm)
+                if(currentSelectedEvent.start) {
+                    let startIso = new Date(currentSelectedEvent.start.getTime() - (currentSelectedEvent.start.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+                    document.getElementById('edit_Start').value = startIso;
+                }
+                if(currentSelectedEvent.end) {
+                    let endIso = new Date(currentSelectedEvent.end.getTime() - (currentSelectedEvent.end.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+                    document.getElementById('edit_End').value = endIso;
+                }
+                document.getElementById('edit_isRecurringCheck').checked = false;
+                toggleEditRecurrenceUI();
+
+                // D. Mostramos el nuevo modal
+                const editModal = new bootstrap.Modal(document.getElementById('editEventModal'));
+                editModal.show();
+            }
+            // Función para mostrar/ocultar recurrencia en el modal de EDICIÓN
+            function toggleEditRecurrenceUI() {
+                const isChecked = document.getElementById('edit_isRecurringCheck').checked;
+                const divOptions = document.getElementById('edit_recurrenceOptions');
+                const endDateInput = document.getElementById('edit_RecurrenceEndDate');
+    
+                    if(isChecked) {
+                        divOptions.classList.remove('d-none');
+                        endDateInput.required = true;
+                    } else {
+                        divOptions.classList.add('d-none');
+                        endDateInput.required = false;
+                    }
+                }
+            document.getElementById('editEventForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+    
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
+            submitBtn.disabled = true;
+            // retrive data 
+            const teacherEventId = document.getElementById('edit_EventId').value;
+            const title = document.getElementById('edit_Title').value;
+            const description = document.getElementById('edit_Description').value;
+            const startDateTime = document.getElementById('edit_Start').value;
+            const endDateTime = document.getElementById('edit_End').value;
+            const isAllDay = document.getElementById('edit_allDayCheck').value; 
+            
+            const isRecurringCheck = document.getElementById('edit_isRecurringCheck');
+
+            const formData = new FormData(this);
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            const DataTransfer = {
+                TeacherEventId : teacherEventId,
+                Title: title,
+                StartDateTime : startDateTime,
+                EndDateTime: endDateTime,
+                IsAllDay : isAllDay,
+                IsRecurring : isRecurringCheck
+            }
+             console.log(JSON.stringify(DataTransfer));
+            try {
+                console.log(formData);
+                const response = await fetch('/Schedule/UpdateTeacherEvent', {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': token }, // FormData envía los datos automáticamente
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('editEventModal')).hide();
+                    Swal.fire('¡Actualizado!', 'La actividad ha sido modificada.', 'success');
+                    calendar.refetchEvents(); // Refrescar calendario
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo actualizar.', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Problema de conexión con el servidor.', 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            function formatTeacherOption(teacher) {
+            // 1. Si no hay ID (es el placeholder) o es la opción "Ver todos", lo devolvemos normal
+            if (!teacher.id) { return teacher.text; }
+            if (teacher.id === 'all') { 
+                // Retornamos un objeto jQuery para que Select2 renderice el HTML
+                return $('<span><i class="fas fa-users text-muted me-2"></i>' + teacher.text + '</span>'); 
+            }
+
+            // 2. Limpiar el nombre de títulos académicos comunes para las iniciales
+            // Esta Regex busca "Msc.", "Ing.", "Lic.", etc. al inicio del texto y lo elimina
+            let cleanName = teacher.text.replace(/^(Msc\.|Ing\.|Lic\.|Dr\.|Arq\.)\s+/i, '').trim();
+        
+            // 3. Extraer las iniciales (primera y segunda palabra del nombre limpio)
+            let words = cleanName.split(' ');
+            let initials = '';
+            if (words.length > 0) initials += words[0].charAt(0).toUpperCase();
+            if (words.length > 1) initials += words[1].charAt(0).toUpperCase();
+
+            // 4. Construir el HTML usando clases de Bootstrap para el "avatar"
+            // NOTA DE SEGURIDAD: Select2 requiere que devolvamos un objeto jQuery $(...) 
+            // para renderizar HTML. Si devolvemos un string normal, lo escapará (protección XSS).
+            const $optionLayout = $(
+                '<div class="d-flex align-items-center">' +
+                    '<div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-2 fw-bold shadow-sm" style="width: 32px; height: 32px; font-size: 0.85rem;">' + 
+                        initials + 
+                    '</div>' +
+                    '<span class="text-dark fw-semibold">' + teacher.text + '</span>' +
+                '</div>'
+            );
+
+            return $optionLayout;
+            }
+            // 1. Inicializar Select2 en nuestro select
+            $('#teacherSearchFilter').select2({
+                placeholder: "Buscar docente...",
+                width: '100%', // Crucial para que respete el ancho del contenedor de Bootstrap
+                language: {
+                    noResults: function() {
+                        return "No se encontró el docente"; // Mensaje en español
+                    }
+                },
+                templateResult: formatTeacherOption,     // Aplica al desplegable
+                templateSelection: formatTeacherOption   // Aplica al elemento seleccionado
+            });
+
+            // 2. Escuchar el evento de cambio
+            // Nota: Select2 usa su propio evento 'select2:select' en lugar del 'change' nativo
+            $('#teacherSearchFilter').on('select2:select', function (e) {
+                // Obtenemos el ID del docente seleccionado de la data del evento
+                const selectedTeacherId = e.params.data.id;
+        
+                console.log("Se seleccionó el docente con ID:", selectedTeacherId);
+        
+                // Aquí puedes inyectar tu lógica de FullCalendar
+                // Ejemplo:
+                // let urlEventos = '/Schedule/GetEventsByTeacher?teacherId=' + selectedTeacherId;
+                // calendar.removeAllEventSources();
+                // calendar.addEventSource(urlEventos);
+            });
+            $("#teacherSelect").select2({
+            dropdownParent: $('#addEventModal'),
+            placeholder: "Escribir el nombre del Profesor..",
+            allowClear: true,
+            ajax: {
+                url: '@Url.Action("GetTeachers", "Schedule")',
+                dataType: 'json',
+                delay: 250,
+                data: function(params){
+                    return {
+                        term: params.term
+                    };
+                },
+                cache: true
+            },
+             templateResult: formatTeacherOption,     // Aplica al desplegable
+             templateSelection: formatTeacherOption
+        });
+        $("#edit_teacherSelect").select2({
+            dropdownParent: $("#editEventModal"),
+            placeholder: "Escribir el nombre del Profesor..",
+            allowClear: true,
+             ajax: {
+                url: '@Url.Action("GetTeachers", "Schedule")',
+                dataType: 'json',
+                delay: 250,
+                data: function(params){
+                    return {
+                        term: params.term
+                    };
+                },
+                cache: true
+            },
+             templateResult: formatTeacherOption,     // Aplica al desplegable
+             templateSelection: formatTeacherOption
+        });
+        });
+        function toggleRecurrenceUI() {
+            const isChecked = document.getElementById('isRecurringCheck').checked;
+            const divOptions = document.getElementById('recurrenceOptions');
+            if(isChecked) {
+                divOptions.classList.remove('d-none');
+            } else {
+                divOptions.classList.add('d-none');
+            }
+        }
+        
+
     </script>
 }

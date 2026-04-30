@@ -1,3 +1,4 @@
+
 <script>
     
         let currentTotalAllocated = @Model.TotalWeightAllocated;
@@ -395,4 +396,66 @@ function saveTermChanges(){
         }
         );
 }
+    function deleteTerm(idTerm) {
+        Swal.fire({
+            title: '¿Eliminar este corte?',
+            text: "¡Atención! Se eliminará este corte y TODAS las actividades (acumulados y exámenes) asociadas a él. Esta acción no se puede deshacer.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-trash-alt me-2"></i>Sí, eliminar todo',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+            
+                // 1. Mostrar estado de carga para evitar doble clic
+                Swal.fire({
+                    title: 'Eliminando...',
+                    text: 'Por favor espera',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading()
+                    }
+                });
+
+                // 2. Obtener el Token de Seguridad
+                const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                const token = tokenInput ? tokenInput.value : '';
+
+                // 3. Petición Fetch al Backend
+                fetch('@Url.Action("DeleteEvaluationTerm", new { courseid = Model.CourseId })', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify({ TermId: idTerm, CourseId: @Model.CourseId })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Error en la respuesta del servidor");
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Eliminado!',
+                            text: data.message,
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload(); // Recargamos para actualizar las barras de progreso globales
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error Crítico', 'No se pudo conectar con el servidor.', 'error');
+                });
+            }
+        });
+    }
 </script>

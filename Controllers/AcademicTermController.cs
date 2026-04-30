@@ -31,10 +31,11 @@ public class AcademicTermController : Controller
         try
         {
             string message = "";
-            var result =  await _academicTermService.SaveAcademicTerm(model);
+            var result = await _academicTermService.SaveAcademicTerm(model);
             message = result ? "Se ha guardado correctamente el corte/parcial" : "error al guardar el parcial";
             return Json(new { success = true, message });
-        } catch (DbUpdateException ex)
+        }
+        catch (DbUpdateException ex)
         {
             return Json(new { success = false, message = $"{ex.ToJson()}" });
         }
@@ -74,5 +75,25 @@ public class AcademicTermController : Controller
         }
         var result = await _academicTermService.UpdateAcademicTerm(model);
         return Json(new { success = true, message = result });
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteEvaluationTerm([FromBody] DeleteAcademiTerm request)
+    {
+        if (request == null || request.TermId <= 0)
+        {
+            return Json(new { success = false, message = "Datos inválidos." });
+        }
+
+        bool success = await _academicTermService.DeleteTermAsync(request.TermId);
+
+        if (success)
+        {
+            return Json(new { success = true, message = "El corte y sus actividades fueron eliminados correctamente." });
+        }
+        else
+        {
+            return Json(new { success = false, message = "No se pudo eliminar el corte. Es posible que tenga calificaciones registradas o ya no exista." });
+        }
     }
 }

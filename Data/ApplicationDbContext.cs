@@ -33,6 +33,7 @@ public class ApplicationDbContext: IdentityDbContext<ApplicationUser>
     public DbSet<GamePlayer> GamePlayers => Set<GamePlayer>();
     public DbSet<GameSession> GameSessions => Set<GameSession>();
     public DbSet<TeacherEvent> TeacherEvents => Set<TeacherEvent>();
+    public DbSet<Teacher> Teachers => Set<Teacher>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -16,6 +16,14 @@
 
 # archivos de Visual Studio
 .vs/
+.vscode/
+*.sln
+*.csproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.csproj.lscache
 
 # Archivos de Node.js (si aplica)
 node_modules/

@@ -79,5 +79,42 @@ namespace Asistencia.Services
                 return ex.Message;
             }
         }
+        public async Task<bool> DeleteTermAsync(int termId)
+        {
+            try
+            {
+                // 1. Buscamos el corte. 
+                // Usamos .Include() para traer también las actividades (Assignments) y asegurar
+                // que se eliminen correctamente (eliminación en cascada manual/segura).
+                var term = await _context.AcademicTerms
+                    .Include(t => t.Assignments)
+                    .FirstOrDefaultAsync(t => t.TermId == termId);
+
+                if (term == null)
+                {
+                    return false;
+                }
+
+                // 2. Eliminamos las dependencias (si EF no lo hace automáticamente)
+                if (term.Assignments != null && term.Assignments.Any())
+                {
+                    _context.Assignments.RemoveRange(term.Assignments);
+                }
+
+                // 3. Eliminamos el corte
+                _context.AcademicTerms.Remove(term);
+
+                // 4. Guardamos los cambios
+                var result = await _context.SaveChangesAsync();
+
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                // Aquí puedes usar ILogger si lo tienes configurado
+                Console.WriteLine($"Error crítico al eliminar el corte: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

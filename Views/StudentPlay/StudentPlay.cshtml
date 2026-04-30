@@ -17,17 +17,21 @@
 
     .answer-btn {
         width: 100%;
-        height: 100%;
-        min-height: 15vh;
+        height: auto;
+        min-height: 10vh;
         border-radius: 12px;
+        padding: 1.5rem 1rem;
         border: none;
         box-shadow: 0 8px 0px rgba(0,0,0,0.2);
-        font-size: 3rem;
+        font-size: 1.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: transform 0.1s, box-shadow 0.1s;
         cursor: pointer;
+        white-space: normal !important;
+        word-break: break-word;
+        line-height: 1.3;
     }
 
     .answer-btn:active {
@@ -41,10 +45,11 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100vh;
-        width: 100vw;
+        min-height: 100vh;
+        width: 100%;
         padding: 20px;
         text-align: center;
+        overflow-y: auto;
     }
 
     .active-state {
@@ -121,7 +126,7 @@
         // 1. CREAR LA CONEXIÓN A SIGNALR
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/quizHub") // Esta es la ruta que configuraremos en Program.cs
-            .withAutomaticReconnect()
+            .withAutomaticReconnect([0, 2000, 5000, 10000])
             .build();
 
         // -------------------------------------------------------------
@@ -186,17 +191,22 @@
         // -------------------------------------------------------------
         // 3. INICIAR CONEXIÓN Y UNIRSE AL GRUPO
         // -------------------------------------------------------------
-        connection.start().then(function () {
-            console.log("Conectado al Hub. Uniendo a la sala...");
-            
-            // Le decimos al servidor: "Hola, soy estudiante, méteme al grupo de este PIN"
-            connection.invoke("JoinAsStudent", pin, nickname)
-                .catch(err => console.error("Error al unirse: ", err));
-
-        }).catch(function (err) {
-            alert("Error de conexión. Revisa tu internet.");
-            console.error(err.toString());
-        });
+        async function initConexion(){
+            try{
+                await connection.start();
+                try{
+                    await connection.invoke("JoinAsStudent", pin, nickname);
+                    console.log("Estudiante unido a la sala correctamente");
+                }catch(joinErr){
+                    console.error("Error al unirse a la sala ", joinErr);
+                    Swal.fire("No se pudo unir a la sala. Es posible que el juego haya terminado.");
+                }
+            }catch(err){
+                console.error("Error al arrancar. El internet falló antes de entrar.", err);
+                Swal.fire("Error de conexión. Revisa tu internet y vuelve a intentarlo.");
+            }
+        }
+        initConexion();
 
         // -------------------------------------------------------------
         // 4. FUNCIONES DEL ESTUDIANTE (BOTONES)
@@ -233,6 +243,34 @@
         connection.stop().then(function() {
         console.log("Conexión de SignalR cerrada porque el juego terminó.");
         });
+        });
+        // 1. CUANDO SE PIERDE LA CONEXIÓN Y EMPIEZA A INTENTAR
+        connection.onreconnecting(error => {
+            console.warn("Conexión perdida. Intentando reconectar...", error);
+            // Aquí desactivas los botones para que el estudiante no siga enviando respuestas
+            document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = true);
+        // Opcional: Mostrar una alerta flotante o cambiar el estado
+        Swal.fire({ title: 'Reconectando...', text: 'No cierres la app', icon: 'warning', showConfirmButton: false });
+        });
+
+        // 2. CUANDO LOGRA RECONECTARSE CON ÉXITO
+        connection.onreconnected(connectionId => {
+        console.log("¡Reconectado con éxito! Nuevo ID:", connectionId);
+    
+        // Volvemos a habilitar la interfaz
+        document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = false);
+    
+        Swal.close(); // Si usaste SweetAlert, lo cierras aquí
+        });
+
+        // 3. CUANDO SE AGOTAN LOS INTENTOS Y SE RINDE
+        connection.onclose(error => {
+        console.error("Se agotaron los intentos. Conexión cerrada permanentemente.", error);
+    
+        // Mostramos tu pantalla roja de error o redirigimos al menú
+        showState("state-host-ended");
+        document.querySelector("#state-host-ended h1").innerText = "Error de Red";
+        document.querySelector("#state-host-ended p").innerText = "Se perdió la conexión con el servidor de URACCAN.";
         });
     </script>
 }
