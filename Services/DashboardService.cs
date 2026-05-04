@@ -136,30 +136,30 @@ namespace Asistencia.Services
         {
             await Task.Delay(150);
             var today = DateTime.Today;
-            var mockAgenda = new List<WeeklyAgendaViewModel> {
-                new WeeklyAgendaViewModel
+            int daysUntilSunday = ((int)DayOfWeek.Sunday - (int)today.DayOfWeek + 7) % 7;
+            var endOfWeek = today.AddDays(daysUntilSunday).AddDays(1).AddTicks(-1);
+            var teacherEvent = await _context.TeacherEvents
+                .AsNoTracking()
+                .Where(e => e.StartDateTime >= today && e.StartDateTime <= endOfWeek)
+                .ToListAsync();
+            var weekAgenda = teacherEvent
+                .GroupBy(e => e.StartDateTime.Date)
+                .OrderBy(g => g.Key)
+                .Select(group => new WeeklyAgendaViewModel
                 {
-                    Day = today.AddDays(1).DayOfWeek,
-                    Activities = new List<AgendanItemDetailViewModel>
+                    Day = group.Key.DayOfWeek,
+                    Activities = group
+                        .OrderBy(e => e.StartDateTime.TimeOfDay)
+                        .Select(e => new AgendanItemDetailViewModel
                         {
-                            new AgendanItemDetailViewModel
-                            {
-                                Title = "Reunión de Claustro Docente",
-                                Hour = new TimeSpan(9, 0, 0),
-                                Location = "Sala de Reuniones",
-                                Type = AgendaItemType.Meeting
-                            },
-                            new AgendanItemDetailViewModel
-                            {
-                                Title = "Pensamiento Lógico",
-                                Hour = new TimeSpan(13, 0, 0),
-                                Location = "Laboratorio 2",
-                                Type = AgendaItemType.Class
-                            }
-                        }
-                    }
-                };
-            return mockAgenda;
+                            Title = e.Title,
+                            Hour = e.StartDateTime.TimeOfDay,
+                            Location = string.IsNullOrEmpty(e.Description) ? "Por Definir" : e.Description,
+                            Type = MapColorToAgendaType(e.ColorTheme)
+                        }).ToList()
+                }).ToList();
+            
+            return weekAgenda;
         }
         public async Task<CurrentClassViewModel> GetCurrentClassViewModelAsync()
         {
@@ -184,6 +184,16 @@ namespace Asistencia.Services
                    StudentCount = x.Course.Enrollments.Count(e => e.Status == EnrollmentStatus.Active)
                 }).FirstOrDefaultAsync();
             return currentClass;
+        }
+        private AgendaItemType MapColorToAgendaType(string colorTheme)
+        {
+            return colorTheme switch
+            {
+                "#198754" => AgendaItemType.Meeting,  // Verde = Reunión
+                "#ffc107" => AgendaItemType.Meeting,  // Amarillo = Capacitación (Si tienes un Enum de Training, úsalo aquí)
+                "#0d6efd" => AgendaItemType.Class,    // Azul = Clase Regular
+                _ => AgendaItemType.Meeting           // Gris / Otro
+            };
         }
     }
 }
