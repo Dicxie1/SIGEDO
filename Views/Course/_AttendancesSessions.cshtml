@@ -18,6 +18,10 @@
                    class="btn btn-outline-secondary">
                     <i class="fas fa-eye me-2"></i> Vista Previa
                 </a>
+                <a href="@Url.Action("GetExcelBook", "Attendance", new { courseId = Model?.CourseId })"
+                       class="btn btn-success rounded-pill fw-bold shadow-sm">
+                    <i class="fas fa-file-excel me-2"></i>Descargar Sábana (.xlsx)
+                </a>
             </div>
             <div class="card-body">
                 <canvas id="attendanceTrendChart" style="max-height: 300px;"></canvas>
