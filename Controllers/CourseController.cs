@@ -305,6 +305,9 @@ public class CourseController : Controller
         //return File(stream, "application/pdf", pdfFileName);
         return File(file, "application/pdf");
     }
+
+    
+
     [HttpPost]
     public async Task<JsonResult> RegisterCourse([FromBody] CourseRegistrationDto model)
     {

@@ -1,5 +1,8 @@
 using Asistencia.Data;
+using Asistencia.Documents.Gradebook;
+using Asistencia.Models;
 using Asistencia.Models.ViewModels;
+using Asistencia.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 namespace Asistencia.Controllers;
@@ -7,9 +10,11 @@ namespace Asistencia.Controllers;
 public class AttendanceController: Controller
 {
     private readonly ApplicationDbContext _context;
-    public AttendanceController(ApplicationDbContext context)
+    private readonly IWebHostEnvironment _env;
+    public AttendanceController(ApplicationDbContext context, IWebHostEnvironment env)
     {
         _context = context;
+        _env = env;
     }
     [HttpPost]
     public IActionResult SavaSudentesAttendances()
@@ -196,6 +201,16 @@ public class AttendanceController: Controller
         {
             return Json(new { success = false, message = "Error al actualizar: " + ex.Message });
         }
+    }
+    [HttpGet]
+    public async Task<IActionResult> GetExcelBook(int courseid)
+    {
+        if (courseid == 0) return NoContent();
+        var service = new AttendanceService(_context, _env);
+        var document =  await service.GetAttendanceExcelAsync(courseid);
+        string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        string fileName = $"Sabana_Asistencia_Curso_{courseid}_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+        return File(document, contentType, fileName);
     }
     public async Task<int> AttendancePercentageAsync(int enrollmentId)
     {
