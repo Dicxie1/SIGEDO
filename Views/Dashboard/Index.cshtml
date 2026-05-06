@@ -130,6 +130,7 @@
         }
         <div class="card border-0 shadow-sm rounded-4 mb-3">
             <div class="card-body">
+                @if(Model.CourseActive != null && Model.CourseActive.Any()){
                 <div class="d-flex aling-items-center ">
                     <i class="fas fa-chalkboard-teacher text-primary fs-4 me-3"></i>
                     <h5 class="fw-bold text-dark mb-0">Carga Académica del Semestre</h5>
@@ -178,11 +179,32 @@
                         </tbody>
                     </table>
                 </div>
+                }
+                else
+                {
+                    <!-- EMPTY STATE START -->
+                    <div class="text-center py-5">
+                        <div class="mb-3">
+                            <div class="display-1 text-muted opacity-25">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-secondary fw-light">No hay cursos activos</h4>
+                        <p class="text-muted mb-4">
+                            Parece que aún no tienes asignaturas registradas para este periodo académico.
+                        </p>
+                        <a href="@Url.Action("Create", "Course")" class="btn btn-primary px-4 shadow-sm">
+                            <i class="fas fa-plus me-2"></i>Asignar Nueva Carga
+                        </a>
+                    </div>
+                }
             </div>
         </div>
        
         <div class="card border-0 shadow-sm rounded-4 mb-3">
             <div class="card-body">
+            @if(Model.PedingAssigmentItems != null && Model.PedingAssigmentItems.Any())
+            {
                 <div class="d-flex align-items-center">
                     <i class="fas fa-clipboard-check text-warning fs-4"></i>
                     <h5 class="fw-bold text-dark mb-0">Tareas Pediente Calificar</h5>
@@ -218,6 +240,21 @@
                         </tbody>
                     </table>
                 </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <h5 class="fw-bold text-dark">¡Todo al día!</h5>
+                        <p class="text-muted mx-auto" style="max-width: 300px;">
+                            No tienes entregas pendientes por calificar en este momento. Buen trabajo manteniendo el ritmo.
+                        </p>
+                        <div class="mt-4">
+                            <a href="@Url.Action("Index", "Course")" class="btn btn-light btn-sm text-primary fw-bold border-0">
+                                <i class="fas fa-arrow-left me-2"></i>Volver a mis cursos
+                            </a>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
         
