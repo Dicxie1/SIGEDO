@@ -191,7 +191,7 @@ public class CourseController : Controller
                 TermId = t.TermId,
                 Name = t.Name,
                 Weight = t.WeightOnFinalGrade,
-                Assignments = t.Assignments.Select(a => new AssignmentHeaderDto
+                Assignments = t.Assignments.OrderBy(e => e.IsExam ).ThenBy(e => e.DueDate).Select(a => new AssignmentHeaderDto
                 {
                     AssignmentId = a.AssignmentId,
                     Title = a.Title,
