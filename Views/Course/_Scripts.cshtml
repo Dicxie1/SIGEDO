@@ -596,6 +596,15 @@ function limpiarSeleccion() {
                 tabInstance.show();
             }
         }
+        const secondTab = urlParams.get('secondTab');
+        if(secondTab)
+        {
+            const tabTrigger = document.getElementById(secondTab);
+            if(tabTrigger){
+                const tabInstance = bootstrap.Tab.getOrCreateInstance(tabTrigger);
+                tabInstance.show();
+            }
+        }
 
         const dates = @Html.Raw(Json.Serialize(Model.Stats.AttendaceDates));
         const presentsData = @Html.Raw(Json.Serialize(Model.Stats.PresentPerSession)); //  ;

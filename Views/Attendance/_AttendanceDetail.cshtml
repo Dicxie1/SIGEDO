@@ -9,7 +9,7 @@
                             Curso
                         </a>
                     </li> <!-- Url.Action("Details", "Course", new { id = Model.CourseId })-->
-                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Historial</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Course" asp-action="Details" asp-route-courseId="@Model.CourseId" asp-route-activeTab="asistencia-tab" asp-route-secondTab="AttendnaceHistory-tab" class="text-decoration-none">Historial</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Detalle de Asistencia</li>
                 </ol>
             </nav>
