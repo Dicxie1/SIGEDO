@@ -5,7 +5,7 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="@Url.Action("Details", "Course", new { courseId = Model.IdCourse })">Curso</a></li>
-            <li class="breadcrumb-item"><a href="#">Historial</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Course" asp-action="Details" asp-route-courseId="@Model.IdCourse" asp-route-activeTab="asistencia-tab" asp-route-secondTab="AttendnaceHistory-tab">Historial</a></li>
             <li class="breadcrumb-item active" aria-current="page">Editar Sesión #@Model.AttendanceId</li>
         </ol>
     </nav>
