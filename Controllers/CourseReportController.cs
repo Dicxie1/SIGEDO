@@ -2,12 +2,13 @@ namespace Asistencia.Controllers;
 
 using System.Threading.Tasks;
 using Asistencia.Data;
+using Asistencia.Documents.ProgrammaticProgress;
 using Asistencia.Models;
 using Asistencia.Models.ViewModels;
 using Asistencia.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using QuestPDF.Fluent;
 
 public class CourseReportController : Controller
 {
@@ -18,14 +19,21 @@ public class CourseReportController : Controller
         _reportService = reportService;
         _context = context;
     }
-    [HttpGet]
+    [HttpGet("/Course/{courseId}/ProgrammaticProgress/{termId}")]
     public async Task<IActionResult> ProgrammaticProgress(int courseId, int? termId)
     {
         Console.WriteLine($" id resivido: {termId}");
+        var termExists = await _context.AcademicTerms
+                .AnyAsync(t => t.TermId == termId &&
+                   t.CourseId == courseId);
+        if (!termExists)
+        {
+            return NotFound();
+        }
         // 1. MANEJO DEL CORTE POR DEFECTO
-            // Si el usuario viene del menú principal, 'termId' será null.
-            // Buscamos el primer corte cronológico o el activo.
-            if (termId == null)
+        // Si el usuario viene del menú principal, 'termId' será null.
+        // Buscamos el primer corte cronológico o el activo.
+        if (termId == null)
             {
                 var defaultTerm = await _context.AcademicTerms
                     .Where(t => t.CourseId == courseId)
@@ -69,6 +77,23 @@ public class CourseReportController : Controller
 
             return View(model);
         }
-        
+    [HttpGet]    
+    public async Task<ActionResult> Imprimir(int courseId, int termId)
+    {
+        var model = await _reportService.GetTermProgressAsync(courseId, termId);
+
+        if (model == null)
+        {
+            return NotFound("No se encontraron datos para generar el reporte.");
+        }
+
+        var document = new ProgrammatiProgressDoc(model);
+        string pfgFileName = $"pp_{1}";
+        var stream = new MemoryStream();
+        document.GeneratePdf(stream);
+        stream.Position = 0;
+        byte[] file = document.GeneratePdf();
+        return File(file, "application/pdf");
+    }
 
 }

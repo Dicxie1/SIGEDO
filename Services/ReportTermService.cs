@@ -24,7 +24,8 @@ public class ReportTermService
         var term = await _context.AcademicTerms
             .Include(t => t.Course)
                 .ThenInclude(c => c.Subject)
-            .Include(t => t.Assignments)
+                .ThenInclude(s => s.Career)
+            .Include(t => t.Assignments).AsNoTracking()
             .FirstOrDefaultAsync(t => t.TermId == termId);
 
         if (term == null) return null;
@@ -114,10 +115,13 @@ public class ReportTermService
         // =========================================================================
         // PASO 4: LLENADO DEL VIEWMODEL
         // =========================================================================
-        
+
         var model = new ProgrammaticProgressViewModel
         {
             CourseName = term.Course?.Subject?.SubjetName ?? "Curso Desconocido",
+            CarrerName = term.Course?.Subject?.Career?.Name ?? "Desconocido",
+            semester = term.Course.Semester,
+            AcademicYear = GetAcademicYear(term.Course.Subject.Semester),
             TermName = term.Name,
             TermId = termId
         };
@@ -163,4 +167,15 @@ public class ReportTermService
         if (totalUniverse == 0) return 0;
         return Math.Round(((double)part / totalUniverse) * 100, 2);
     }
+
+    private string GetAcademicYear(string semester) => semester switch
+    {
+        "I" or "II" => "Primer Año",
+        "III" or "IV" => "Segundo Año",
+        "V" or "VI" => "Tercer Año",
+        "VII" or "VIII" => "Cuarto Año",
+        "IX" or "X" => "Quinto Año",
+        "XI" or "XII" => "Sexto Año",
+        _ => ">Desconocido"
+    };
 }

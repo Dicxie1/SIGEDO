@@ -211,6 +211,7 @@ public class CourseController : Controller
             CourseCode = subject!.SubjectId!,
             CreditCourse = subject!.Credits!,
             AcademicYear = subject.AcademiYear,
+            CourseTerm = course.AcademicTerms.Where(t => t.CourseId == courseId).Select(s => s.TermId).FirstOrDefault(),
             TeacherName = "Dicxie Danuard Madrigal",
             IsActive = course.isActive,
             ClassroomName = course.Classroom!.ClassroomName,
