@@ -4,6 +4,9 @@ public class ProgrammaticProgressViewModel
     // Datos del Informe
     public string CourseName {get; set;} = string.Empty;
     public string TermName {get; set;} = string.Empty;
+    public string CarrerName { get; set; } = string.Empty;
+    public string semester { get; set; } = string.Empty;
+    public string AcademicYear { get; set; } = string.Empty;
     public int TermId {get; set;}
     // Matricula y Retención
     public CountStat Initial { get; set; } = new CountStat();

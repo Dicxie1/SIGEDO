@@ -14,7 +14,7 @@
             <form method="get" class="d-flex align-items-center">
                 <input type="hidden" name="courseId" value="@ViewBag.CourseId" />
                 <label class="me-2 small fw-bold">Corte:</label>
-                <select name="termId" class="form-select form-select-sm" onchange="this.form.submit()">
+                <select name="termId" id="termId" class="form-select form-select-sm" onchange="this.form.submit()">
                     @foreach(var term in ViewBag.Terms)
                     {
                         // Seleccionar el actual
@@ -28,9 +28,9 @@
                 </select>
             </form>
             
-            <button onclick="window.print()" class="btn btn-outline-dark btn-sm">
+            <a  onclick="descargarPDF()" class="btn btn-outline-dark btn-sm">
                 <i class="fas fa-print me-1"></i> Imprimir
-            </button>
+            </a>
         </div>
     </div>
     <div class="card shadow-sm border-0">
@@ -102,3 +102,23 @@
     .card { border: 1px solid #ddd !important; box-shadow: none !important; }
     .progress { display: none; } /* Ocultar barras de progreso al imprimir */
 </style>
+@section Scripts{
+    <script>
+        document.getElementById('termId')
+        .addEventListener('change', function() {
+
+            const courseId = '@ViewBag.CourseId';
+            const termId = this.value;
+
+            window.location.href =
+                `/Course/${courseId}/ProgrammaticProgress/${termId}`;
+        });
+        function descargarPDF() {
+            const courseId = '@ViewBag.CourseId';
+            const termId = document.getElementById('termId').value;
+
+            // Redirige al controlador pasando ambos parámetros requeridos
+            window.location.href = `/CourseReport/Imprimir?courseId=${courseId}&termId=${termId}`;
+        }
+    </script>
+}

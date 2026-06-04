@@ -12,6 +12,7 @@ public class CourseDetailsViewModel
     public string CourseCode {get; set;} = string.Empty;
     public int CreditCourse {get; set;}
     public int AcademicYear {get; set;}
+    public int CourseTerm { get; set; }
     public string? ClassroomName {get; set;}
     public string TeacherName {get; set;} = string.Empty;
     public int MaleCount {get; set;}
