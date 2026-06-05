@@ -1,6 +1,10 @@
 @model Asistencia.Models.ViewModels.CourseDetailsViewModel
 @{
     ViewData["Title"] = "Detalle de Curso";
+    decimal totalHours = Model.TotalCourseHours > 0 ? Model.TotalCourseHours : 1;
+    decimal completed = Model.CompletedHours;
+    var progressPct = (int)((completed / totalHours) * 100);
+    progressPct = progressPct > 100 ? 100 : progressPct; // Tope visual
 }
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center border-bottom bg-white">
                     <h2 class="h3 mt-3"><a class="btn" asp-action="Admin"><i class="fa-solid fa-arrow-left fa-2x"></i> </a> Detalle de Curso - <span class="text-mutted">#@Model.CourseId</span></h2>
@@ -243,13 +247,7 @@
                     <i class="fas fa-chart-line me-2"></i> Avance Académico
                 </div>
                 <div class="card-body d-flex flex-column justify-content-center">
-                    @{
-                    // Lógica segura para evitar división por cero
-                    decimal totalHours = Model.TotalCourseHours > 0 ? Model.TotalCourseHours : 1; 
-                    decimal completed = Model.CompletedHours;
-                    var progressPct = (int)((completed / totalHours) * 100);
-                    progressPct = progressPct > 100 ? 100 : progressPct; // Tope visual
-                    }
+                    
                     <div class="text-center mb-4">
                         <div class="position-relative d-inline-block">
                             <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-2">

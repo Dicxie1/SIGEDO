@@ -1,14 +1,21 @@
 @model Asistencia.Models.ViewModels.CourseDetailsViewModel
+@{
+    decimal totalHours = Model.TotalCourseHours > 0 ? Model.TotalCourseHours : 1;
+    decimal completed = Model.CompletedHours;
+    var progressPct = (int)((completed / totalHours) * 100);
+}
 <div class="container">
     <div class="secondary-menu">
         <ul class="nav nav-tabs" id="attendancesManager" role="tablist">
+            @if(progressPct < 100){
             <li class="nav-item" role="presentation" >
-                <button class="nav-link active" id="AttendnaceRegister-tab" data-bs-toggle="tab" data-bs-target="#attendance-register" type="button" role="tab" aria-controls="register" aria-selected="true">
+                    <button class="nav-link active" id="AttendnaceRegister-tab" data-bs-toggle="tab" data-bs-target="#attendance-register" type="button" role="tab" aria-controls="register" aria-selected="true">
                     <i class="fas fa-check-double"></i> Registrar
                 </button>
             </li>
+            }
             <li class="nav-item" role="presentation" >
-                <button class="nav-link" id="AttendnaceHistory-tab" data-bs-toggle="tab" data-bs-target="#attendance-history" type="button" role="tab" aria-controls="history" aria-selected="false">
+                <button class="nav-link @(progressPct >= 100 ? "active" : "")" id="AttendnaceHistory-tab" data-bs-toggle="tab" data-bs-target="#attendance-history" type="button" role="tab" aria-controls="history" aria-selected="@(progressPct >= 100 ? "true" : "false")">
                     <i class="fas fa-list-check"></i> Historial
                 </button>
             </li>
@@ -16,12 +23,13 @@
     </div>
     <div class="tab-content" id="AttendanceMenuContet">
         <!-- Register Attendance Tab -->
-        <div class="tab-pane fade show active" id="attendance-register" role="tabpanel" aria-labelledby="atendance-register-tab" >
+        
+        <div class="tab-pane fade @(progressPct < 100 ? "show active" : "")" id="attendance-register" role="tabpanel" aria-labelledby="atendance-register-tab">
             <partial name="_AttendancesRegisterTab" />
         
         </div> <!-- Register Attendance Tab End-->
          <!-- History Attendance Tab -->
-        <div class="tab-pane fade" id="attendance-history" role="tabpanel" aria-labelledby="attendance-hisoty-tab">
+        <div class="tab-pane fade @(progressPct >= 100 ? "show active" : "")" id="attendance-history" role="tabpanel" aria-labelledby="attendance-hisoty-tab">
             <partial name="_AttendancesSessions" />
         </div> <!-- History Attendance Tab End-->
     </div> <!-- AttendanceMenuContent End-->
