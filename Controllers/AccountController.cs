@@ -31,7 +31,7 @@ namespace Asistencia.Controllers
         [AllowAnonymous]
         public IActionResult Login(string returnUrl = null)
         {
-            if (User.Identity.IsAuthenticated)
+            if (User!.Identity!.IsAuthenticated)
             {
                 return RedirectToAction("Index", "Dashboard");
             }
@@ -42,7 +42,7 @@ namespace Asistencia.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null )
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl )
         {
             ViewData["ReturnUrl"] = returnUrl;
             if (!ModelState.IsValid)
@@ -51,7 +51,7 @@ namespace Asistencia.Controllers
                 return View(model);
             }
             var user = await _userManager.FindByEmailAsync(model.Email);
-            _logger.LogInformation($" el CORREO: {user.Email}, Usuarios: {user.UserName} contraseña: {model.Password}");
+            _logger.LogInformation($" el CORREO: {user!.Email}, Usuarios: {user.UserName} contraseña: {model.Password}");
             if(user != null && !user.IsActive )
             {
                 ViewData["Error"] = "Su cuenta ha sido desactivada. Contacte a RRHH.";

@@ -685,4 +685,54 @@ public class CourseController : Controller
         TempData["Success"] = course.isActive ? "Curso activado correctamente." : "Curso desactivado correctamente.";
         return RedirectToAction(nameof(Admin));
     }
+    [HttpPost]
+    public async Task<IActionResult> Create([Bind("Name,StartPeriod,EndPeriod")] AcademicPeriod academic)
+    {
+        if(ModelState.IsValid)
+        {
+            _context.AcademicPeriods.Add(academic);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Periodo Académico creado exitosamente";
+            return RedirectToAction("AcademicPeriod");
+        }
+        TempData["Error"] = "Error al crear el periodo académico. Verifique los datos ingresados.";
+        return RedirectToAction("AcademicPeriod");
+    }
+    [HttpGet]
+    public async Task<IActionResult> GetAcademicPeriod(int id)
+    {
+        var period = await _context.AcademicPeriods.FindAsync(id);
+        if(period == null)
+        {
+            return Json(new { success = false, message = "Periodo académico no encontrado" });
+        }
+        return Json(new { success = true, data = new {
+            period.AcademicPeriodId,
+            period.Name,
+            StartPeriod = period.StartPeriod.ToString("yyyy-MM-dd"),
+            EndPeriod = period.EndPeriod.ToString("yyyy-MM-dd")
+        }});
+    }
+    [HttpPost("/Course/Period/Edit/{id}")]
+    public async Task<IActionResult> EditAcademicPeriod([Bind("AcademicPeriodId,Name,StartPeriod,EndPeriod")] AcademicPeriod academic, int id)
+    {
+        if(ModelState.IsValid)
+        {
+            var existing = await _context.AcademicPeriods.FindAsync(academic.AcademicPeriodId);
+            if(existing == null)
+            {
+                TempData["Error"] = "Periodo académico no encontrado.";
+                return RedirectToAction("AcademicPeriod");
+            }
+            existing.Name = academic.Name;
+            existing.StartPeriod = academic.StartPeriod;
+            existing.EndPeriod = academic.EndPeriod;
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Periodo académico actualizado exitosamente.";
+            return RedirectToAction("AcademicPeriod");
+        }
+        TempData["Error"] = "Error al actualizar el periodo académico. Verifique los datos ingresados.";
+        return RedirectToAction("AcademicPeriod");
+    }
+       
 }
