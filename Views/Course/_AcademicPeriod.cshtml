@@ -232,9 +232,9 @@
             let response = await fetch('/Course/GetAcademicPeriod/' + id);
             const data = await response.json();
             
-            if(data.data.HasSchedules)
+            if(data.data.hasSchedules)
             {
-                alert('Cannot delete this period because it has associated schedules. Please archive it instead.');
+                Swal.fire('Error', 'No se puede eliminar este periodo académico porque tiene horarios asociados. Por favor, elimine los horarios relacionados antes de eliminar este periodo.', 'error');
                 return;
             }else{
                 const deletePedrio = await fetch('/Course/Period/Delete/' + id, {
