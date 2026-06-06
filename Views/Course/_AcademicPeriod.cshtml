@@ -19,6 +19,25 @@
     @{
         var activePeriod = Model.FirstOrDefault(p => p.Status == EnumPeriodStatus.Active);
     }
+    @if(TempData["Success"] != null)
+    {
+        <!-- Alert succes con boton de cierre -->
+        <div class="alert alert-success alert-dismissible border-0 shadow-sm d-flex align-items-center mb-4 py-3" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div>
+            <i class="bi bi-check-circle-fill fs-4 me-3"></i> @TempData["Success"]
+        </div>
+        
+        </div>
+    }
+    @if(TempData["Error"] != null){
+         <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4 py-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+        <div>
+            @TempData["Error"]
+        </div>
+         </div>
+    }
     @if ( activePeriod != null)
     {
         <div class="alert alert-primary border-0 shadow-sm d-flex align-items-center mb-4 py-3" role="alert">
@@ -69,12 +88,20 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="btn-group shadow-sm">
-                                    <a asp-action="ActivePeriod" asp-route-id="@item.AcademicPeriodId" class="btn btn-white btn-sm border" title="Edit">
-                                        <i class="fas fa-pencil-square text-primary"></i>
+                                    <a asp-action="ActivePeriod" asp-route-id="@item.AcademicPeriodId" class="btn btn-white btn-sm border" title="Active">
+                                        <i class="fas fa-calendar-check text-primary"></i>
                                     </a>
+                                    @if (item.Status != EnumPeriodStatus.Active)
+                                    {
+                                        <!-- open edit modal -->
+                                        <button class="btn btn-white btn-sm border" title="Edit" onclick="editPeriod(@item.AcademicPeriodId)">
+                                        <i class="fas fa-edit text-warning"></i>
+                                        </button>
+                                    }
                                     <button class="btn btn-white btn-sm border" title="Archive" onclick="confirmArchive(@item.AcademicPeriodId)">
                                         <i class="fas fa-archive text-secondary"></i>
                                     </button>
+                                    
                                     @if (item.Status == EnumPeriodStatus.Planning)
                                     {
                                         <button class="btn btn-white btn-sm border" title="Delete" onclick="deletePeriod(@item.AcademicPeriodId)">
@@ -110,7 +137,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label small fw-bold">End Date</label>
-                            <input type="date" name="ENdPeriodñ" class="form-control" required />
+                            <input type="date" name="EndPeriod" class="form-control" required />
                         </div>
                     </div>
                 </div>
@@ -122,3 +149,65 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Period Modal -->
+<div class="modal fade" id="editPeriodModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form id="editPeriodForm" action="EditAcademicPeriod" method="post">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title fw-bold">Edit Academic Period</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="AcademicPeriodId" id="editAcademicPeriodId" />
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Period Name</label>
+                        <input name="Name" id="editName" class="form-control" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label
+    small fw-bold">Start Date</label>
+                            <input type="date" name="StartPeriod" id="editStartPeriod" class="form-control" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">End Date</label>
+                            <input type="date" name="EndPeriod" id="editEndPeriod" class="form-control" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function editPeriod(id) {
+            $.get('/Course/GetAcademicPeriod/' + id, function(data) {
+                let result = data.data;
+                $('#editAcademicPeriodId').val(result.academicPeriodId);
+                $('#editName').val(result.name);
+                $('#editStartPeriod').val(result.startPeriod);
+                $('#editEndPeriod').val(result.endPeriod);
+                $('#editPeriodForm').attr('action', '/Course/Period/Edit/' + id);
+                $('#editPeriodModal').modal('show');
+            });
+        }
+        function confirmArchive(id) {
+            if (confirm('Are you sure you want to archive this period? This action cannot be undone.')) {
+                window.location.href = '/Course/Archive/' + id;
+            }
+        }
+        function deletePeriod(id) {
+            if (confirm('Are you sure you want to delete this period? This action cannot be undone.')) {
+                window.location.href = '/Course/Delete/' + id;
+            }
+        }
+    </script>
+}

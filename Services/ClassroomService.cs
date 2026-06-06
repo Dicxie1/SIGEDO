@@ -76,7 +76,7 @@ namespace Asistencia.Services
                 int currentDayOfWeek = date.DayOfWeek == DayOfWeek.Saturday ? 6 : (int)date.DayOfWeek;
                 var dailyMatches = recurringSchedule.Where(s =>
                     s.DayOfWeek == currentDayOfWeek &&
-                    date >= DateOnly.FromDateTime(s.Course.StartDate) && date <= DateOnly.FromDateTime(s.Course.EndDate)
+                    date >= DateOnly.FromDateTime(s.Course!.StartDate) && date <= DateOnly.FromDateTime(s.Course.EndDate)
                     );
                 foreach (var match in dailyMatches)
                 {
@@ -86,14 +86,14 @@ namespace Asistencia.Services
                         DayName = date.ToString("dddd", new CultureInfo("es-Es")),
                         StartTime = match.StartTime,
                         EndTime = match.EndTime,
-                        CourseName = match?.Course?.Subject?.SubjetName,
-                        ColorHex = match.Course.ColorTheme
+                        CourseName = match?.Course?.Subject?.SubjetName!,
+                        ColorHex = match?.Course?.ColorTheme!
                     });
                 }
             }
             return new ClassroomWeeklyView
             {
-                ClassroomName = recurringSchedule.FirstOrDefault()?.Classroom.ClassroomName ?? "Aula Sin Nombre Asignado",
+                ClassroomName = recurringSchedule.FirstOrDefault()?.Classroom?.ClassroomName ?? "Aula Sin Nombre Asignado",
                 WeekStart = weekStart.ToDateTime(TimeOnly.MinValue),
                 WeekEnd = weekEnd.ToDateTime(TimeOnly.MinValue),
                 Events = events.OrderBy(e => e.Date)
