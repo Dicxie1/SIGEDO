@@ -33,6 +33,7 @@ public class CourseRegistrationDto
     /// Estado de curso activo o desactivado
     /// </summary>
     public bool IsActive {get; set;}
+    public int AcademicPeriodId { get; set; }
     public List<ScheduleDto> Schedules {get; set;} = new List<ScheduleDto>();
 }
 

@@ -355,7 +355,8 @@ public class CourseController : Controller
                     ClassroomId = model.ClassroomId,
                     DayOfWeek = item.DayOfWeek,
                     StartTime = item.StartTime,
-                    EndTime = item.EndTime
+                    EndTime = item.EndTime,
+                    AcademicPeriodId = model.AcademicPeriodId,
                 };
                 _context.Schedules.Add(schedule);
             }
@@ -646,7 +647,7 @@ public class CourseController : Controller
             EnrollmentId = enrollment.EnrollmentId,
             StudentFullName = $"{enrollment!.Student!.LastName}, {enrollment.Student.Name}",
             StudentId = enrollment.Student.Id,
-            StudentInitials = $"{enrollment.Student.Name[0]}{enrollment.Student.LastName[0]}",
+            StudentInitials = $"{enrollment?.Student?.Name?.FirstOrDefault()}{enrollment?.Student?.LastName?.FirstOrDefault()}",
             Grades = gradesDict,
             FinalGrade = Math.Round(finalGrade, 2) // Redondeo a 2 decimales
         };
@@ -701,17 +702,18 @@ public class CourseController : Controller
     [HttpGet]
     public async Task<IActionResult> GetAcademicPeriod(int id)
     {
-        var period = await _context.AcademicPeriods.Include(p => p.Schedules).FirstOrDefaultAsync(p => p.AcademicPeriodId == id);
+        var period = await _context.AcademicPeriods.FindAsync(id);
         if(period == null)
         {
             return Json(new { success = false, message = "Periodo académico no encontrado" });
         }
+        var hasSchedules = await _context.Schedules.AnyAsync(s => s.AcademicPeriodId == id);
         return Json(new { success = true, data = new {
             period.AcademicPeriodId,
             period.Name,
             StartPeriod = period.StartPeriod.ToString("yyyy-MM-dd"),
             EndPeriod = period.EndPeriod.ToString("yyyy-MM-dd"),
-            HasSchedules = period?.Schedules?.Any() ?? false
+            HasSchedules = hasSchedules
         }});
     }
     [HttpPost("/Course/Period/Edit/{id}")]
@@ -743,13 +745,23 @@ public class CourseController : Controller
             TempData["Error"] = "Periodo académico no encontrado.";
             return RedirectToAction("AcademicPeriod");
         }
-        else
+        bool hasSchedules = await _context.Schedules.AnyAsync(s => s.AcademicPeriodId == id);
+        if(hasSchedules){
+            TempData["Error"] = "No se puede eliminar el periodo académico porque tiene horarios asociados.";
+            return RedirectToAction("AcademicPeriod");
+        }
+        try
         {
             _context.AcademicPeriods.Remove(period);
             await _context.SaveChangesAsync();
             TempData["Success"] = "Periodo académico eliminado exitosamente.";
+        }
+        catch(Exception ex)
+        {
+            TempData["Error"] = "Error al eliminar el periodo académico: " + ex.Message;
             return RedirectToAction("AcademicPeriod");
         }
+        return RedirectToAction("AcademicPeriod");
     }
     [HttpGet("/Course/Period/Active/{id}") ]
     public async Task<IActionResult> ActiveAcademicPeriod(int id)

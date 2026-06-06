@@ -22,7 +22,7 @@ public class Schedule
     public int AcademicPeriodId { get; set; }
     public int? TeacherId { get; set; }
     public virtual Teacher? Teacher { get; set; }
-    public virtual AcademicPeriod AcademicPeriod { get; set; } = new AcademicPeriod();
+    public virtual AcademicPeriod? AcademicPeriod { get; set; }
     [NotMapped]
     public string TimeRange => $"{StartTime:hh\\mm} - {EndTime:hh\\mm}";
 }
