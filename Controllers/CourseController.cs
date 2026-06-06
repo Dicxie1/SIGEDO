@@ -701,7 +701,7 @@ public class CourseController : Controller
     [HttpGet]
     public async Task<IActionResult> GetAcademicPeriod(int id)
     {
-        var period = await _context.AcademicPeriods.FindAsync(id);
+        var period = await _context.AcademicPeriods.Include(p => p.Schedules).FirstOrDefaultAsync(p => p.AcademicPeriodId == id);
         if(period == null)
         {
             return Json(new { success = false, message = "Periodo académico no encontrado" });
@@ -710,7 +710,8 @@ public class CourseController : Controller
             period.AcademicPeriodId,
             period.Name,
             StartPeriod = period.StartPeriod.ToString("yyyy-MM-dd"),
-            EndPeriod = period.EndPeriod.ToString("yyyy-MM-dd")
+            EndPeriod = period.EndPeriod.ToString("yyyy-MM-dd"),
+            HasSchedules = period?.Schedules?.Any() ?? false
         }});
     }
     [HttpPost("/Course/Period/Edit/{id}")]
@@ -732,6 +733,29 @@ public class CourseController : Controller
             return RedirectToAction("AcademicPeriod");
         }
         TempData["Error"] = "Error al actualizar el periodo académico. Verifique los datos ingresados.";
+        return RedirectToAction("AcademicPeriod");
+    }
+    [HttpPost("/Course/Period/Delete/{id}")]
+    public async Task<IActionResult> DeleteAcademicPeriod(int id)
+    {
+        var period = await _context.AcademicPeriods.FindAsync(id);
+        if(period == null){
+            TempData["Error"] = "Periodo académico no encontrado.";
+            return RedirectToAction("AcademicPeriod");
+        }
+        else
+        {
+            _context.AcademicPeriods.Remove(period);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Periodo académico eliminado exitosamente.";
+            return RedirectToAction("AcademicPeriod");
+        }
+    }
+    [HttpGet("/Course/Period/Active/{id}") ]
+    public async Task<IActionResult> ActiveAcademicPeriod(int id)
+    {
+        var courseService = new CourseService(_context);
+        await courseService.ArchivePeriodAsync(id);
         return RedirectToAction("AcademicPeriod");
     }
        

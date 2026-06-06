@@ -56,5 +56,13 @@ namespace Asistencia.Services
                 throw;
             }
         }
+        public async Task<bool> ArchivePeriodAsync(int id)
+        {
+            var periodToArchive = await _context.AcademicPeriods.FindAsync(id);
+            if (periodToArchive == null) return false;
+            periodToArchive.Status = EnumPeriodStatus.Closed;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
