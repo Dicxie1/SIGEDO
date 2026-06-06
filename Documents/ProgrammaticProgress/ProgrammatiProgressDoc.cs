@@ -32,7 +32,7 @@ namespace Asistencia.Documents.ProgrammaticProgress
         {
             container.Row(row =>
             {
-                row.ConstantItem(70)
+                row.ConstantItem(90)
                    .Height(70)
                    .Image("wwwroot/img/logo.png"); // Asegúrate de que esta ruta local sea válida en producción
 
@@ -40,16 +40,16 @@ namespace Asistencia.Documents.ProgrammaticProgress
                    .Column(col =>
                    {
                        col.Item().Text("UNIVERSIDAD DE LAS REGIONES AUTÓNOMAS DE LA COSTA CARIBE DE NICARAGUA")
-                          .FontSize(13)
+                          .FontSize(24)
                           .Bold()
                           .AlignCenter()
-                          .FontColor(UraccanColors.Primary);
+                          .FontColor("#003876");
 
                        col.Item().Text("URACCAN")
-                          .FontSize(13)
+                          .FontSize(20)
                           .Bold()
                           .AlignCenter()
-                          .FontColor(UraccanColors.Primary);
+                          .FontColor("#003876");
 
                        col.Item().PaddingTop(5);
 
@@ -57,7 +57,7 @@ namespace Asistencia.Documents.ProgrammaticProgress
                           .Bold()
                           .AlignCenter()
                           .FontSize(11)
-                          .FontColor(UraccanColors.Primary);
+                          .FontColor("#F7931E");
                    });
             }
             
