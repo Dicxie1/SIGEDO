@@ -1,7 +1,7 @@
 @{
     Layout = "_Layout.cshtml";
 }
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center p-3 mb-3 mt-3 border-bottom bg-white">
     <h1 class="h2"><a class="btn" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-arrow-left fa-2x"></i> </a> 
     @ViewData["Section"]</h1>
     @RenderSection("Buttons", false)
