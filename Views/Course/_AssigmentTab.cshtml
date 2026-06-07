@@ -1,8 +1,13 @@
 @model Asistencia.Models.ViewModels.CourseDetailsViewModel
-
+@{
+    //sumar las tareas 
+    int colspan = Model?.Gradebook?.Terms?
+     .Where(term => term?.Assignments != null)
+     .Sum(term => term.Assignments?.Count) ?? 0;
+}
 @if(Model.EnrolledStudents.Count > 0)
 {
-    <div class="d-flex justify-content-between align-items-center mb-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-2 mt-2 bg-white p-4 shadow-sm rounded-sm">
         <div>
             <h4 class="fw-bold mb-0">Sábana de Calificaciones</h4>
         </div>
@@ -18,13 +23,26 @@
             </button>
         </div>
     </div>
+   
     <div class="card border-0 shadow-sm">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
                     <tr>
-                        <th class="ps-4 py-3" style="min-width: 250px; position: sticky; left: 0; z-index: 5; background-color: #f8f9fa;">
-                            Estudiante
+                        <th colspan="@(colspan + 4) " >
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0 text-secondary"></h5>
+                                <div class="input-group" style="max-width: 300px;">
+                                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-filter text-muted"></i></span>
+                                    <input type="text" id="studentFilter" class="form-control border-start-0 ps-0" placeholder="filtrar estudiante...">
+                                </div>
+                           </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="text-center py-2 border-bottom-0" style="min-width: 250px; position: sticky; left: 0; z-index: 5; background-color: #f8f9fa;">
+                           
+                          
                         </th>
                         @foreach(var term in Model?.Gradebook?.Terms!)
                         {
@@ -41,7 +59,7 @@
                         </th>
                     </tr>
                     <tr class="text-center" style="min-width: 120px;">
-                        <th></th>
+                        <th> <h5 class="fw-bold mb-0 text-secondary">Nombre de estudiantes</h5></th>
                         @foreach(var term in Model.Gradebook.Terms){
                             @foreach(var task in term?.Assignments!){
                                 var colorClass = task.IsExam ? "text-danger border-bottom-danger" : "text-primary border-bottom-primary";
@@ -65,7 +83,7 @@
                         }
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="studentsGradeBook">
                     @foreach(var student in Model?.Gradebook?.Students!){
                         <tr data-enrollment-id="@student.EnrollmentId">
                             <td class="ps-4 bg-white border-end" style="position: sticky; left: 0; z-index: 1;">
@@ -74,8 +92,8 @@
                                         @student.StudentInitials
                                     </div>
                                     <div>
-                                        <div class="fw-bold text-dark">@student.StudentFullName</div>
-                                        <div class="small text-muted">@student.StudentId</div>
+                                        <div class="fw-bold text-dark studentName">@student.StudentFullName</div>
+                                        <div class="small text-muted studentId">@student.StudentId</div>
                                     </div>
                                 </div>
                             </td>
@@ -438,6 +456,21 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+ /* Filter student */
+     document.getElementById('studentFilter').addEventListener('keyup', function(){
+         let filter = this.value.toLowerCase();
+         let row = document.querySelectorAll('#studentsGradeBook tr');
+         row.forEach(row =>{
+            let name = row.querySelector('.studentName').innerText.toLowerCase();
+            let code = row.querySelector('.studentId').innerText.toLowerCase();
+            if (name.includes(filter) || code.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+         });
+        
+     });
 </script>
 <style>
     /* Contenedor con scroll */
