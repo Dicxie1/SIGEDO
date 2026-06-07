@@ -770,5 +770,28 @@ public class CourseController : Controller
         await courseService.ArchivePeriodAsync(id);
         return RedirectToAction("AcademicPeriod");
     }
-       
+    [HttpGet]
+    public async Task<IActionResult> GetEstadisticas(int courseId, int attendanceId)
+    {
+        var asistenciaInfo = await _context.Attendances
+            
+            .Where(a => a.AttendanceId == attendanceId && a.IdCourse == courseId)
+            .Select(a => new {
+                Career = a.Course!.Subject!.Career!.Name,
+                Course = a.Course!.Subject!.SubjetName,
+                Date = a.Date.ToString("dd/MM/yyyy"),
+                TotalMen = a.AttendanceDetails.Count(d => d.Enrollment!.Student!.Sexo == Sex.Masculino && d.Status == "P"),
+                TotalWomen = a.AttendanceDetails.Count(d => d.Enrollment!.Student!.Sexo == Sex.Femenino && d.Status == "P"),
+                TotalAttendance = a.AttendanceDetails.Count(d => d.Status == "P")
+            })
+            .FirstOrDefaultAsync();
+
+        if (asistenciaInfo == null)
+        {
+            return NotFound();
+        }
+
+        return Json(asistenciaInfo); // Retorna los datos que el fetch leerá de forma automática
+    }
+
 }

@@ -19,6 +19,16 @@
             <button class="btn btn-outline-secondary" onclick="window.print()">
                 <i class="fas fa-print me-2"></i>Imprimir
             </button>
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownReport" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Reporte
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownReport">
+                    <button class="dropdown-item" onclick="previsualizarStat(@Model.CourseId, @Model.AttendanceId)">Copiar Portapapel</button>
+                    <button class="dropdown-item" onclick="exportarStat(@Model.CourseId, @Model.AttendanceId)">Descargar Reporte</button>
+                </div>
+            </div>
+
         <a href="@Url.Action("EditAttendance", "Attendance", new {courseid= Model.CourseId, attendance = Model.AttendanceId})" class="btn btn-warning text-dark"> <!--Url.Action("EditSession", new { id = Model.SessionId }) -->
                 <i class="fas fa-edit me-2"></i>Corregir
             </a>
@@ -275,3 +285,5 @@
         </div>
     </div>
 </div>
+
+

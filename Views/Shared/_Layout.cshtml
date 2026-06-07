@@ -105,6 +105,69 @@
         @Html.AntiForgeryToken()
     </form>
     <!---->
+    <div style="position: absolute; left: -9999px; top: 0; z-index: -1000;">
+        <div id="asistencia-card" class="p-4" style="width: 450px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: block;">
+            <div class="text-center border-bottom">
+                <h5 id="img-titulo-reporte" class="fw-bold text-primary text-uppercase mb-1" style="color: #0d6efd !important;">Reporte de Asistencia</h5>
+            </div>
+            <div class="mb-4">
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted fw-bold">Carrera:</span>
+                    <span id="img-career" class="text-dark fw-bold text-end" style="max-width: 250px;">-</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted fw-bold">Asignatura:</span>
+                    <span id="img-course">-</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted fw-bold">Fecha:</span>
+                    <span id="img-date" class="text-dark">-</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted fw-bold">Mujeres:</span>
+                    <span id="img-stat-women" class="text-dark">-</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted fw-bold">Hombres:</span>
+                    <span id="img-stat-men" class="text-dark">-</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted fw-bold">Total:</span>
+                    <span id="img-stat-total" class="text-dark">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="attendancePreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Previsualizar Reporte</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex justify-content-center bg-light">
+                    <div id="previewContainer" class="shadow-sm"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="copiarAlPortapapeles()">
+                        <i class="fas fa-copy me-2"></i> Copiar al Portapapeles
+                    </button>
+                </div>
+            </div>
+        </div>
+        </div>
+    <style>
+        .off-screen {
+        position: absolute !important;
+        left: -9999px !important; /* Mueve el div 9999 píxeles a la izquierda */
+        top: 0 !important;
+        visibility: visible !important; /* Asegura que no esté oculto de otra forma */
+        display: block !important; /* Forzamos que tenga display block para que html2canvas lo lea */
+        z-index: -1000 !important; /* Lo pone detrás de todo */
+        }
+    </style>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -114,9 +177,114 @@
     <script src="~/lib/fullcalendar/index.global.js"></script>
     <script src="~/lib/chart/chart.js"></script>
     <script src="~/lib/sweetalert2/sweetalert2.js"></script>
+    <script src="~/lib/html2canvas/html2canvas.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="~/lib/summernote/summernote-lite.min.js"></script>
+    <script>
+        let imagenBlobTemporal = null;
+        async function exportarStat(courseid, attendaceid){
+        const result = await fetch(`@Url.Action("GetEstadisticas", "Course")?courseId=${courseid}&attendanceId=${attendaceid}`);
+        const data = await result.json();
+        const element = document.getElementById('asistencia-card');
+        const container = document.getElementById('cardStat');
+        document.getElementById('img-career').innerText = data.career;
+        document.getElementById('img-course').innerText = data.course;
+        document.getElementById('img-date').innerText = data.date;
+        document.getElementById('img-stat-women').innerText = data.totalWomen;
+        document.getElementById('img-stat-men').innerText = data.totalMen;
+        document.getElementById('img-stat-total').innerText = data.totalAttendance;
+        const opcions = {
+        scale: 2, // Duplica la resolución para que el texto no se vea pixelado
+        useCORS: true, // Permite cargar iconos o imágenes externas si las hay
+        backgroundColor: null // Mantiene el fondo original del div
+        };
+        html2canvas(element, opcions).then(canvas => {
+        // Convertimos el canvas a una URL de imagen base64
+        const imagenUrl = canvas.toDataURL('image/png');
+
+        // Creamos un enlace temporal en memoria para forzar la descarga
+        const enlace = document.createElement('a');
+        enlace.download = `Asistencia_${new Date().toISOString().slice(0,10)}.png`;
+        enlace.href = imagenUrl;
+
+        // Simulamos el clic y removemos el enlace temporal
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+        }).catch(error => {
+        console.error('Error al generar la imagen de asistencia:', error);
+        });
+        }
+        async function  previsualizarStat(courseId,attendaceId) {
+        const element = document.getElementById('asistencia-card');
+        const contenedorPreview = document.getElementById('previewContainer');
+
+        // Limpiamos previsualizaciones anteriores
+        contenedorPreview.innerHTML = '<div class="text-center p-3"><span class="spinner-border text-primary"></span> Generando vista...</div>';
+
+        // Inicializar y mostrar el modal de Bootstrap
+        const modal = new bootstrap.Modal(document.getElementById('attendancePreviewModal'));
+        modal.show();
+        try{
+        const url = `@Url.Action("GetEstadisticas", "Course")?courseId=${courseId}&attendanceId=${attendaceId}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+        throw new Error('No se pudo obtener la información del servidor.');
+        }
+        const data = await response.json();
+        document.getElementById('img-career').innerText = data.career;
+        document.getElementById('img-course').innerText = data.course;
+        document.getElementById('img-date').innerText = data.date;
+        document.getElementById('img-stat-women').innerText = data.totalWomen;
+        document.getElementById('img-stat-men').innerText = data.totalMen;
+        document.getElementById('img-stat-total').innerText = data.totalAttendance;
+        }catch(e){
+
+        }
+
+        // Renderizar HTML a Canvas
+        html2canvas(element, { scale: 2, useCORS: true }).then(canvas => {
+        contenedorPreview.innerHTML = ''; // Quitar spinner
+
+        // Convertir el canvas a un elemento <img> visible en el modal
+        const img = document.createElement('img');
+        img.src = canvas.toDataURL('image/png');
+        img.className = 'img-fluid rounded';
+        contenedorPreview.appendChild(img);
+
+        // Guardar el canvas como BLOB (binario puro) para poder copiarlo después
+        canvas.toBlob(blob => {
+        imagenBlobTemporal = blob;
+        }, 'image/png');
+        });
+        }
+
+        function copiarAlPortapapeles() {
+        if (!imagenBlobTemporal) {
+        alert('La imagen aún no está lista, por favor espera un segundo.');
+        return;
+        }
+
+        // Usar la Clipboard API moderna para escribir archivos binarios
+        navigator.clipboard.write([
+        new ClipboardItem({
+        'image/png': imagenBlobTemporal
+        })
+        ]).then(() => {
+        // Notificación de éxito (puedes cambiarlo por un toast si usas)
+        Swal.fire({title: "info",text: '¡Copiado al portapapeles! Ya puedes pegarlo directamente en WhatsApp, Word o Teams.', icon: 'success'});
+
+        // Cerrar el modal automáticamente
+        const modalElement = document.getElementById('attendancePreviewModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        modal.hide();
+        }).catch(err => {
+        console.error('Error al copiar la imagen: ', err);
+        alert('No se pudo copiar automáticamente. Intenta dar clic derecho sobre la imagen y seleccionar "Copiar imagen".');
+        });
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
