@@ -119,6 +119,7 @@
                                                 <i class="fas fa-ellipsis-v text-muted"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                                        <li><h6 class="dropdown-header">Acciones</h6></li>
                                                 <li>
                                                     <a class="dropdown-item" href="@Url.Action("EditAttendance", "Attendance", new{courseid = Model.CourseId, attendance = session.Id})">
                                                         <i class="fas fa-edit me-2 text-warning"></i> Editar Asistencia
@@ -127,6 +128,17 @@
                                                 <li>
                                                     <a class="dropdown-item" href="@Url.Action("AttendanceDetail", "Attendance", new{courseid= Model.CourseId, attendance = session.Id})">
                                                         <i class="fas fa-eye me-2 text-primary"></i> Ver Detalle
+                                                    </a>
+                                                </li>
+                                                <li><h6 class="dropdown-header">Estadística</h6></li>
+                                                <li> 
+                                                    <a class="dropdown-item" href="#" onclick=" previsualizarStat(@Model.CourseId, @session.Id)">
+                                                        <i class="fas fa-copy text-secondary me-2"></i> Copiar Estadistica
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="exportarStat(@Model.CourseId, @session.Id)">
+                                                <i class="fas fa-download text-success me-2"> </i> Descargar Estadistica
                                                     </a>
                                                 </li>
                                                 <li><hr class="dropdown-divider"></li>
