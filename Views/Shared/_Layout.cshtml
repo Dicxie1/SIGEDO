@@ -158,6 +158,8 @@
             </div>
         </div>
         </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    </div>
     <style>
         .off-screen {
         position: absolute !important;
@@ -181,6 +183,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="~/lib/summernote/summernote-lite.min.js"></script>
+    <script src="~/js/site.js"></script>
     <script>
         let imagenBlobTemporal = null;
         async function exportarStat(courseid, attendaceid){
@@ -284,6 +287,8 @@
         alert('No se pudo copiar automáticamente. Intenta dar clic derecho sobre la imagen y seleccionar "Copiar imagen".');
         });
         }
+
+
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

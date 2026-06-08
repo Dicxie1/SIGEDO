@@ -30,5 +30,6 @@ public enum EthnicGroup
     [Display(Name = "Creole")] Creole = 3,
     [Display(Name = "Garifuna")] Garifuna = 4,
     [Display(Name = "Mayangna")] Mayangna = 5,
-    [Display(Name = "Mayangna")] Rama = 6, 
+    [Display(Name = "Mayangna")] Rama = 6,
+    [Display(Name = "Mayangna")] Otro = 7,
 }
