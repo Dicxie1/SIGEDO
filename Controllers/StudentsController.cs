@@ -181,4 +181,97 @@ public class StudentsController : Controller
             }).ToList();
         return Json(result);
     }
+    [HttpPost]
+    [Route("Student/AgregarMasivo")] // Keeps your existing route mapping intact
+    public async Task<IActionResult> ImportBulkStudents([FromBody] List<Student> students)
+    {
+        // 1. Validate that the payload is not null or empty
+        if (students == null || !students.Any())
+        {
+            return BadRequest(new { message = "The student list is empty or the data format is invalid." });
+        }
+
+        // 2. Validate data annotations against the Student model structure
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { message = "Some records fail to meet the required validation criteria." });
+        }
+
+        // Using database transaction to guarantee atomicity (All-or-Nothing execution)
+        using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var duplicateIds = new List<string>();
+
+            foreach (var student in students)
+            {
+                // 3. Primary Key duplication safeguard for PostgreSQL
+                bool recordExists = await _context.Students.AnyAsync(s => s.Id == student.Id);
+
+                if (recordExists)
+                {
+                    duplicateIds.Add(student.Id);
+                    continue; // Skip current record to prevent execution breakdown
+                }
+
+                // Data sanitization
+                student.Name = student.Name?.Trim();
+                student.LastName = student.LastName?.Trim();
+                student.Email = student.Email?.Trim();
+
+                // Queue for EF tracking insertion
+                await _context.Students.AddAsync(student);
+            }
+
+            // 4. Halt execution if all entries in the CSV already exist in the database
+            if (duplicateIds.Count == students.Count)
+            {
+                return Conflict(new { message = "All student entries provided in the file are already registered." });
+            }
+
+            // 5. Execute batch save modifications to PostgreSQL
+            await _context.SaveChangesAsync();
+
+            // Commit transaction smoothly
+            await transaction.CommitAsync();
+
+            // 6. Return successful response with fine-grained duplication feedback
+            if (duplicateIds.Any())
+            {
+                return Ok(new
+                {
+                    message = $"Successfully imported {students.Count - duplicateIds.Count} students. {duplicateIds.Count} existing records were skipped.",
+                    duplicates = duplicateIds
+                });
+            }
+
+            return Ok(new { message = "All students were imported successfully." });
+        }
+        catch (Exception ex)
+        {
+            // Revert any pending database writes safely if a connection issue occurs
+            await transaction.RollbackAsync();
+
+            // Keep track of the internal exception details
+            return StatusCode(500, new { message = "An internal error occurred while processing the batch request.", detail = ex.Message });
+        }
+    }
+    [HttpPost]
+    [Route("Student/CheckExistingIds")]
+    public async Task<IActionResult> CheckExistingIds([FromBody] List<string> studentIds)
+    {
+        if (studentIds == null || !studentIds.Any())
+        {
+            return Ok(new List<string>()); // Devuelve lista vacía si no hay nada que validar
+        }
+
+        // Busca en PostgreSQL todos los IDs que coincidan con la lista enviada
+        var existingIds = await _context.Students
+            .Where(s => studentIds.Contains(s.Id))
+            .Select(s => s.Id)
+            .ToListAsync();
+
+        return Ok(existingIds);
+    }
 }

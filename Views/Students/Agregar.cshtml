@@ -18,34 +18,42 @@
                         </h5>
                             <!-- Modal -->
                             <div class="modal fade" id="listaestudiantes" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                              <div class="modal-dialog modal-lg">
+                                <div class="modal-dialog modal-xl modal-dialog-scrollable">
                                 <div class="modal-content">
                                   <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Lista de Estudiantes</h5>
+                                    <h5 class="modal-title" id="exampleModalLabel">Importar Estudiantes desde CSV</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                   </div>
                                   <div class="modal-body">
-                                  <h3>Ingresar el archivo CSV</h3>
-                                  <input type="file" accept=".csv text/csv" name="" id="">
-                                    <table class="table table-bordered">
+                                  <input type="file" accept=".csv, text/csv" name="" id="inputcsv" class="d-none">
+                                  <button class="btn btn-outline-secondary mb-3" id="btnImport"><i class="fas fa-file-arrow-up me-2"></i> Archivo</button>
+
+                                    <table class="table table-bordered table-responsive">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
                                                 <th>Nombre</th>
                                                 <th>Apellido</th>
-                                                <th>Sexo</th>
-                                                <th>Etnia</th>
+                                                <th style="min-width:110px;">Sexo</th>
+                                                <th style="min-width:110px;">Etnia</th>
                                                 <th>Movil</th>
                                                 <th>Correo Electrónico</th>
+                                                <th>Estados</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <!-- Aquí se agregarán las filas de estudiantes -->
+                                        <tbody id="tbodyCsvStudents">
+                                            <tr>
+                                                <td colspan="9" class="text-center text-muted py-3">No se ha cargado ningún archivo aún.</td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                   </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="button" class="btn btn-success" id="btnSaveMassive" disabled onclick="guardarEstudiantesMasivo()">
+                                            <i class="fas fa-cloud-arrow-up me-2"></i> Guardar Estudiantes
+                                        </button>
                                     </div>
                                 </div>
                               </div>
@@ -134,4 +142,531 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const btnImport = document.getElementById('btnImport');
+        const inputImport = document.getElementById('inputcsv');
+        const tbodyStudents = document.getElementById('tbodyCsvStudents');
+        const btnSaveMassive = document.getElementById('btnSaveMassive');
+        const modalElement = document.getElementById('listaestudiantes');
+        let registeredIdsInDatabase = [];
+                const SexEnumMap = {
+            'm': 1, 'masculino': 1, '1': 1,
+            'f': 2, 'femenino': 2, '2': 2
+        };
+
+        const EthnicEnumMap = {
+            'mestizo': 1, '1': 1,
+            'miskito': 2, '2': 2,
+            'creole': 3, 'kriol': 3, '3': 3,
+            'garifuna': 4, '4': 4,
+            'mayangna': 5, 'sumu': 5, '5': 5,
+            'rama': 6, '6': 6,
+            'otro': 7, '7': 7
+        };
+        // Array global para almacenar temporalmente los datos leídos del CSV
+        let estudiantesLista = [];
+
+
+        btnImport.addEventListener('click', function() {
+            inputImport.click();
+        });
+
+        inputImport.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(evt) {
+                const contenido = evt.target.result;
+                const lineas = contenido.split(/\r?\n/);
+                let listaIdsParaValidar = [];
+                tbodyStudents.innerHTML = ""; // Limpiar tabla
+                estudiantesLista = []; // Limpiar array global
+                let indexValido = 0;
+                // Empezamos en i = 1 para saltarnos la fila del encabezado del CSV
+                for (let i = 1; i < lineas.length; i++) {
+                    if (lineas[i].trim() === "") continue; // Ignorar líneas vacías
+
+                    // Detectar automáticamente separador (coma o punto y coma)
+                    const separador = lineas[i].includes(';') ? ';' : ',';
+                    const columnas = lineas[i].split(separador);
+                    const rawSex = columnas[3]?.trim().toLowerCase() || '';
+                    const rawEthnic = columnas[4]?.trim().toLowerCase() || '';
+
+                    // Mapeo basándonos en el orden de tu tabla (ID, Nombre, Apellido, Sexo, Etnia, Movil, Email)
+                    const estudiante = {
+                        id: columnas[0]?.trim() || '',
+                        name: columnas[1]?.trim() || '',
+                        lastName: columnas[2]?.trim() || '',
+                        sexo: SexEnumMap[rawSex] || 0,
+                        ethnic: EthnicEnumMap[rawEthnic] || 2,
+                        cellphone: columnas[5]?.trim() || '00000000',
+                        email: columnas[6]?.trim() || ''
+                    };
+
+                    estudiantesLista.push(estudiante);
+                    if(estudiante.id) {
+                        listaIdsParaValidar.push(estudiante.id);
+                    }
+                    const dbCheckExists = registeredIdsInDatabase.includes(estudiante.id);
+                    const dataValidation =validateStudentData(estudiante);;
+
+                    let claseFila = "";
+                    let badgeEstado = "";
+
+                    if (dbCheckExists) {
+                        claseFila = "table-danger-light";
+                        badgeEstado = `<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i> Ya Registrado</span>`;
+                    } else if (!dataValidation.valid) {
+                        claseFila = "table-warning-light"; // Color naranja de advertencia por campos vacíos o malos
+                        badgeEstado = `<span class="badge bg-warning text-dark"><i class="fas fa-ban me-1"></i> ${dataValidation.error}</span>`;
+                    } else {
+                        badgeEstado = `<span class="badge bg-success"><i class="fas fa-check me-1"></i> Listo</span>`;
+                    }
+
+                    // Crear la fila HTML en tiempo real
+                    const fila = document.createElement('tr');
+                    fila.id = `fila-estudiante-${indexValido}`;
+                    if (claseFila) fila.classList.add(claseFila);
+                    fila.innerHTML = `
+                        <td class="editable-cell fw-bold text-dark" onclick="activarEdicion(this)">
+                            <span class="cell-text">${estudiante.id}</span>
+                            <input type="text" class="cell-input fw-bold text-dark" value="${estudiante.id}"
+                                data-index="${indexValido}" data-prop="id" onkeydown="manejarTeclado(event, this)" onblur="desactivarEdicion(this)"/>
+                        </td>
+                        <td onclick="activarEdicion(this)">
+                            <span class="cell-text"> ${estudiante.name}</span>
+                            <input type="text" class="cell-input" value="${estudiante.name}"
+                                data-index="${indexValido}" data-prop="name" onkeydown="manejarTeclado(event, this)" onblur="desactivarEdicion(this)">
+                        </td>
+                        <td onclick="activarEdicion(this)">
+                            <span class="cell-text">${estudiante.lastName}</span>
+                            <input type="text" class="cell-input" value="${estudiante.lastName}"
+                                data-index="${indexValido}" data-prop="lastName" onkeydown="manejarTeclado(event, this)" onblur="desactivarEdicion(this)">
+                        </td>
+                        <td class="text-center">
+                            <select class="form-select form-select-sm border-0 bg-transparent fw-semibold text-center"
+                                    data-index="${indexValido}" data-prop="sexo" onchange="actualizarSeleccionEnum(this)">
+                                <option value="1" ${estudiante.sexo === 1 ? 'selected' : ''}>Femenino</option>
+                                <option value="2" ${estudiante.sexo === 2 ? 'selected' : ''}>Masculino</option>
+                    </select>
+
+                        </td>
+                        <td onclick="activarEdicion(this)">
+                                    <select class="form-select form-select-sm border-0 bg-transparent fw-semibold text-center" onchange="actualizarSeleccionEnum(this)"
+                             data-index="${indexValido}" data-prop="ethnic">
+                                <option value="1" ${estudiante.ethnic == 1 ? 'selected' : ''} >Mestizo</option>
+                                <option value="2" ${estudiante.ethnic == 2 ? 'selected' : ''} >Miskito</option>
+                                <option value="3" ${estudiante.ethnic == 3 ? 'selected' : ''} >Creole</option>
+                                <option value="4" ${estudiante.ethnic == 4 ? 'selected' : ''} >Garifona</option>
+                                <option value="5" ${estudiante.ethnic == 5 ? 'selected' : ''}>Mayagna</option>
+                                <option value="6" ${estudiante.ethnic == 6 ? 'selected' : ''}>Rama</option>
+                                <option value="7" ${estudiante.ethnic == 7 ? 'selected' : ''}>Otro</option>
+                            </select>
+                        </td>
+                            
+                        <td onclick="activarEdicion(this)">
+                            <span class="cell-text">${estudiante.cellphone}</span>
+                            <input type="text" class="cell-input" value="${estudiante.cellphone}"
+                           data-index="${indexValido}" data-prop="cellphone" onkeydown="manejarTeclado(event, this)" onblur="desactivarEdicion(this)">
+                        </td>
+                        <td class="text-muted small" onclick="activarEdicion(this)">
+                            <span class="cell-text">${estudiante.email} </span>
+                            <input type="email" class="cell-input text-muted small" value="${estudiante.email}"
+                           data-index="${indexValido}" data-prop="email" onkeydown="manejarTeclado(event, this)" onblur="desactivarEdicion(this)">
+                        </td>
+                        <td class="cell-status">
+                             <span class="badge text-bg-secondary">validando..</span>
+                        </td>
+                        <td>
+                        <button type="button" class="btn btn-link text-danger btn-sm p-0" onclick="eliminarFilaTemporal(${indexValido})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button> </td>
+                    `;
+                    tbodyStudents.appendChild(fila);
+                    indexValido ++;
+                }
+                        evaluarDisponibilidadBotonGuardar();
+                // Si se cargaron datos, habilitar el botón de guardado masivo
+                if (estudiantesLista.length > 0) {
+                    //btnSaveMassive.disabled = false;
+                    evaluarDisponibilidadBotonGuardar();
+                    await verificarDuplicadosServidor(listaIdsParaValidar);
+                } else {
+                    tbodyStudents.innerHTML = `<tr><td colspan="9" class="text-center text-danger">El archivo está vacío o no tiene el formato correcto.</td></tr>`;
+                    btnSaveMassive.disabled = true;
+                }
+            };
+            reader.readAsText(file, "UTF-8"); // "UTF-8" asegura que se lean bien las tildes y eñes
+        });
+
+        // Función para enviar todo el JSON al servidor con Fetch
+        async function guardarEstudiantesMasivo() {
+            if (estudiantesLista.length === 0) return;
+
+            btnSaveMassive.disabled = true;
+            btnSaveMassive.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Guardando...`;
+
+            try {
+                // Apunta al método masivo en tu controlador C#
+                const respuesta = await fetch('/Student/AgregarMasivo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(estudiantesLista)
+                });
+
+                if (respuesta.ok) {
+                    // Si usas SweetAlert puedes descomentar la línea de abajo, de lo contrario el alert nativo funciona
+                       mostrarToast('Exito',`¡Éxito! Se registraron ${listaLimpiaEnviar.length} estudiantes correctamente.`, 'success');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1200);
+                } else {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Hubo un problema al guardar la lista en la base de datos. Verifique los campos.');
+                btnSaveMassive.disabled = false;
+                btnSaveMassive.innerHTML = `<i class="fas fa-cloud-arrow-up me-2"></i> Guardar Estudiantes`;
+            }
+        }
+        modalElement.addEventListener('show.bs.modal', function () {
+            // 1. Resetear el input file (así el usuario puede volver a cargar el mismo archivo si quiere)
+            inputImport.value = "";
+
+            // 2. Limpiar el array global de datos en memoria
+            estudiantesLista = [];
+
+            // 3. Restaurar el mensaje por defecto en el cuerpo de la tabla
+            tbodyStudents.innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-3">
+                        No se ha cargado ningún archivo aún.
+                    </td>
+                </tr>
+            `;
+
+            // 4. Deshabilitar el botón de guardado masivo por seguridad
+            btnSaveMassive.disabled = true;
+            btnSaveMassive.innerHTML = `<i class="fas fa-cloud-arrow-up me-2"></i> Guardar Estudiantes`;
+        });
+        // 1. PASO MÁGICO: Al dar clic a la celda, ocultamos texto y activamos input
+        /*function activarEdicion(celda) {
+            const texto = celda.querySelector('.cell-text');
+            const input = celda.querySelector('.cell-input');
+            if (!input || !texto) return;
+             const nuevoValor = input.value.trim();
+            
+            texto.innerText = nuevoValor;
+            input.style.display = 'none';
+            texto.style.display = 'inline';
+
+          
+            if (input.style.display === 'block') return;
+
+            // Intercambiar visibilidad
+            texto.style.display = 'none';
+            input.style.display = 'block';
+
+            input.focus();
+            input.select(); // Selecciona el texto completo automáticamente para sobrescribir rápido
+            const index = input.getAttribute('data-index');
+            const propiedad = input.getAttribute('data-prop');
+            if (estudiantesLista[index]) {
+                estudiantesLista[index][propiedad] = nuevoValor;
+                revalidarFilaFisica(index);
+            }
+        }*/
+        function activarEdicion(celda) {
+            const texto = celda.querySelector('.cell-text');
+            const input = celda.querySelector('.cell-input');
+
+            // Si la celda no tiene input (como los selects de Sexo/Etnia), salimos de inmediato
+            if (!input || !texto) return;
+
+            // Si ya se está editando esta celda, no hacemos nada
+            if (input.style.display === 'block') return;
+
+            // Intercambiar visibilidad de manera limpia
+            texto.style.display = 'none';
+            input.style.display = 'block';
+
+            // Colocar el cursor y seleccionar el texto para sobrescribir rápido
+            input.focus();
+            input.select();
+        }
+
+        // 2. PASO MÁGICO: Al perder el foco (blur), guardar y regresar a texto fijo
+        function desactivarEdicion(input) {
+            const celda = input.parentElement;
+            const texto = celda.querySelector('.cell-text');
+            if (!texto) return;
+
+            const nuevoValor = input.value.trim();
+
+            // Actualizar el texto estático visible en la pantalla
+            texto.innerText = nuevoValor;
+
+            // Ocultar el input y regresar al texto fijo
+            input.style.display = 'none';
+            texto.style.display = 'inline';
+
+            // Sincronizar el cambio en el estado global (estudiantesLista)
+            const index = input.getAttribute('data-index');
+            const propiedad = input.getAttribute('data-prop');
+
+            if (estudiantesLista[index]) {
+                estudiantesLista[index][propiedad] = nuevoValor;
+
+                // Ejecutar la revalidación AQUÍ, ya que el usuario terminó de escribir
+                revalidarFilaFisica(index);
+            }
+        }
+
+        // 3. PASO MÁGICO: Controlar el comportamiento de las teclas Enter y Tab
+        function manejarTeclado(event, input) {
+            // Si presiona Enter
+            if (event.key === "Enter") {
+                event.preventDefault(); // Evita que envíe formularios nativos
+                input.blur(); // Al quitar el foco, ejecuta automáticamente 'desactivarEdicion'
+            }
+
+            // Si presiona Tab, el comportamiento nativo pasará al siguiente input.
+            // Como al perder el foco se ejecuta el blur, se cerrará sola la celda anterior.
+        }
+        
+        function mostrarMensajeVacio() {
+            tbodyStudents.innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-3">
+                        No quedan registros pendientes en la lista.
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Sincronización del selector de sexo
+        function actualizarSeleccionEnum(select) {
+            const index = select.getAttribute('data-index');
+            const propiedad = select.getAttribute('data-prop'); // 'sexo' o 'ethnic'
+
+            if (estudiantesLista[index]) {
+                estudiantesLista[index][propiedad] = parseInt(select.value);
+                revalidarFilaFisica(index);
+            }
+        }
+        // Permite descartar una fila antes de enviar los datos
+        function eliminarFilaTemporal(index) {
+            // Marcamos el elemento como null o vacío para que el controlador no lo tome en cuenta
+            estudiantesLista[index] = null;
+
+            // Eliminamos el nodo visual
+            const filaDOM = document.getElementById(`fila-estudiante-${index}`);
+            if (filaDOM) filaDOM.remove();
+
+            // Validar si quedan elementos activos en la lista
+            const elementosActivos = estudiantesLista.filter(e => e !== null);
+            if (elementosActivos.length === 0) {
+                mostrarMensajeVacio();
+            }
+
+            // Reemplazo de SweetAlert por Toast de Bootstrap
+            mostrarToast("Eliminar", "Se ha eliminado el registro de la lista temporal.", "warning");
+
+            // Recalcular estado del botón guardar por si acaso
+            evaluarDisponibilidadBotonGuardar();
+        }
+        function mostrarToast(titulo, mensaje, tipo = 'info') {
+            const contenedor = document.querySelector('.toast-container');
+            if (!contenedor) return;
+
+            // Mapeo de colores según el tipo (Bootstrap 5)
+            const bgClass = tipo === 'success' ? 'bg-success text-white' :
+                            tipo === 'danger' ? 'bg-danger text-white' :
+                            tipo === 'warning' ? 'bg-warning text-dark' : 'bg-info text-white';
+
+            const icono = tipo === 'success' ? 'fa-check-circle' :
+                          tipo === 'danger' ? 'fa-exclamation-circle' :
+                          tipo === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+
+            // Crear el elemento ID único para el Toast
+            const toastId = `toast-${Date.now()}`;
+            const toastHtml = `
+                <div id="${toastId}" class="toast align-items-center ${bgClass} border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body d-flex align-items-center">
+                            <i class="fas ${icono} me-2 fs-5"></i>
+                            <div>
+                                <strong class="d-block">${titulo}</strong>
+                                <span class="small">${mensaje}</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+
+            // Insertar en el contenedor
+            contenedor.insertAdjacentHTML('beforeend', toastHtml);
+
+            // Inicializar y mostrar con la API de Bootstrap
+            const elementoToast = document.getElementById(toastId);
+            const bsToast = new bootstrap.Toast(elementoToast, { delay: 4000 }); // Se oculta en 4 segundos
+            bsToast.show();
+
+            // Limpiar el DOM después de que se oculte para no saturar la página
+            elementoToast.addEventListener('hidden.bs.toast', () => {
+                elementoToast.remove();
+            });
+        }
+        async function guardarEstudiantesMasivo() {
+            // Filtramos para enviar únicamente los registros válidos que no fueron eliminados con el basurero
+            const listaLimpiaEnviar = estudiantesLista.filter(e => e !== null);
+
+            if (listaLimpiaEnviar.length === 0) return;
+
+            btnSaveMassive.disabled = true;
+            btnSaveMassive.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Guardando cambios...`;
+
+            try {
+                const respuesta = await fetch('/Student/AgregarMasivo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(listaLimpiaEnviar)
+                });
+
+                if (respuesta.ok) {
+                    mostrarToast('Exito',`¡Éxito! Se registraron ${listaLimpiaEnviar.length} estudiantes correctamente.`, 'success');
+                    setTimeout(() => {
+                window.location.reload();
+            }, 1200);
+                    window.location.reload();
+                } else {
+                    throw new Error('Error de inserción masiva');
+                }
+            } catch (error) {
+                console.error(error);
+                mostrarToast("Error de Servidor", "Hubo un problema al procesar la lista. Revise los formatos e IDs corregidos.", "danger");
+
+                btnSaveMassive.disabled = false;
+                btnSaveMassive.innerHTML = `<i class="fas fa-cloud-arrow-up me-2"></i> Confirmar e Importar Lista`;
+            }
+        }
+        async function verificarDuplicadosServidor(ids) {
+            if(ids.length === 0) return;
+
+            try {
+                const response = await fetch('/Student/CheckExistingIds', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(ids)
+                });
+
+                if (response.ok) {
+                    const idsExistentes = await response.json(); // Array de strings con los IDs que ya existen
+                    registeredIdsInDatabase = idsExistentes;
+                    // Recorrer las filas renderizadas para cambiar su diseño si están duplicadas
+                    estudiantesLista.forEach((estudiante, index) => {
+                        if (estudiante === null) return;
+
+                        const filaDOM = document.getElementById(`fila-estudiante-${index}`);
+                        if (!filaDOM) return;
+
+                        const contenedorEstado = filaDOM.querySelector('.cell-status');
+
+                        if (idsExistentes.includes(estudiante.id)) {
+                            // Marcamos visualmente la fila en rojo tenue y cambiamos el badge
+                            filaDOM.classList.add('table-danger-light');
+                            contenedorEstado.innerHTML = `<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i> Ya Registrado</span>`;
+                        } else {
+                            // El estudiante es totalmente nuevo y apto
+                            filaDOM.classList.remove('table-danger-light');
+                            contenedorEstado.innerHTML = `<span class="badge bg-success"><i class="fas fa-check me-1"></i> Listo</span>`;
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Error validando los IDs:", error);
+            }
+        }
+        
+        function revalidarFilaFisica(index) {
+            const estudiante = estudiantesLista[index];
+            const filaDOM = document.getElementById(`fila-estudiante-${index}`);
+            if (!filaDOM) return;
+
+            const contenedorEstado = filaDOM.querySelector('.cell-status');
+
+            const dbCheckExists = registeredIdsInDatabase.includes(estudiante.id);
+            const dataValidation = validateStudentData(estudiante);
+
+            // Resetear clases previas
+            filaDOM.classList.remove('table-danger-light', 'table-warning-light');
+
+            if (dbCheckExists) {
+                filaDOM.classList.add('table-danger-light');
+                contenedorEstado.innerHTML = `<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i> Ya Registrado</span>`;
+            } else if (!dataValidation.valid) {
+                filaDOM.classList.add('table-warning-light');
+                contenedorEstado.innerHTML = `<span class="badge bg-warning text-dark"><i class="fas fa-ban me-1"></i> ${dataValidation.error}</span>`;
+            } else {
+                contenedorEstado.innerHTML = `<span class="badge bg-success"><i class="fas fa-check me-1"></i> Listo</span>`;
+            }
+
+            evaluarDisponibilidadBotonGuardar();
+        }
+
+        // Evita guardar el lote completo si al menos un estudiante tiene errores de formato o vacíos
+        function evaluarDisponibilidadBotonGuardar() {
+             const activos = estudiantesLista.filter(e => e !== null);
+
+            if (activos.length === 0) {
+                btnSaveMassive.disabled = true;
+                return;
+            }
+
+            // Verificar si hay algún estudiante con datos inválidos
+            let hayErrores = false;
+            for (let i = 0; i < estudiantesLista.length; i++) {
+                if (estudiantesLista[i] === null) continue;
+
+                const validacion = validateStudentData(estudiantesLista[i]);
+                const esDuplicado = registeredIdsInDatabase.includes(estudiantesLista[i].id) 
+                if (!validacion.valid || esDuplicado) {
+                    hayErrores = true;
+                    break;
+                }
+            }
+
+            // Deshabilitar botón si existen errores en la tabla
+            btnSaveMassive.disabled = hayErrores;
+        }
+    </script>
+
+    <style>
+        /* Indica visualmente que la celda es interactiva */
+        #tbodyCsvStudents td.editable-cell {
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.15s ease;
+        }
+
+            #tbodyCsvStudents td.editable-cell:hover {
+                background-color: rgba(13, 110, 253, 0.08) !important; /* Destello azul tenue */
+            }
+
+        /* Ocultar el input por defecto */
+        .cell-input {
+            display: none;
+            width: 100%;
+            padding: 2px 6px;
+            border: 1px solid #0d6efd;
+            border-radius: 4px;
+            font-size: inherit;
+        }
+
+    </style>
 }
