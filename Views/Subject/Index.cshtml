@@ -71,8 +71,16 @@
                             <td>@subject.SubjectId</td>
                             <td>@subject.SubjetName</td>
                             <td>
-                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                <button 
+                                    class="btn btn-sm btn-info" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editSubjectModal"
+                                    onclick="prepareEditModal('@subject.SubjectId', '@subject.SubjetName', '@career.CareerId', '@subject.AcademiYear', '@subject.Semester', '@subject.Credits', '@subject.Area')"
+                                    title="Editar Asignatura"
+                                >
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" title="Eliminar Asignatura"><i class="fas fa-trash"></i></button>
                                 <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#modalViewCourse"
                                     onclick="loadCourses('@subject.SubjectId', '@subject.SubjetName')" title="Ver Cursos">
                                     <i class="fas fa-list"></i>
@@ -261,6 +269,93 @@
         </div>
     </div>
 </div>
+<!--Edit Subject Modal -->
+    <div class="modal fade" id="editSubjectModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit text-info me-2"></i>Editar Asignatura</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditAsignatura">
+                        <input type="hidden" id="editSubjectIdHidden" />
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" class="form-control" id="editCodigoAsignatura" placeholder="Código" readonly disabled>
+                                    <label class="form-label">Código</label>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" class="form-control" id="editNombreAsignatura" placeholder="Insertar Nombre" required>
+                                    <label class="form-label">Nombre de Asignatura *</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3 form-floating">
+                                    <select class="form-select" id="editCarreraAsignatura" asp-items="@(ViewBag.CareerList)" required>
+                                        <option value="" disabled>Seleccionar Carrera</option>
+                                    </select>
+                                    <label for="editCarreraAsignatura" class="form-label">Carrera *</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3 form-floating">
+                                    <input type="number" class="form-control" id="editAcademicYear" placeholder="Año Académico" required>
+                                    <label class="form-label">Año Académico *</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3 form-floating">
+                                    <select class="form-select" id="editSemester" required>
+                                        <option value="" disabled>Seleccionar Semestre *</option>
+                                        <option value="I">I Semestre</option>
+                                        <option value="II">II Semestre</option>
+                                        <option value="III">III Semestre</option>
+                                        <option value="IV">IV Semestre</option>
+                                        <option value="V">V Semestre</option>
+                                        <option value="VI">VI Semestre</option>
+                                        <option value="VII">VII Semestre</option>
+                                        <option value="VIII">VIII Semestre</option>
+                                        <option value="IX">IX Semestre</option>
+                                        <option value="X">X Semestre</option>
+                                        <option value="XI">XI Semestre</option>
+                                        <option value="XII">XII Semestre</option>
+                                    </select>
+                                    <label for="editSemester" class="form-label">Semestre</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3 form-floating">
+                                    <input type="number" class="form-control" id="editCredits" placeholder="Créditos" required>
+                                    <label class="form-label">Créditos *</label>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" class="form-control" id="editArea" placeholder="Insertar Área" required>
+                                    <label class="form-label">Área de Conocimiento *</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-info text-white" onclick="updateSubject()">Actualizar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }else{
 <div class="text-center py-5">
     <div class="card shadow-sm border-0 bg-light">
@@ -303,10 +398,11 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" onclick="saveCareer()">Guardar</button>
             </div>
+           
         </div>
     </div>
 </div>
-
+ 
 }
 
 
@@ -429,19 +525,19 @@
                         
                         const row = `
                             <tr>
-                                <td><span class="fw-bold">${curso.academicYear}</span></td>
+                                <td><span class="fw-bold">${curso.year}</span></td>
                                 <td>
-                                    <span class="badge bg-success rounded-pill">${curso.studentCount}</span>
+                                    <span class="badge bg-success rounded-pill">${curso.students}</span>
                                 </td>
                                 <td>
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="switch-${curso.id}" ${checked} disabled>
+                                        <input class="form-check-input" type="checkbox" id="switch-${curso.courseId}" ${checked} disabled>
                                     </div>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary">
+                                    <a href="/Course/${curso.courseId}/Details" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-eye"></i> Ver
-                                    </button>
+                                    </a>
                                 </td>
                             </tr>
                         `;
@@ -455,6 +551,70 @@
                 loading.style.display = 'none';
                 tbody.innerHTML = '<tr><td colspan="4" class="text-danger text-center">Error al cargar datos</td></tr>';
                 console.error(error);
+            });
+        }
+        // Función para cargar los datos de la fila seleccionada dentro del modal de edición
+        function prepareEditModal(subjectId, subjectName, careerId, academicYear, semester, credits, area) {
+        document.getElementById('editSubjectIdHidden').value = subjectId;
+        document.getElementById('editCodigoAsignatura').value = subjectId;
+        document.getElementById('editNombreAsignatura').value = subjectName;
+        document.getElementById('editCarreraAsignatura').value = careerId;
+        document.getElementById('editAcademicYear').value = academicYear;
+        document.getElementById('editSemester').value = semester;
+        document.getElementById('editCredits').value = credits;
+        document.getElementById('editArea').value = area;
+        }
+
+        // Función para procesar la actualización mediante Fetch
+        function updateSubject() {
+        const subjectId = document.getElementById('editSubjectIdHidden').value;
+        const subjetName = document.getElementById('editNombreAsignatura').value;
+        const careerId = document.getElementById('editCarreraAsignatura').value;
+        const academiYear = document.getElementById('editAcademicYear').value;
+        const semeter = document.getElementById('editSemester').value;
+        const area = document.getElementById('editArea').value;
+        const credits = document.getElementById('editCredits').value;
+
+        if (!subjetName || !careerId || !academiYear || !semeter || !area || !credits) {
+        Swal.fire('Atención', 'Complete todos los campos obligatorios antes de actualizar', 'warning');
+        return;
+        }
+
+        const data = {
+        SubjectId: subjectId,
+        SubjetName: subjetName,
+        CareerId: parseInt(careerId),
+        AcademiYear: parseInt(academiYear),
+        Semester: semeter,
+        Area: area,
+        Credits: parseInt(credits)
+        };
+
+        // Apunta a la acción correspondiente en tu controlador de asignaturas
+        const url = "@Url.Action("EditSubject", "Subject")";
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': getToken()
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Error en la respuesta del servidor");
+                    return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Actualizado', data.message, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                Swal.fire('Error', 'No se pudo comunicar con el servidor para actualizar', 'error');
             });
         }
     </script>
