@@ -62,7 +62,8 @@ public class SubjectController : Controller
             .Include(e => e.Enrollments)
             .Select(c => new
             {
-                c.Year,
+                courseId = c.IdCourse,
+                year = c.Year,
                 students = c.Enrollments.Count(),
                 c.isActive
 
@@ -95,5 +96,51 @@ public class SubjectController : Controller
             .Select( e => new { Credit = e.Credits}).FirstOrDefaultAsync();
         if( subjectCredit?.Credit == 0) return Json(new {success = false, data = "N/D"});
         return Json(new {success = true, data = subjectCredit});
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken] // Valida el token enviado en las cabeceras HTTP
+    public async Task<IActionResult> EditSubject([FromBody] Subject model)
+    {
+        // 1. Validar que el modelo sea correcto según las data annotations
+        if (!ModelState.IsValid)
+        {
+            return Json(new { success = false, message = "Los datos proporcionados no son válidos." });
+        }
+
+        try
+        {
+            // 2. Buscar si la asignatura existe en la base de datos
+            var subjectDb = await _context.Subjects
+                .FirstOrDefaultAsync(s => s.SubjectId == model.SubjectId);
+
+            if (subjectDb == null)
+            {
+                return Json(new { success = false, message = "La asignatura no fue encontrada." });
+            }
+
+            // 3. Actualizar las propiedades deseadas
+            subjectDb.SubjetName = model.SubjetName;
+            subjectDb.CareerId = model.CareerId;
+            subjectDb.AcademiYear = model.AcademiYear; // O AcademiYear según tu entidad
+            subjectDb.Semester = model.Semester;
+            subjectDb.Area = model.Area;
+            subjectDb.Credits = model.Credits;
+
+            // 4. Guardar los cambios asíncronamente
+            _context.Subjects.Update(subjectDb);
+            await _context.SaveChangesAsync();
+
+            // 5. Retornar respuesta de éxito para SweetAlert2
+            return Json(new { success = true, message = "La asignatura se ha actualizado correctamente." });
+        }
+        catch (DbUpdateException ex)
+        {
+            // Errores de restricciones de clave foránea o base de datos
+            return Json(new { success = false, message = "Error de consistencia en la base de datos: " + ex.InnerException?.Message });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = "Ocurrió un error inesperado: " + ex.Message });
+        }
     }
 }
