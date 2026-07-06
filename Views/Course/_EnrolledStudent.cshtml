@@ -32,6 +32,188 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="modalViewStudentProgress" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">
+                        <i class="fa-solid fa-user-graduate text-primary me-2"></i>
+                        Detalle Académico: <span id="lblNombreEstudiante" class="fw-bold text-dark"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+
+                    <ul class="nav nav-tabs mb-3" id="studentTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general-pane" type="button" role="tab" aria-selected="true">
+                                <i class="fa-solid fa-id-card me-1"></i> Datos Generales
+                            </button>
+                        </li>
+                        
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="parcial1-tab" data-bs-toggle="tab" data-bs-target="#parcial1-pane" type="button" role="tab" aria-selected="false">
+                                I Parcial
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="parcial2-tab" data-bs-toggle="tab" data-bs-target="#parcial2-pane" type="button" role="tab" aria-selected="false">
+                                II Parcial
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="studentTabContent">
+                        <div class="tab-pane fade show active p-2" id="general-pane" role="tabpanel" aria-labelledby="general-tab">
+                            <div class="tab-pane fade show active p-2" id="general-pane" role="tabpanel" aria-labelledby="general-tab">
+
+                                <div class="card bg-light border-0 mb-4 shadow-sm">
+                                    <div class="card-body row g-3">
+                                        <div class="col-md-12">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control-plaintext border-bottom ps-2 fw-bold text-dark" id="txtCourse" readonly value="-">
+                                                <label class="text-muted small"><i class="fa-solid fa-book me-1"></i> Asignatura / Curso</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control-plaintext border-bottom ps-2 text-dark" id="txtStudentId" value="-" readonly>
+                                                <label class="text-muted small"> <i class="fa-solid fa-hashtag me-1"></i>Carnet</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control-plaintext border-bottom ps-2 text-dark fw-bold" id="txtStudent" value="-" readonly>
+                                                <label class="text-muted small"> <i class="fa-solid fa-id-card me-1"></i>Nombre del Estudiante</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control-plaintext border-bottom ps-2 text-dark" id="txtAsistencia" readonly value="-">
+                                                <label class="text-muted small"><i class="fa-solid fa-calendar-check text-success me-1"></i> % Asistencia</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control-plaintext border-bottom ps-2 text-dark" id="txtStudentEmail" readonly value="-">
+                                                <label class="text-muted small"><i class="fa-solid fa-envelope me-1"></i> Email</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control-plaintext border-bottom ps-2 text-dark" id="txtStudentSex" readonly value="-">
+                                                <label class="text-muted small"><i class="fa-solid fa-venus-mars me-1"></i> Sexo</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control-plaintext border-bottom ps-2 text-dark" id="txtStudentEthnic" readonly value="-">
+                                                <label class="text-muted small"><i class="fa-solid fa-users-line me-1"></i> Etnia</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h6 class="fw-bold mb-3 text-secondary border-bottom pb-1"><i class="fa-solid fa-chart-pie me-1"></i> Cuadro de Calificaciones Sumarias</h6>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle text-center" id="tblConsolidadoAcademico">
+                                            <thead class="table-dark small">
+                                                <tr>
+                                                    <th style="width: 40%; text-align: left;">Criterio de Evaluación</th>
+                                                    <th style="width: 30%;">I Parcial</th>
+                                                    <th style="width: 30%;">II Parcial</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-start text-muted">Subtotal Trabajos (Acumulado)</td>
+                                                    <td class="fw-bold text-primary"><span id="lblResumenTrabajosP1">0</span> / <span id="lblMaxTrabajosP1">0</span></td>
+                                                    <td class="fw-bold text-primary"><span id="lblResumenTrabajosP2">0</span> / <span id="lblMaxTrabajosP2">0</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-start text-muted"><i class="fa-solid fa-file-signature text-danger me-1"></i> Examen Parcial</td>
+                                                    <td class="fw-bold text-primary"><span id="lblResumenExamenP1">0</span> / <span id="lblMaxExamenP1">0</span></td>
+                                                    <td class="fw-bold text-primary"><span id="lblResumenExamenP2">0</span> / <span id="lblMaxExamenP2">0</span></td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="table-info fw-bold h6">
+                                                    <td class="text-start">Total Nota del Parcial</td>
+                                                    <td class="text-success"><span id="lblResumenTotalP1">0</span> / <span id="lblMaxTotalP1">50</span></td>
+                                                    <td class="text-success"><span id="lblResumenTotalP2">0</span> / <span id="lblMaxTotalP2">50</span></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade p-2" id="parcial1-pane" role="tabpanel" aria-labelledby="parcial1-tab">
+                            <!-- desglose de todas la actividades del parcial-->
+                            <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-list-check me-1"></i> Desglose de Actividades Evaluadas</h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle">
+                                    <thead class="table-secondary text-center small fw-bold">
+                                        <tr>
+                                            <th style="width: 60%; text-align: left;">Descripción de Trabajos / Tareas</th>
+                                            <th style="width: 20%;">Puntaje Max.</th>
+                                            <th style="width: 20%;">Nota Obt.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bodyTrabajosP1">
+                                        <tr>
+                                            <td colspan="3">
+                                                <div class="text-center text-secondary">
+                                                    <div>
+                                                        <i class="fas fa-ban fa-2x"></i>
+                                                    </div>
+                                                    <p> No hay tareas una registrado </p>  
+                                                    <button class="btn btn-outline-success"> <i class=" fas fa-plus-circle"></i> Tarea </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr class="table-light h6">
+                                        <td>Acumulado</td>
+                                        <td class="text-center" id="maxTrabajosP1">0</td>
+                                        <td class="text-center text-primary" id="notTrabajosP1">0</td>
+                                    </tr>
+                                    <tr class="table-light">
+                                        <td><i class="fa-solid fa-file-signature text-danger me-1"></i> Examen</td>
+                                        <td class="text-center" id="maxExamenP1">0</td>
+                                        <td class="text-center text-primary" id="notExamenP1">0</td>
+                                    </tr>
+                                    <tr class="table-info">
+                                        <td>Total Nota</td>
+                                        <td class="text-center" id="maxTotalP1_Detalle">0</td>
+                                        <td class="text-center text-success" id="notTotalP1">0</td>
+                                    </tr>
+                                </tfoot>
+                                </table>
+                            </div>
+                            
+                        </div>
+
+                        <div class="tab-pane fade p-2" id="parcial2-pane" role="tabpanel" aria-labelledby="parcial2-tab">
+                           <!-- desglose de todas la actividades del parcial-->
+                        </div>
+
+                    </div> <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Cálculos basados en el reglamento académico vigente.</span>
+                    <div class="h5 mb-0">Nota Final Curso: <span id="lblNotaFinalCurso" class="badge bg-success">0</span></div>
+                </div>
+
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar Historial</button>
+            </div>
+        </div>
+    </div>
+</div>
 }else{
     <div class="text-center py-5" id="enrollmentEmpty">
         <div class="mb-3">
@@ -104,5 +286,120 @@
         });
     });
 });
-  
+  async function preparedStudentInfoModal(data){
+      console.log(data);
+      const inputStudentId = document.getElementById('txtStudentId');
+      const inputCareerName = document.getElementById('txtCourse');
+      const inputStudentName = document.getElementById('txtStudent');
+      const inputStudentEmail = document.getElementById('txtStudentEmail');
+      const inputStudentSexo = document.getElementById('txtStudentSex');
+      const inputStudentEthnic = document.getElementById('txtStudentEthnic');
+      document.getElementById('lblNombreEstudiante').innerText = data.studentName;
+      inputCareerName.value = data.course;
+      inputStudentId.value = data.studentId;
+      inputStudentName.value = data.studentName;
+      inputStudentEmail.value = data.email;
+      inputStudentSexo.value = data.sex
+      inputStudentEthnic.value = data.ethinc;
+
+      const tabList = document.getElementById('studentTab');
+      const tabContent = document.getElementById('studentTabContent');
+
+      const elementosDinamicosTabs = tabList.querySelectorAll('.nav-item:not(:first-child)');
+      elementosDinamicosTabs.forEach(el => el.remove());
+
+      document.getElementById('tblConsolidadoAcademico').innerHTML = '<div class="text-center py-2 text-muted">Cargando matriz...</div>';
+
+      const courseId = data.courseId;
+      const enrollmentId = parseInt(data.enrollmentId);
+      const result = await fetch(`/Course/${parseInt(data.courseId)}/StudentProgress/${parseInt(data.enrollmentId)}`);
+      if(result.ok){
+        const response = await result.json();
+        const studentData = response.data;
+        console.log( studentData );
+        document.getElementById('txtAsistencia').value = studentData.porcentajeAsistencia + "%";
+        document.getElementById('lblNotaFinalCurso').innerText = studentData.notaFinal;
+        document.getElementById('lblNotaFinalCurso').className = studentData.notaFinal >= 60 ? "badge bg-success px-3 py-2" : "badge bg-danger px-3 py-2";
+
+        let thCortes = `<th style="text-align: left;">Criterio de Evaluación</th>`;
+        let trTrabajos = `<tr><td class="text-start text-muted">Subtotal Trabajos (Acumulados)</td>`;
+        let trExamenes = `<tr><td class="text-start text-muted"><i class="fa-solid fa-file-signature text-danger me-1"></i> Examen Parcial</td>`;
+        let trTotales  = `<tr class="table-info fw-bold h6"><td class="text-start">Total Nota del Parcial</td>`;
+            // --- ITERAR LOS CORTES DINÁMICOS RECIBIDOS DEL SERVIDOR ---
+                    studentData.cortes.forEach((corte, index) => {
+                        const idPane = `pane-corte-${corte.termId}`;
+                        const idTab = `tab-corte-${corte.termId}`;
+
+                        // 1. Agregar el botón de la Pestaña Detallada
+                        const newTabLi = document.createElement('li');
+                        newTabLi.className = 'nav-item';
+                        newTabLi.role = 'presentation';
+                        newTabLi.innerHTML = `<button class="nav-link text-secondary" id="${idTab}" data-bs-toggle="tab" data-bs-target="#${idPane}" type="button" role="tab">${corte.nombreCorte} (Detalle)</button>`;
+                        tabList.appendChild(newTabLi);
+
+                        // 2. Construir la Matriz Comparativa para la Pestaña General
+                        thCortes   += `<th style="width: 25%;">${corte.nombreCorte} <br><small class="text-muted">Valor: ${corte.pesoSobreNotaFinal}%</small></th>`;
+                        trTrabajos += `<td class="fw-bold text-primary">${corte.notTrabajos} / ${corte.maxTrabajos}</td>`;
+                        trExamenes += `<td class="fw-bold text-primary">${corte.notExamen} / ${corte.maxExamen}</td>`;
+                        trTotales  += `<td class="text-success">${corte.notTotalCorte} / ${corte.maxTotalCorte}</td>`;
+
+                        // 3. Crear el contenedor del panel detallado para este corte específico
+                        let filasTrabajosDetalle = "";
+                        if(corte.trabajosDetalle.length > 0) {
+                            corte.trabajosDetalle.forEach(t => {
+                                filasTrabajosDetalle += `<tr><td>${t.descripcion}</td><td class="text-center">${t.puntajeMax}</td><td class="text-center fw-bold">${t.notaObtenida}</td></tr>`;
+                            });
+                        } else {
+                            filasTrabajosDetalle = `<tr><td colspan="3" class="text-center text-muted">No hay asignaciones registradas.</td></tr>`;
+                        }
+
+                        const newPane = document.createElement('div');
+                        newPane.className = 'tab-pane fade p-2';
+                        newPane.id = idPane;
+                        newPane.role = 'tabpanel';
+                        newPane.innerHTML = `
+                            <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-list-check me-1"></i> Desglose Evaluativo - ${corte.nombreCorte}</h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle">
+                                    <thead class="table-secondary text-center small fw-bold">
+                                        <tr>
+                                            <th style="width: 60%; text-align: left;">Descripción de Trabajos / Tareas</th>
+                                            <th style="width: 20%;">Puntaje Max.</th>
+                                            <th style="width: 20%;">Nota Obt.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>${filasTrabajosDetalle}</tbody>
+                                    <tfoot>
+                                        <tr class="table-light fw-bold text-end">
+                                            <td>Subtotal Trabajos (Acumulado)</td>
+                                            <td class="text-center">${corte.maxTrabajos}</td>
+                                            <td class="text-center text-primary">${corte.notTrabajos}</td>
+                                        </tr>
+                                        <tr class="fw-bold text-end table-light">
+                                            <td><i class="fa-solid fa-file-signature text-danger me-1"></i> Examen del Corte</td>
+                                            <td class="text-center">${corte.maxExamen}</td>
+                                            <td class="text-center text-primary">${corte.notExamen}</td>
+                                        </tr>
+                                        <tr class="table-info fw-bold text-end h6">
+                                            <td>Total Nota del Corte</td>
+                                            <td class="text-center">${corte.maxTotalCorte}</td>
+                                            <td class="text-center text-success">${corte.notTotalCorte}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>`;
+                        tabContent.appendChild(newPane);
+                    });
+                    trTrabajos += `</tr>`; trExamenes += `</tr>`; trTotales += `</tr>`;
+                        // Inyectar el consolidado completo estructurado horizontalmente
+                    document.getElementById('tblConsolidadoAcademico').innerHTML = `
+                        <thead class="table-dark small"><tr>${thCortes}</tr></thead>
+                        <tbody>${trTrabajos}${trExamenes}</tbody>
+                        <tfoot>${trTotales}</tfoot>`;
+
+      }else{
+              Swal.fire('Atención', result.message, 'warning');
+      }
+
+  }
 </script>

@@ -793,5 +793,109 @@ public class CourseController : Controller
 
         return Json(asistenciaInfo); // Retorna los datos que el fetch leerá de forma automática
     }
+    [HttpGet("/Course/{courseid}/StudentProgress/{enrollment}")]
+    public async Task<IActionResult> GetStudentProgress(int courseid, int enrollment)
+    {
+        try
+        {
+            if (enrollment <= 0 || courseid <= 0)
+            {
+                return Json(new { success = false, message = "Los parámetros de consulta no son válidos." });
+            }
 
+            var studentEnrollment = await _context.Enrollments
+                .FirstOrDefaultAsync(e => e.EnrollmentId == enrollment && e.IdCourse == courseid);
+
+            if (studentEnrollment == null)
+            {
+                return Json(new { success = false, message = "El estudiante no se encuentra matriculado." });
+            }
+
+            // 1. CÁLCULO DE ASISTENCIA
+            decimal porcentajeAsistencia = 0;
+            var detallesAsistencia = await _context.AttendancesDetails
+                .Include(ad => ad.Attendance)
+                .Where(ad => ad.EnrollmentId == enrollment && ad.Attendance.IdCourse == courseid)
+                .ToListAsync();
+
+            if (detallesAsistencia.Any())
+            {
+                decimal totalHorasCurso = detallesAsistencia.Select(ad => ad.Attendance).Distinct().Sum(a => (decimal)a.TotalHours);
+                decimal totalHorasAsistidas = detallesAsistencia.Sum(ad => (decimal)ad.HoursAttended);
+                if (totalHorasCurso > 0) porcentajeAsistencia = Math.Round((totalHorasAsistidas / totalHorasCurso) * 100, 2);
+            }
+
+            // 2. RECUPERAR TODOS LOS CORTES DINÁMICOS
+            var cortesAcademicos = await _context.AcademicTerms
+                .Where(at => at.CourseId == courseid)
+                .Include(at => at.Assignments)
+                    .ThenInclude(a => a.Grades.Where(g => g.EnrollmentId == enrollment))
+                .OrderBy(at => at.TermId)
+                .ToListAsync();
+
+            // 3. PROCESAR CORTES EN UN CICLO DINÁMICO
+
+            int cantidadCortes = cortesAcademicos.Count;
+
+            var listaCortesProcesados = cortesAcademicos.Select((corte, index) => {
+
+                // Separar tareas acumulativas y exámenes usando tu discriminador IsExam
+                var trabajos = corte.Assignments.Where(a => !a.IsExam).Select(a => new {
+                    descripcion = a.Title,
+                    puntajeMax = a.MaxPoints,
+                    notaObtenida = a.Grades.FirstOrDefault()?.Score ?? 0
+                }).ToList();
+
+                var examenObj = corte.Assignments.Where(a => a.IsExam).Select(a => new {
+                    descripcion = a.Title,
+                    puntajeMax = a.MaxPoints,
+                    notaObtenida = a.Grades.FirstOrDefault()?.Score ?? 0
+                }).FirstOrDefault();
+
+                // Totales directos del corte
+                double maxTrabajos = trabajos.Sum(t => t.puntajeMax);
+                double notTrabajos = trabajos.Sum(t => t.notaObtenida);
+                double maxExamen = examenObj?.puntajeMax ?? 0;
+                double notExamen = examenObj?.notaObtenida ?? 0;
+                double totalNotaCorte = notTrabajos + notExamen;
+                double maxNotaCorte = maxTrabajos + maxExamen;
+
+                return new
+                {
+                    termId = corte.TermId,
+                    nombreCorte = corte.Name, // Ej: "I Corte Evaluativo"
+                    pesoSobreNotaFinal = corte.WeightOnFinalGrade,
+                    maxTrabajos = maxTrabajos,
+                    notTrabajos = notTrabajos,
+                    maxExamen = maxExamen,
+                    notExamen = notExamen,
+                    maxTotalCorte = maxNotaCorte,
+                    notTotalCorte = totalNotaCorte,
+                    trabajosDetalle = trabajos
+                };
+            }).ToList();
+
+            var prom = listaCortesProcesados.Sum(a => a.notTotalCorte) / listaCortesProcesados.Count;
+            // 4. RESPUESTA MAPEADA EN ARRAYS DINÁMICOS
+            double notaFinalGlobal = 0;
+            if(cantidadCortes > 0)
+            {
+                notaFinalGlobal = listaCortesProcesados.Sum(a => a.notTotalCorte) / listaCortesProcesados.Count;
+            }
+            var responseData = new
+            {
+                porcentajeAsistencia = porcentajeAsistencia,
+                notaFinal = notaFinalGlobal,
+                cortes = listaCortesProcesados // Array dinámico de N cortes
+            };
+
+            return Json(new { success = true, data = responseData });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = "Error: " + ex.Message });
+        }
+    }
+  
 }
+
