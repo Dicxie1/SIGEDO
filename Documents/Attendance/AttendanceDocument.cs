@@ -113,14 +113,6 @@ public class AttendanceDocument : IDocument
             }
             });
 
-            IContainer HeaderStyle(IContainer c) => c
-                .Background(UraccanBlue)
-                .Border(1)
-                .BorderColor(Colors.White)
-                .Padding(2)
-                .AlignMiddle()
-                .AlignCenter();
-
             // 3. Filas de Datos
             foreach (var student in _model.Students)
             {

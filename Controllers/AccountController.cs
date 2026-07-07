@@ -51,7 +51,7 @@ namespace Asistencia.Controllers
                 return View(model);
             }
             var user = await _userManager.FindByEmailAsync(model.Email);
-            _logger.LogInformation($" el CORREO: {user!.Email}, Usuarios: {user.UserName} contraseña: {model.Password}");
+            _logger.LogInformation($" el CORREO: {user?.Email ?? "null"}, Usuarios: {user?.UserName ?? "null"} contraseña: {model.Password}");
             if(user != null && !user.IsActive )
             {
                 ViewData["Error"] = "Su cuenta ha sido desactivada. Contacte a RRHH.";

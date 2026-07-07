@@ -9,14 +9,21 @@ using Asistencia.Models.DTOs;
 using QRCoder.Extensions;
 using Asistencia.Extensions;
 using Asistencia.Services;
+using Asistencia.Documents.FullReport;
+using Asistencia.Documents.FullReport.Models;
+using Asistencia.Documents.Attendance.Models;
 namespace Asistencia.Controllers;
 
 public class CourseController : Controller
 {
     private readonly ApplicationDbContext _context;
-    public CourseController(ApplicationDbContext context)
+    private readonly AttendanceService _attendanceService;
+    private readonly ReportTermService _progressService;
+    public CourseController(ApplicationDbContext context, AttendanceService attendanceService, ReportTermService progressService)
     {
         _context = context;
+        _attendanceService = attendanceService;
+        _progressService = progressService;
     }
     public IActionResult Index()
     {
@@ -815,12 +822,12 @@ public class CourseController : Controller
             decimal porcentajeAsistencia = 0;
             var detallesAsistencia = await _context.AttendancesDetails
                 .Include(ad => ad.Attendance)
-                .Where(ad => ad.EnrollmentId == enrollment && ad.Attendance.IdCourse == courseid)
+                .Where(ad => ad.EnrollmentId == enrollment && ad.Attendance!.IdCourse == courseid)
                 .ToListAsync();
 
             if (detallesAsistencia.Any())
             {
-                decimal totalHorasCurso = detallesAsistencia.Select(ad => ad.Attendance).Distinct().Sum(a => (decimal)a.TotalHours);
+                decimal totalHorasCurso = detallesAsistencia.Select(ad => ad.Attendance).Distinct().Sum(a => (decimal)a!.TotalHours);
                 decimal totalHorasAsistidas = detallesAsistencia.Sum(ad => (decimal)ad.HoursAttended);
                 if (totalHorasCurso > 0) porcentajeAsistencia = Math.Round((totalHorasAsistidas / totalHorasCurso) * 100, 2);
             }
@@ -895,6 +902,75 @@ public class CourseController : Controller
         {
             return Json(new { success = false, message = "Error: " + ex.Message });
         }
+    }
+    [HttpGet("/Course/{courseid}/DownloadFullReportPDF")]
+    public async Task<IActionResult> DownloadFullReportPDF(int courseid)
+    {
+        var terms = await _context.AcademicTerms
+        .Include(t => t.Assignments)
+            .ThenInclude(t => t.Grades)
+        .Where(t => t.CourseId == courseid)
+        .OrderBy(a => a.TermId)
+        .AsNoTracking()
+        .ToListAsync();
+        var enrollmentGrade = await _context.Enrollments
+        .Where(e => e.IdCourse == courseid)
+        .Include(e => e.Student)
+        .Include(e => e.Grades)
+        .OrderBy(e => e.Student!.LastName)
+        .ToListAsync();
+        var studentRows = enrollmentGrade.Select(e => CalculateStudentRow(e, terms)).ToList();
+        var gradeBook = new GradebookViewModel
+        {
+            CourseId = courseid,
+            CourseName = _context.Courses.Where(x => x.IdCourse == courseid).Select(x => x.Subject!.SubjetName).FirstOrDefault() ?? "S/N",
+            Terms = terms.Select(t => new TermHeaderDto
+            {
+                TermId = t.TermId,
+                Name = t.Name,
+                Weight = t.WeightOnFinalGrade,
+                Assignments = t.Assignments.OrderBy(e => e.IsExam).ThenBy(e => e.DueDate).Select(a => new AssignmentHeaderDto
+                {
+                    AssignmentId = a.AssignmentId,
+                    Title = a.Title,
+                    MaxPoints = a.MaxPoints,
+                    IsExam = a.IsExam
+                }).ToList()
+            }).ToList(),
+            Students = studentRows
+        };
+        var programmaticProgressMap = new Dictionary<int, ProgrammaticProgressViewModel>();
+        foreach (var term in terms)
+        {
+            var progress = await _progressService.GetTermProgressAsync(courseid, term.TermId);
+            if (progress != null)
+            {
+                programmaticProgressMap.Add(term.TermId, progress);
+            }
+        }
+        AttendanceReportModel attendanceReport = await _attendanceService.GetReportDataAsync(courseid);
+        if (attendanceReport == null) return BadRequest();
+        List<AttentionRecordRowViewModel> atenciones = await _context.AttentionRecords
+        .Where(ar => ar.CourseId == courseid)
+        .Select(ar => new AttentionRecordRowViewModel
+        {
+            DateStr = ar.Date.ToString("dd/MM/yyyy"),
+            Observation = ar.Observation,
+            Category = ar.Category.ToString(), // O mapeo amigable a español
+            Priority = ar.Priority.ToString(),
+            Status = ar.Status.ToString(),
+            StudentNames = ar.Participants.Select(p => $"{p.Enrollment!.Student!.Name} {p.Enrollment.Student.LastName}" ).ToList()
+        }).ToListAsync();
+        var full = new FullAcademicReportViewModel
+        {
+            ProgrammaticProgress = programmaticProgressMap!,
+            Attendance = attendanceReport,
+            AttentionRecord = atenciones,
+            GradeBook = gradeBook
+        };
+        var document = new  FullAcademicReportDoc(full);
+        byte[] pdfBytes = document.GeneratePdf();
+        return File(pdfBytes, "application/pdf");
     }
   
 }
