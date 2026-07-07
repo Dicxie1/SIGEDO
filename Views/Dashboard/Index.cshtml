@@ -170,7 +170,12 @@
                                         @if (percentage >= 100)
                                         {
                                             <button class="btn btn-sm btn-outline-danger" title="Desactivar Curso"><i class="fas fa-box-archive"></i></button>
-                                            <button class="btn btn-sm btn-outline-success" title="Descargar Informe"> <i class="fas fa-download"></i> </button>
+                                            <a 
+                                                asp-controller="Course"
+                                                asp-action="DownloadFullReportPDF"
+                                                asp-route-courseid="@course.CourseID"
+                                                target="_blank"
+                                                class="btn btn-sm btn-outline-success" title="Descargar Informe"> <i class="fas fa-download"></i> </a>
                                         }
                                         <button class="btn btn-sm btn-outline-secondary "><i class="fas fa-chart-line"></i></button>
                                     </td>
