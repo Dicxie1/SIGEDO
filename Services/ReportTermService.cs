@@ -1,17 +1,21 @@
 using Asistencia.Data;
+using Asistencia.Documents.Attendance.Models;
+using Asistencia.Documents.FullReport.Models;
 using Asistencia.Models;
-using Microsoft.EntityFrameworkCore;
 using Asistencia.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace Asistencia.Services;
 
 public class ReportTermService
 {
     private readonly ApplicationDbContext _context;
+    private readonly AttendanceService _attendanceService;
 
-    public ReportTermService(ApplicationDbContext context)
+    public ReportTermService(ApplicationDbContext context, AttendanceService attendanceService )
     {
         _context = context;
+        _attendanceService = attendanceService;
     }
 
     public async Task<ProgrammaticProgressViewModel> GetTermProgressAsync(int courseId, int termId)
@@ -178,4 +182,100 @@ public class ReportTermService
         "XI" or "XII" => "Sexto Año",
         _ => ">Desconocido"
     };
+    public async Task<FullAcademicReportViewModel> GetCourseAnaliticReport(int courseId) 
+    {
+        var terms = await _context.AcademicTerms
+        .Include(t => t.Assignments)
+            .ThenInclude(t => t.Grades)
+        .Where(t => t.CourseId == courseId)
+        .OrderBy(a => a.TermId)
+        .AsNoTracking()
+        .ToListAsync();
+        var enrollmentGrade = await _context.Enrollments
+        .Where(e => e.IdCourse == courseId)
+        .Include(e => e.Student)
+        .Include(e => e.Grades)
+        .OrderBy(e => e.Student!.LastName)
+        .ToListAsync();
+        var studentRows = enrollmentGrade.Select(e => CalculateStudentRow(e, terms)).ToList();
+        var gradeBook = new GradebookViewModel
+        {
+            CourseId = courseId,
+            CourseName = _context.Courses.Where(x => x.IdCourse == courseId).Select(x => x.Subject!.SubjetName).FirstOrDefault() ?? "S/N",
+            Terms = terms.Select(t => new TermHeaderDto
+            {
+                TermId = t.TermId,
+                Name = t.Name,
+                Weight = t.WeightOnFinalGrade,
+                Assignments = t.Assignments.OrderBy(e => e.IsExam).ThenBy(e => e.DueDate).Select(a => new AssignmentHeaderDto
+                {
+                    AssignmentId = a.AssignmentId,
+                    Title = a.Title,
+                    MaxPoints = a.MaxPoints,
+                    IsExam = a.IsExam
+                }).ToList()
+            }).ToList(),
+            Students = studentRows
+        };
+        var programmaticProgressMap = new Dictionary<int, ProgrammaticProgressViewModel>();
+        foreach (var term in terms)
+        {
+            var progress = await GetTermProgressAsync(courseId, term.TermId);
+            if (progress != null)
+            {
+                programmaticProgressMap.Add(term.TermId, progress);
+            }
+        }
+        AttendanceReportModel attendanceReport = await _attendanceService.GetReportDataAsync(courseId);
+        if (attendanceReport == null) throw new Exception("Asistencia vacio");
+        List<AttentionRecordRowViewModel> atenciones = await _context.AttentionRecords
+        .Where(ar => ar.CourseId == courseId)
+        .Select(ar => new AttentionRecordRowViewModel
+        {
+            DateStr = ar.Date.ToString("dd/MM/yyyy"),
+            Observation = ar.Observation,
+            Category = ar.Category.ToString(), // O mapeo amigable a español
+            Priority = ar.Priority.ToString(),
+            Status = ar.Status.ToString(),
+            StudentNames = ar.Participants.Select(p => $"{p.Enrollment!.Student!.Name} {p.Enrollment.Student.LastName}").ToList()
+        }).ToListAsync();
+        var full = new FullAcademicReportViewModel
+        {
+            ProgrammaticProgress = programmaticProgressMap!,
+            Attendance = attendanceReport,
+            AttentionRecord = atenciones,
+            GradeBook = gradeBook,
+            Syllabus = await _context.SyllabusItems.Where(c => c.CourseId == courseId).AsNoTracking().ToListAsync()
+        };
+        return full;
+    }
+    private StudentRowDto CalculateStudentRow(Enrollment enrollment, List<AcademicTerm> terms)
+    {
+        var gradesDict = enrollment.Grades.ToDictionary(g => g.AssignmentId, g => g.Score ?? 0);
+        double grandTotal = 0;
+        int activeTermsCount = terms.Count; // Divisor para promedio simple
+
+        foreach (var term in terms)
+        {
+            // Sumar tareas de este corte
+            double termSum = term.Assignments
+                .Where(a => gradesDict.ContainsKey(a.AssignmentId))
+                .Sum(a => gradesDict[a.AssignmentId]);
+
+            grandTotal += termSum;
+        }
+
+        // FÓRMULA: Promedio Simple de Cortes (Sumatoria / Cantidad)
+        double finalGrade = activeTermsCount > 0 ? (grandTotal / activeTermsCount) : 0;
+
+        return new StudentRowDto
+        {
+            EnrollmentId = enrollment.EnrollmentId,
+            StudentFullName = $"{enrollment!.Student!.LastName}, {enrollment.Student.Name}",
+            StudentId = enrollment.Student.Id,
+            StudentInitials = $"{enrollment?.Student?.Name?.FirstOrDefault()}{enrollment?.Student?.LastName?.FirstOrDefault()}",
+            Grades = gradesDict,
+            FinalGrade = Math.Round(finalGrade, 2) // Redondeo a 2 decimales
+        };
+    }
 }
