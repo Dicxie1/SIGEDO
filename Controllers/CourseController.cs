@@ -19,11 +19,13 @@ public class CourseController : Controller
     private readonly ApplicationDbContext _context;
     private readonly AttendanceService _attendanceService;
     private readonly ReportTermService _progressService;
-    public CourseController(ApplicationDbContext context, AttendanceService attendanceService, ReportTermService progressService)
+    private readonly SyllabusService _syllabusService;
+    public CourseController(ApplicationDbContext context, AttendanceService attendanceService, ReportTermService progressService, SyllabusService syllabusService)
     {
         _context = context;
         _attendanceService = attendanceService;
         _progressService = progressService;
+        _syllabusService = syllabusService;
     }
     public IActionResult Index()
     {
@@ -966,12 +968,25 @@ public class CourseController : Controller
             ProgrammaticProgress = programmaticProgressMap!,
             Attendance = attendanceReport,
             AttentionRecord = atenciones,
-            GradeBook = gradeBook
+            GradeBook = gradeBook,
+            Syllabus = await _syllabusService.GetByCourseAsync(courseid)
         };
         var document = new  FullAcademicReportDoc(full);
         byte[] pdfBytes = document.GeneratePdf();
         return File(pdfBytes, "application/pdf");
     }
+    [HttpPost("Course/{courseid}/DownloadReportPDF")]
+    public async Task<IActionResult> DownloadReport(int courseid, [FromBody] FullAcademicReportViewModel model) 
+    {
+        FullAcademicReportViewModel reportData = await _progressService.GetCourseAnaliticReport(courseid);
+        if (reportData == null) return NotFound();
+        if (string.IsNullOrEmpty(model.MarkdownContent)) return BadRequest();
+        reportData.MarkdownContent = model.MarkdownContent;
+        var document = new FullAcademicReportDoc(reportData);
+        byte[] pdfBytes = document.GeneratePdf();
+        return File(pdfBytes, "application/pdf");
+    }
+
   
 }
 

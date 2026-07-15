@@ -1,0 +1,39 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Vista previa";
+}
+
+<div class="row">
+    <div class="col">
+        <h3 class="h3 text-primary">Texto</h3>
+        <textarea class="w-100 h-100" id="content">@ViewBag.Instruction</textarea>
+    </div>
+    <div class="col">
+        <div id="previewVisualizer"></div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+         document.addEventListener("DOMContentLoaded", function () {
+        const editor = document.getElementById("content");
+        const visualizer = document.getElementById("previewVisualizer");
+
+        // Función encargada de transformar Markdown a HTML
+        function updatePreview() {
+        const markdownText = editor.value;
+        // marked.parse() convierte el texto plano a HTML estructurado
+        visualizer.innerHTML = marked.parse(markdownText);
+        }
+
+        // Escuchar el evento de escritura del usuario
+        editor.addEventListener("input", updatePreview);
+
+        // Renderizar el contenido inicial al cargar la página por primera vez
+        updatePreview();
+        });
+    </script>
+}

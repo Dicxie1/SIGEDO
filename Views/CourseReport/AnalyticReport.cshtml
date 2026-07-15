@@ -1,0 +1,547 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Asistencia.Models.Analytics.AcademicPreviewViewModel
+@{
+    ViewData["Title"] = "Revision Preliminar de Informe";
+}
+
+<div class="container-fluid d-flex flex-column" style="height:85vh;">
+    <form asp-action="ExportPDF" method="post" id="reportForm" class="d-flex flex-column h-100">
+        <input type="hidden" asp-for="CourseId" />
+        <input type="hidden" asp-for="CourseName" />
+        <header class="row align-items-center bg-white border rounded p-3 mb-3 shadow-sm mx-0">
+            <div class="col-md-8 col-12">
+                <h1 class="h4 text-primary mb-1 fw-bold">Revisión Preliminar del Informe Académico</h1>
+                <p class="text-muted small mb-0">Asignatura: <span class="badge bg-light text-dark border fw-semibold">@Model.CourseName</span></p>
+                <div id="streamingAlert" class="mt-2 small text-info d-flex align-items-center">
+                    <div id="statusIndicator" class="text-primary me-2" role="status"></div>
+                    <span id="statusText"></span>
+                </div>
+            </div>
+            <div class="col-md-4 col-12 text-md-end text-start mt-3 mt-md-0">
+                <button type="button" id="btnApprove" class="btn btn-warning text-white fw-bold shadow-sm px-4" disabled>
+                    <i class="fas fa-file-arrow-down me-1"></i> Generar PDF
+                </button>
+            </div>
+        </header>
+        <div class="row g-3 flex-grow-1 mb-4" style="max-height:170px">
+            <div class="col-md-8 col-12 d-flex flex-column" style="max-height:170px">
+                <div class="card h-100 shadow-sm border-primary bg-white">
+                    <div class="card-header bg-light text-primary d-flex align-items-center justify-content-between py-2 border-bottom">
+                        <span class="fw-bold font-monospace">
+                            <i class="fas fa-project-diagram me-1"></i> Fases de redacción de informe 
+                        </span>
+                        <span id="pipelineStatusBadge" class="badge bg-primary font-monospace small">
+                            Inicializando...
+                        </span>
+                    </div>
+                    <div class="card-body p-3 d-flex align-items-center justify-content-center">
+                        <div class="pipeline-container">
+                            <div class="pipeline-line-bg">
+                                <div class="pipeline-line-progress" id="pipelineProgressLine"></div>
+                            </div>
+                            <div class="pipeline-step active" id="step-rag_retrieval">
+                                <div class="pipeline-icon-wrapper shadow-sm">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <div class="pipeline-step-title">RAG Context</div>
+                                <div class="pipeline-step-status">Procesando...</div>
+                            </div>
+                            <div class="pipeline-step pending" id="step-block_1">
+                                <div class="pipeline-icon-wrapper shadow-sm">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="pipeline-step-title">Objetivos</div>
+                                <div class="pipeline-step-status">Pendiente</div>
+                            </div>
+                            <div class="pipeline-step pending" id="step-block_2">
+                                <div class="pipeline-icon-wrapper shadow-sm">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <div class="pipeline-step-title">Logros y Desafios</div>
+                                <div class="pipeline-step-status">Pendiente</div>
+                            </div>
+                            <div class="pipeline-step pending" id="step-block_3">
+                                <div class="pipeline-icon-wrapper shadow-sm">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="pipeline-step-title">Perspectiva futuras</div>
+                                <div class="pipeline-step-status">Pendiente</div>
+                            </div>
+                            <div class="pipeline-step pending" id="step-completed">
+                                <div class="pipeline-icon-wrapper shadow-sm">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="pipeline-step-title">Completo</div>
+                                <div class="pipeline-step-status">Pendiente</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-12 d-flex flex-column" style="max-height: 170px">
+                <div class="card h-100 shadow-sm border-info bg-dark text-light">
+                    <div class="card-header bg-black text-info d-flex align-items-center justify-content-between py-2 border-bottom border-secondary">
+                        <span class="fw-bold small font-monospace">Log de Asistente</span>
+                        <span class="badge bg-secondary text-light font-monospace small">Live Logs</span>
+                    </div>
+                    <div class="card-body p-3 font-monospace overflow-auto" id="reasoningConsole" style="font-size: 0.85rem; color: #a8ffb2; max-height: calc(85vh - 180px);">
+                        <div class="text-light mb-2">
+                            <div class="mb-1 text-info">
+                                <span class="text-warning" id="startPrompt">[]</span> <span>&gt;_ Iniciando agente...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 g-3 flex-grow-1 min-vh-0 mb-2">
+
+            <div class="col d-flex flex-column h-100">
+                <div class="card h-100 shadow-sm border-secondary-subtle">
+                    <div class="card-header bg-light d-flex align-items-center justify-content-between py-2">
+                        <span class="fw-bold text-secondary small">📝 Análisis Generado por IA (Modificable)</span>
+                        <span class="badge bg-secondary-subtle text-secondary font-monospace small">Markdown</span>
+                    </div>
+                    <div class="card-body p-0 d-flex flex-grow-1">
+                        <textarea asp-for="MarkdownContent" id="markdownEditor"
+                                  class="form-control border-0 bg-light font-monospace p-3 h-100 w-100"
+                                  style="resize: none; outline: none; font-size: 0.95rem; min-height: 400px;"
+                                  placeholder="Escribe o edita el análisis académico aquí utilizando Markdown..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col d-flex flex-column h-100">
+                <div class="card h-100 shadow-sm border-primary-subtle">
+                    <div class="card-header bg-primary-subtle text-primary d-flex align-items-center py-2">
+                        <span class="fw-bold small">👁️ Vista Previa del Documento Final</span>
+                    </div>
+                    <div class="card-body p-3 overflow-auto bg-white border-top custom-markdown-preview"
+                         id="previewVisualizer"
+                         style="max-height: calc(85vh - 180px); min-height: 400px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-labelledby="pdfPreviewModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="pdfPreviewModalLabel">
+                    <i class="fa fa-file-pdf text-danger"></i> Vista Previa del Informe Institucional - URACCAN
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="pdfIframe" style="width: 100%; height: 75vh; border: none;"></iframe>
+            </div>
+            <div class="modal-footer bg-light">
+                <span class="text-muted me-auto small">
+                    <i class="fa fa-circle-info"></i> Use los controles del visor para imprimir o descargar el archivo físico.
+                </span>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar Vista Previa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #reasoningConsole::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    #reasoningConsole::-webkit-scrollbar-thumb {
+        background: #444;
+        border-radius: 4px;
+    }
+
+    .custom-markdown-preview h1,
+    .custom-markdown-preview h2,
+    .custom-markdown-preview h3 {
+        color: #0d6efd; /* Cambia al color primario de tu paleta si usas variables de Bootstrap */
+        font-weight: 600;
+        margin-top: 1.2rem;
+        margin-bottom: 0.6rem;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 0.25rem;
+    }
+
+    .custom-markdown-preview h1 {
+        font-size: 1.4rem;
+    }
+
+    .custom-markdown-preview h2 {
+        font-size: 1.25rem;
+    }
+
+    .custom-markdown-preview h3 {
+        font-size: 1.1rem;
+    }
+
+    .custom-markdown-preview ul,
+    .custom-markdown-preview ol {
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .custom-markdown-preview li {
+        margin-bottom: 0.25rem;
+    }
+    .pipeline-container
+    {
+        position: relative;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 10px;
+    }
+    .pipeline-line-bg
+    {
+        position: absolute;
+        top: 19px;
+        left: 30px;
+        right: 30px;
+        height: 4px;
+        background: #e2e8f0;
+        z-index: 1;
+        border-radius: 2px;
+    }
+    .pipeline-line-progress
+    {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+        z-index :2;
+        border-radius: 2px;
+        transition: width 0.4s ease;
+        box-shadow: 0 0 8px rgba(13, 110, 253, 0.5);
+    }
+    .pipeline-step
+    {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 18%;
+    }
+    .pipeline-icon-wrapper
+    {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 3px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 0.95rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275 )
+    }
+    .pipeline-step-title{
+        font-size: 0.75rem;
+        color: #475569;
+        font-weight: 600;
+        margin-top: 4px;
+        white-space: nowrap;
+        transition: color 0.3s ease;
+    }
+    .pipeline-step-status
+    {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        white-space: nowrap;
+    }
+    .pipeline-step.pending .pipeline-icon-wrapper
+    {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #94a3b8;  
+    }
+    .pipeline-step.active .pipeline-icon-wrapper
+    {
+        background: #198754;
+        border-color: #198754;
+        color: #ffffff;
+        box-shadow: 0 0 8px rgba(25, 135, 84, 0.3);
+        transform: scale(1.8);
+        animation: pulse-glow 2s infinite;
+    }
+
+    .pipeline-step.active .pipeline-step-title {
+        color: #ffffff;
+        font-weight: 700;
+    }
+    .pipeline-step.completed .pipeline-icon-wrapper
+    {
+        background: #198754;
+        border-color: #198754;
+        color: #ffffff;
+        box-shadow: 0 0 8px rgba(25, 135, 84, 0.3);
+
+    }
+    .pipeline-step.completed .pipeline-step-title
+    {
+        color: #198745;
+    }
+    .pipeline.error .pipeline-icon-wrapper
+    {
+        background: #dc3545;
+        border-color: #dc3545;
+        color: #ffffff;
+        animation: shake 0.5s ease-in-out;
+    }
+    .pipeline.error .pipeline-step-title
+    {
+        color: #dc3545;
+    }
+
+    @@keyframes shake
+    {
+        0%, 100% {transform: translateX(0);}
+        25% {transform: translateX(-4px);}
+        75% {transform: translateX(4px);}
+
+    }
+    </style>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const startPrompt = document.getElementById('startPrompt');
+            const courseId = "@Model.CourseId";
+            const editor = document.getElementById("markdownEditor");
+            const visualizer = document.getElementById("previewVisualizer");
+            const consoleLog = document.getElementById("reasoningConsole");
+            const btnApprove = document.getElementById("btnApprove");
+            const statusIndicator = document.getElementById("statusIndicator");
+            const streamingAlert = document.getElementById("streamingAlert");
+            const statusText = document.getElementById("statusText");
+            editor.value = "";
+            let accumulatedMarkdown = "";
+            let currentBlockIndex = 1;
+
+        startPrompt.innerText = `[${new Date().toLocaleTimeString()}]`;
+        // Función encargada de transformar Markdown a HTML
+        function updatePreview() {
+            visualizer.innerHTML = marked.parse(editor.value);
+        }
+
+        // Escuchar el evento de escritura del usuario
+        editor.addEventListener("input", updatePreview);
+        const eventSource = new EventSource(`/Course/${courseId}/StreamAnalyticReport`);
+
+        eventSource.onmessage = function (event){
+        console.log("Chunk recibido:", event.data);
+            try{
+            let decodedChunck =new TextDecoder().decode(
+                Uint8Array.from(atob(event.data), c => c.charCodeAt(0))
+            );
+            console.log(decodedChunck);
+                
+                accumulatedMarkdown += decodedChunck;
+                editor.value = accumulatedMarkdown;
+                updatePreview();
+
+                visualizer.scrollTop = visualizer.scrollHeight;
+
+                if (currentBlockIndex === 1 && /# objetivo/i.test(accumulatedMarkdown) && !consoleLog.innerHTML.includes("Syllabus con los objetivos")) {
+                    logReasoning("Analizando correlación del Syllabus con los objetivos generales...");
+                }
+                else if (currentBlockIndex === 2 && /# logros/i.test(accumulatedMarkdown)) {
+                    currentBlockIndex = 2;
+                    logReasoning("Bloque 1 completado con éxito. Procesando métricas de aprobación y tutorías de riesgo...");
+                }
+                else if (currentBlockIndex === 2 && /# desafíos|# desafios/i.test(accumulatedMarkdown) && !consoleLog.innerHTML.includes("Dificultades de infraestructura")) {
+                    logReasoning("Evaluando dificultades de infraestructura tecnológica y rendimiento estudiantil...");
+                }
+                else if (currentBlockIndex === 4 && /# perspectivas/i.test(accumulatedMarkdown)) {
+                    currentBlockIndex = 3;
+                    logReasoning("Bloque 2 completado con éxito. Formulando recomendaciones de mejora académica e innovación pedagógica...");
+                }
+
+            }catch(e){
+            console.error("Error procesando streaming:", e);
+            }
+        }
+        eventSource.addEventListener("status", function(e){
+            console.log("Chuck recibido", e.data);
+            try{
+                const status = JSON.parse(e.data);
+                updatePipeline(status.stage, status.message);
+                logReasoning(status.message);
+            }catch(error)
+            {
+                console.error("Error al parsear status: " , error)
+            }
+        });
+
+        eventSource.onerror = function (err)
+        {
+            console.log("Flujo  terminado o conexion cerrada");
+            eventSource.close();
+            if(editor.value.length > 0)
+            {
+                finalizePipeline(true);
+            }else{
+                finalizePipeline(false);
+                logReasoning("❌ se ha interrumpido la conexion o ocurrio un error en el servidor");
+            }
+
+            btnApprove.removeAttribute("disabled");
+        };
+        function logReasoning(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement("div");
+            logEntry.className = "mb-1 text-info";
+            logEntry.innerHTML = `<span class="text-warning">[${timestamp}]</span> <span class="text-white">&gt;</span> ${message}`;
+            consoleLog.appendChild(logEntry);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+
+        function updatePipeline(stage, message){
+            const steps = ["rag_retrieval", "block_1", "block_2", "block_3", "completed"];
+            const stageIndex = steps.indexOf(stage);
+            if(stageIndex === -1 && stage !== "error" ) return;
+            
+            const badge = document.getElementById("pipelineStatusBadge");
+            
+            if(stage === "error")
+            {
+                if(badge){
+                    badge.innerText = "Error de Procesamiento";
+                    badge.className = "badge font-monospace small bg-danger";
+                }
+                const  activeStep = document.querySelector(".pipeline-step.active");
+                if(activeStep){
+                    activeStep.className = "pipeline-step error";
+                    const statuEl = activeStep.querySelector(".pipeline-step-status");
+                    if(statuEl) statuEl.innerText = "Fallo";
+                }
+                finalizePipeline(false);
+                return;
+            }
+            if(badge){
+                badge.innerText = getStageBadgeLabel(stage);
+                badge.className = `badge font-monospace small ${stage === 'completed' ? 'bg-success' : 'bg-primary'}`;
+            }
+            steps.forEach((step, idx) =>{
+                const stepEL = document.getElementById(`step-${step}`);
+                if(!stepEL) return;
+                const statusEl = stepEL.querySelector(".pipeline-step-status");
+                
+                if(idx < stageIndex){
+                    stepEL.className = "pipeline-step completed";
+                    if(statusEl ) statusEl.innerText = "Completado";
+                }else if(idx ===stageIndex )
+                {
+                    stepEL.className = "pipeline-step active";
+                if(statusEl) statusEl.innerHTML =`Procesando...<div class="spinner-border spinner-border-sm ms-2" role="status" style="height: 10px; width: 10px;"></div> `;
+                }else{
+                    stepEL.className = "pipeline-step pending";
+                    if(statusEl ) statusEl.innerText = "Pediente";
+                }
+            });
+            const progressLine = document.getElementById("pipelineProgressLine");
+            if(progressLine)
+            {
+                let pct = 0;
+                if(stageIndex === 4 ) pct = 100;
+                else  pct = (stageIndex / 4 ) * 100;
+                progressLine.style.width = `${pct}%`;
+            }
+            if(stage === "completed" )
+            {
+                const stepEL = document.getElementById(`step-completed`);
+                const statusEl = stepEL.querySelector(".pipeline-step-status");
+                statusEl.innerHTML = "Finalizado";
+                finalizePipeline(true);
+            }
+        }
+        function getStageBadgeLabel(stage){
+            switch(stage){
+                case "rag_retrieval": return "Fase 1: Contexto RAG";
+                case "block_1": return "Fase 2: Bloque (Objetivos)"
+                case "block_2": return "Fase 3: Bloque (Logros y Desafios)"
+                case "block_3": return "Fase 4: Bloque (Perspectivas)"
+                case "completed": return "Fase 5: Finalización";
+                default: return "Generando...";
+            }
+        }
+        function finalizePipeline(success){
+            statusIndicator.classList.add("d-none");
+            streamingAlert.classList.remove("text-info");
+            if(success){
+                streamingAlert.classList.remove("text-danger");
+                streamingAlert.classList.add("text-success", "fw-bold");
+                statusText.innerHTML = "✅ Análisis consolidado por completo";
+                btnApprove.removeAttribute("disabled");
+            }else{
+                streamingAlert.classList.remove("text-success");
+                streamingAlert.classList.add("text-danger", "fw-bold");
+                statusText.innerHTML = "❌ Fallo en análisis de generación."
+            }
+        }
+        btnApprove.addEventListener("click", async function(e){
+            e.preventDefault();
+            const btn = this;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generando PDF...`;
+            btn.setAttribute("disabled", "true");
+            try{
+                const courseid= "@Model.CourseId";
+                const requestData ={
+                    MarkdownContent : editor.value
+                }
+                const response = await fetch(`/Course/${courseid}/DownloadReportPDF`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body : JSON.stringify(requestData)
+                });
+                if(!response.ok) throw new Error("El servidor no pudo procesar la solicitud.");
+                const pdfBloc = await response.blob();
+                const pdfUrl = URL.createObjectURL(pdfBloc);
+                const iframe = document.getElementById("pdfIframe");
+                iframe.src = pdfUrl;
+
+                const pdfModalElement = document.getElementById('pdfPreviewModal');
+                const pdfModal = new bootstrap.Modal(pdfModalElement);
+                pdfModal.show();
+
+                pdfModalElement.addEventListener('hidden.bs.modal', function () {
+                // Limpiamos el iframe al cerrar para detener procesos secundarios
+                iframe.src = "about:blank";
+                URL.revokeObjectURL(pdfUrl);
+                }, { once: true });
+
+                }catch(e){
+                    console.error("Error al renderizar el PDF:", e);
+                    Swal.fire("Ocurrió un error al compilar el informe. Por favor, intente nuevamente.")
+                }finally{
+                    btn.innerHTML = originalText;
+                    btn.removeAttribute("disabled");
+                }
+        });
+
+        updatePreview();
+        // Renderizar el contenido inicial al cargar la página por primera vez
+            updatePreview();
+            setTimeout(() => logReasoning("Invocando pipeline RAG local mediante Ollama API..."), 500);
+            setTimeout(() => logReasoning("Leyendo tabla estructurada del Syllabus, Asistencia y Atención Estudiantil..."), 1500);
+        });
+    </script>
+}

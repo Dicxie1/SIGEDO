@@ -1,10 +1,11 @@
 using Asistencia.Data;
 using Asistencia.Documents;
 using Asistencia.Models;
+using Asistencia.Services.Analytics;
 using Asistencia.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +60,7 @@ builder.Services.AddSignalR();
 // En tu Program.cs o Startup.cs
 builder.Services.AddScoped<IGradebookExportService, ExcelGradeBookDocument>();
 
+builder.Services.AddTransient<AcademicRagService>();
 
 var app = builder.Build();
 

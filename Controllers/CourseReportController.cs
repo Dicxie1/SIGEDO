@@ -1,23 +1,28 @@
 namespace Asistencia.Controllers;
 
-using System.Threading.Tasks;
 using Asistencia.Data;
+using Asistencia.Documents.FullReport.Models;
 using Asistencia.Documents.ProgrammaticProgress;
 using Asistencia.Models;
+using Asistencia.Models.Analytics;
 using Asistencia.Models.ViewModels;
 using Asistencia.Services;
+using Asistencia.Services.Analytics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
+using System.Threading.Tasks;
 
 public class CourseReportController : Controller
 {
     private readonly ReportTermService _reportService;
     private readonly ApplicationDbContext _context; // Solo para llenar el Select de Cortes
-    public CourseReportController(ReportTermService reportService, ApplicationDbContext context)
+    private readonly AcademicRagService _ragService;
+    public CourseReportController(ReportTermService reportService, ApplicationDbContext context, AcademicRagService ragService)
     {
         _reportService = reportService;
         _context = context;
+        _ragService = ragService;
     }
     [HttpGet("/Course/{courseId}/ProgrammaticProgress/{termId}")]
     public async Task<IActionResult> ProgrammaticProgress(int courseId, int? termId)
@@ -95,5 +100,37 @@ public class CourseReportController : Controller
         byte[] file = document.GeneratePdf();
         return File(file, "application/pdf");
     }
+    [HttpGet("/Course/{courseId}/AnalyticReport")]
+    public async Task<IActionResult> AnalyticReport(int courseId)
+    {
+        FullAcademicReportViewModel reportData = await _reportService.GetCourseAnaliticReport(courseId);
+        if (reportData == null) return BadRequest();
 
+        var viewModel = new AcademicPreviewViewModel
+        {
+            CourseId = courseId,
+            CourseName = reportData.ProgrammaticProgress?.FirstOrDefault().Value?.CourseName ?? "N/A",
+            MarkdownContent = ""
+        };
+        return View(viewModel);
+    }
+    [HttpGet("/Course/{courseid}/AnalyticPreviewReport")]
+    public async Task<IActionResult> AnaliticPreview(int courseid)
+    {
+        FullAcademicReportViewModel reportData = await _reportService.GetCourseAnaliticReport(courseid);
+        if (reportData == null) return BadRequest();
+        ViewBag.Instruction = _ragService.FormatDataToContext(reportData);
+        return View();
+    }
+    [HttpGet("/Course/{courseid}/StreamAnalyticReport")]
+    public async Task StreamAnalyticReport(int courseid)
+    {
+        Response.ContentType = "text/event-stream";
+        Response.Headers.Append("Cache-Control", "no-cache");
+        Response.Headers.Append("Connection", "keep-alive");
+        Response.Headers.Append("X-Accel-Buffering", "no");
+        FullAcademicReportViewModel reportViewModel = await _reportService.GetCourseAnaliticReport(courseid);
+        if (reportViewModel == null) return;
+        await _ragService.GenerateAcademicAnaliticsStreamAsync(reportViewModel, Response.Body);
+    }
 }

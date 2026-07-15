@@ -58,7 +58,7 @@ namespace Asistencia.Controllers
                 
                 return View(model);
             }
-            var result = await _signInManager.PasswordSignInAsync(user!.UserName!, model.Password, model.RememberMe, lockoutOnFailure: true);
+            var result = await _signInManager.PasswordSignInAsync(user?.UserName?? "", model.Password, model.RememberMe, lockoutOnFailure: true);
             if(result.Succeeded)
             {
                 _logger.LogInformation($"Usuario {model.Email } inicio Sessión");

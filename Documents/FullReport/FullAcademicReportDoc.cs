@@ -20,17 +20,24 @@ namespace Asistencia.Documents.FullReport
         {
             container.Page(page =>
             {
-                page.Margin(20);
+                page.Margin(40);
                 page.Size(PageSizes.Letter);
                 page.DefaultTextStyle(x => x.FontSize(9).FontFamily(Fonts.SegoeUI));
                 page.Header().Element(ComposeGlobalHeader);
-                page.Content().PaddingVertical(10).Column(col =>
+                page.Content().PaddingLeft(10).PaddingVertical(20).Column(col =>
                 {
                     col.Item()
                         .Text("I. Datos General".ToUpper())
                         .Bold().FontSize(12).FontColor(UraccanBlue);
                     col.Item().Element(ComposeCourseInfoSection);
                     col.Item().PaddingBottom(15);
+                    if(!string.IsNullOrEmpty(_model.MarkdownContent))
+                    {
+                        col.Item().PaddingBottom(15).Column(markdown =>
+                        {
+                            markdown.RenderMarkdown(_model.MarkdownContent);
+                        });
+                    }
                     col.Item().PaddingBottom(15).Text("II. Avance Programático".ToUpper())
                         .Bold()
                         .FontSize(12)
@@ -57,7 +64,7 @@ namespace Asistencia.Documents.FullReport
             });
             container.Page(page =>
             {
-                page.Margin(20);
+                page.Margin(40);
                 page.Size(PageSizes.Legal.Landscape());
                 page.Header().Element(ComposeGlobalHeader);
                 page.Content().PaddingVertical(10).Column(col =>
@@ -156,9 +163,9 @@ namespace Asistencia.Documents.FullReport
         private void AddMetricCells(TableDescriptor table, double h, double m, double t, bool isPct)
         {
             string sfx = isPct ? "%" : "";
-            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text($"{h}{sfx}").FontSize(6);
-            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text($"{m}{sfx}").FontSize(6);
-            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Background(Colors.Grey.Lighten4).AlignCenter().Text($"{t}{sfx}").Bold().FontSize(6);
+            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text($"{h}{sfx}").FontSize(5.5F);
+            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text($"{m}{sfx}").FontSize(5.5F);
+            table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Background(Colors.Grey.Lighten4).AlignCenter().Text($"{t}{sfx}").Bold().FontSize(5.5F);
         }
         #endregion
         #region  4. Reutilización de Matriz de Asistencia (Tu código de AttendanceDocument)
@@ -275,6 +282,7 @@ namespace Asistencia.Documents.FullReport
                 return;
             }
             int totalAssignmetsCount = gradebook.Terms.Sum(t => (t.Assignments?.Count ?? 0));
+            int totalTermsExtraColumns = gradebook.Terms.Count * 2;
             int totalColumns = 1 + totalAssignmetsCount + 1;
             container.Table(table =>
             {
@@ -283,7 +291,7 @@ namespace Asistencia.Documents.FullReport
                     columns.RelativeColumn(2);
                     foreach(var term in gradebook.Terms)
                     {
-                        foreach(var task in term.Assignments)
+                        foreach(var task in term!.Assignments!)
                         {
                             columns.ConstantColumn(30);
                         }
@@ -294,10 +302,7 @@ namespace Asistencia.Documents.FullReport
                 });
                 table.Header(header =>
                 {
-                    
-                    
-                    header.Cell().Background(Colors.Green.Lighten3).Padding(4).AlignMiddle().Text("").Bold().FontSize(8).FontColor(Colors.Green.Darken3)
-                    ;
+                    header.Cell().Background(Colors.Green.Lighten3).Padding(4).AlignMiddle().Text("").Bold().FontSize(8).FontColor(Colors.Green.Darken3);
                     foreach(var term in gradebook.Terms)
                     {
                         int termColSpan = (term.Assignments?.Count ?? 0) + 2;
@@ -318,12 +323,11 @@ namespace Asistencia.Documents.FullReport
                         .Padding(4).AlignCenter().AlignMiddle()
                         .Text("Nota\nFinal").Bold().FontColor(Colors.White).FontSize(8).AlignCenter();
                     header.Cell().Background(Colors.Green.Lighten3).Padding(2).Text("Nombre de Estudiantes").Bold().FontSize(8).FontColor(Colors.Green.Darken3);
-                    var isfirst = 1;
+                    
                     foreach (var term in gradebook.Terms)
                     {   
                         foreach (var task in term.Assignments!)
                         {
-                           
                             var taskBg = task.IsExam ? Colors.Red.Lighten5 : Colors.White;
                             var taskTextColor = task.IsExam ? Colors.Red.Darken3 : Colors.Blue.Darken3;
                             string shortTitle = task.Title.Length > 9 ? task.Title.Substring(0, 7) + ".." : task.Title;
@@ -340,21 +344,19 @@ namespace Asistencia.Documents.FullReport
                             });
                         }
                         header.Cell().Background(Colors.Grey.Lighten3).Border(1).BorderColor(BorderColorLight).Padding(2).AlignCenter().AlignMiddle()
-                     .Text("Total\nAcum").Bold().FontSize(6.5f).FontColor(Colors.Green.Darken3).AlignCenter();
+                            .Text("Total\nAcum").Bold().FontSize(6.5f).FontColor(Colors.Green.Darken3).AlignCenter();
                         header.Cell().Background(Colors.Grey.Lighten3).Border(1).BorderColor(BorderColorLight).Padding(2).AlignCenter().AlignMiddle()
-                            .Text($"Total\n{term.Name}").Bold().FontSize(7).AlignCenter();
-                        isfirst++;
+                            .Text($"Total\n{term.Name}").Bold().FontSize(7).AlignCenter();   
                     }
-                    
                     header.Cell()
                       .Background(UraccanBlue)
                       .Border(1).BorderColor(Colors.White)
                       .Padding(4).AlignCenter().AlignMiddle()
-                       .Text("Nota\nFinal").Bold().FontColor(Colors.White).FontSize(8).AlignCenter();
+                       .Text("");
                 });
                 int studentIndex = 1;
 
-                foreach(var student in gradebook.Students)
+                foreach(var student in gradebook.Students!)
                 {
                     var rowBg = studentIndex % 2 == 0 ? Colors.Grey.Lighten5 : Colors.White;
                     table.Cell().Background(rowBg).Border(1).BorderColor(BorderColorLight).Padding(4).AlignMiddle().Column(c =>
@@ -380,7 +382,7 @@ namespace Asistencia.Documents.FullReport
                             table.Cell().Background(cellBg).Border(1).BorderColor(BorderColorLight).Padding(2).AlignCenter().AlignMiddle().Text(gradeText).FontSize(7.5f).FontColor(task.IsExam ? Colors.Red.Darken3 : Colors.Black).AlignCenter();
                         }
                         table.Cell().Background(Colors.Grey.Lighten3).Border(1).BorderColor(BorderColorLight).Padding(2).AlignCenter().AlignMiddle()
-                     .Text(taskSum.ToString("0.#")).Bold().FontSize(7.5F).FontColor(Colors.Green.Darken3).AlignCenter();
+                                .Text(taskSum.ToString("0.#")).Bold().FontSize(7.5F).FontColor(Colors.Green.Darken3).AlignCenter();
                         table.Cell().Background(Colors.Grey.Lighten3).Border(1).BorderColor(BorderColorLight).Padding(2).AlignCenter().AlignMiddle().Text($" {termSum.ToString("#.##")}").Bold().FontSize(7.5F).AlignCenter();
                     }
                     string finalGradeText = student.FinalGrade.ToString("0.#");

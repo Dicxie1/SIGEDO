@@ -1,5 +1,6 @@
 ﻿using Asistencia.Models.ViewModels;
 using Asistencia.Documents.Attendance.Models;
+using Asistencia.Models;
 namespace Asistencia.Documents.FullReport.Models
 {
     public class FullAcademicReportViewModel
@@ -7,7 +8,10 @@ namespace Asistencia.Documents.FullReport.Models
         public Dictionary<int, ProgrammaticProgressViewModel?>? ProgrammaticProgress { get; set; }
         public AttendanceReportModel? Attendance { get; set; }
         public List<AttentionRecordRowViewModel>? AttentionRecord { get; set;  }
-        public GradebookViewModel GradeBook { get; set; }
+        public GradebookViewModel? GradeBook { get; set; }
+        public List<SyllabusItem>? Syllabus { get; set; }
+
+        public string? MarkdownContent { get; set; } 
 
     }
     public class AttentionRecordRowViewModel
